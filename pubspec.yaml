@@ -1,6 +1,8 @@
 name: poker_dice
-description: "A poker dice game."
+description: >-
+  A poker dice game.
 publish_to: 'none'
+repository: https://github.com/carlosroman/poker-dice-app
 version: 0.1.0
 
 environment:
