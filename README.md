@@ -3,7 +3,7 @@
 A Flutter‑based implementation of **Yatzy** (not to be confused with Yahtzee), playable on Android devices and the Web.
 
 ## Overview
-Yatzy is a dice‑rolling game where players aim to score the highest total by achieving specific combinations (e.g., Full House, Straight). This app provides a single‑player experience with smooth roll animations, a clear score sheet, and persistent high‑score tracking.
+Yatzy is a dice‑rolling game where players aim to score the highest total by achieving specific combinations (e.g. Two Pair, Full House, Straight, etc.). This app provides a single‑player experience with smooth roll animations, a clear score sheet, and persistent high‑score tracking.
 
 ## Features
 - 🎲 Roll five dice with realistic animation
@@ -11,6 +11,7 @@ Yatzy is a dice‑rolling game where players aim to score the highest total by a
 - 🏆 Persistent high‑score storage
 - 📱 Responsive UI for both mobile (Android) and desktop browsers
 - 🌙 Light / dark theme support
+- 🎨 Choice of dice set ('1,2,3,4,5,6' or '9,10,J,Q,K,A')
 
 ## Platforms
 - **Android** – Tested on API 21+ devices
