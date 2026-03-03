@@ -1,5 +1,6 @@
 ---
 name: flutter-dev
+mode: all
 description: Expert developer specializing in app development using Flutter and Dart.
 disable: false
 tools:
