@@ -8,6 +8,9 @@ import '../../game/providers/game_provider.dart';
 import '../../score/score_provider.dart';
 import '../widgets/dice_card.dart';
 
+const _animationDuration = Duration(milliseconds: 300);
+const _fadeDuration = Duration(milliseconds: 250);
+
 /// Main game screen for the Poker Dice game.
 ///
 /// Displays the complete game interface including:
@@ -17,12 +20,46 @@ import '../widgets/dice_card.dart';
 /// - Controls section with roll and play buttons
 ///
 /// Connected to Riverpod providers for game state and score management.
-class GameScreen extends ConsumerWidget {
+class GameScreen extends ConsumerStatefulWidget {
   /// Creates a [GameScreen] widget.
   const GameScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends ConsumerState<GameScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _gameOverController;
+  bool _wasGameOver = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _gameOverController = AnimationController(
+      duration: _fadeDuration,
+      vsync: this,
+    );
+  }
+
+  @override
+  void didUpdateWidget(GameScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final gameState = ref.read(gameProvider);
+    if (gameState.isGameOver && !_wasGameOver) {
+      _gameOverController.forward();
+    }
+    _wasGameOver = gameState.isGameOver;
+  }
+
+  @override
+  void dispose() {
+    _gameOverController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
     final scoreAsync = ref.watch(scoreProvider);
 
@@ -36,12 +73,36 @@ class GameScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              _buildScorecardSection(context, gameState, ref),
+              AnimatedSwitcher(
+                duration: _animationDuration,
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: _buildScorecardSection(context, gameState, ref),
+              ),
               const SizedBox(height: 24),
               _buildDiceDisplaySection(context, gameState, ref),
               const SizedBox(height: 24),
               _buildControlsSection(context, gameState, ref, scoreAsync),
               const SizedBox(height: 16),
+              AnimatedOpacity(
+                opacity: gameState.isGameOver ? 1.0 : 0.0,
+                duration: _fadeDuration,
+                curve: Curves.easeInOut,
+                child: AnimatedContainer(
+                  duration: _fadeDuration,
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFFFA726),
+                      width: 2,
+                    ),
+                  ),
+                  child: _buildGameOverContent(context, ref, scoreAsync),
+                ),
+              ),
             ],
           ),
         ),
@@ -443,23 +504,30 @@ class GameScreen extends ConsumerWidget {
     GameState gameState,
     WidgetRef ref,
   ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(gameState.dice.length, (index) {
-            final dice = gameState.dice[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: DiceCard(
-                value: dice.value,
-                isHeld: dice.isHeld,
-                onTap: () => ref.read(gameProvider.notifier).toggleHold(index),
-              ),
-            );
-          }),
+    return AnimatedSwitcher(
+      duration: _animationDuration,
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      child: Container(
+        key: ValueKey(gameState.turnNumber),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(gameState.dice.length, (index) {
+              final dice = gameState.dice[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: DiceCard(
+                  value: dice.value,
+                  isHeld: dice.isHeld,
+                  onTap: () =>
+                      ref.read(gameProvider.notifier).toggleHold(index),
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );
@@ -480,9 +548,23 @@ class GameScreen extends ConsumerWidget {
         // Play button (large, white with orange text)
         _buildPlayButton(context, gameState, ref),
         const SizedBox(height: 8),
-        // Game over indicator
-        if (gameState.isGameOver)
-          _buildGameOverIndicator(context, ref, scoreAsync),
+        // Game over indicator with fade animation
+        AnimatedOpacity(
+          opacity: gameState.isGameOver ? 1.0 : 0.0,
+          duration: _fadeDuration,
+          curve: Curves.easeInOut,
+          child: AnimatedContainer(
+            duration: _fadeDuration,
+            margin: const EdgeInsets.only(top: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFFFA726), width: 2),
+            ),
+            child: _buildGameOverContent(context, ref, scoreAsync),
+          ),
+        ),
       ],
     );
   }
@@ -557,93 +639,84 @@ class GameScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds the game over indicator with final score display.
-  Widget _buildGameOverIndicator(
+  /// Builds the game over content.
+  Widget _buildGameOverContent(
     BuildContext context,
     WidgetRef ref,
     AsyncValue<int> scoreAsync,
   ) {
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[800],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFA726), width: 2),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'GAME OVER',
-            style: GoogleFonts.openSans(
-              fontSize: 20,
-              color: const Color(0xFFFFA726),
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      children: [
+        Text(
+          'GAME OVER',
+          style: GoogleFonts.openSans(
+            fontSize: 20,
+            color: const Color(0xFFFFA726),
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 8),
-          scoreAsync.when(
-            data: (highScore) {
-              final finalScore = ref.read(gameProvider).getTotalScore();
-              final isHighScore = finalScore > highScore;
-              return Column(
-                children: [
-                  Text(
-                    'Final Score: $finalScore',
-                    style: GoogleFonts.openSans(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+        ),
+        const SizedBox(height: 8),
+        scoreAsync.when(
+          data: (highScore) {
+            final finalScore = ref.read(gameProvider).getTotalScore();
+            final isHighScore = finalScore > highScore;
+            return Column(
+              children: [
+                Text(
+                  'Final Score: $finalScore',
+                  style: GoogleFonts.openSans(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
-                  if (isHighScore) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'NEW HIGH SCORE!',
-                      style: GoogleFonts.openSans(
-                        fontSize: 14,
-                        color: Colors.green[300],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.read(gameProvider.notifier).resetGame();
-                      if (isHighScore) {
-                        ref
-                            .read(scoreProvider.notifier)
-                            .saveHighScore(finalScore);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFA726),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      'PLAY AGAIN',
-                      style: GoogleFonts.openSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                ),
+                if (isHighScore) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'NEW HIGH SCORE!',
+                    style: GoogleFonts.openSans(
+                      fontSize: 14,
+                      color: Colors.green[300],
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
-              );
-            },
-            loading: () => const CircularProgressIndicator(),
-            error: (_, error) => const Text('Error loading high score'),
-          ),
-        ],
-      ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(gameProvider.notifier).resetGame();
+                    if (isHighScore) {
+                      ref
+                          .read(scoreProvider.notifier)
+                          .saveHighScore(finalScore);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFA726),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'PLAY AGAIN',
+                    style: GoogleFonts.openSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+          loading: () => const CircularProgressIndicator(),
+          error: (_, error) => const Text('Error loading high score'),
+        ),
+      ],
     );
   }
 

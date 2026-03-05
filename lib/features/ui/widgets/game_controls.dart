@@ -69,8 +69,8 @@ class _RollButton extends StatelessWidget {
               : const Color(0xFF9E9E9E),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
           ),
           elevation: isEnabled ? 4 : 0,
         ),
@@ -99,8 +99,8 @@ class _NewGameButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFFFFA726), width: 2),
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
           ),
         ),
         child: Text(
@@ -108,7 +108,9 @@ class _NewGameButton extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: isGameOver ? const Color(0xFFFFA726) : Colors.grey.shade400,
+            color: isGameOver
+                ? const Color(0xFFFFA726)
+                : const Color(0xFF9E9E9E),
           ),
         ),
       ),

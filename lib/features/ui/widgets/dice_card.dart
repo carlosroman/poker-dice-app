@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/dice_faces.dart';
 
 /// A card-style dice widget for the Poker Dice game.
@@ -94,23 +93,25 @@ class _DiceCardState extends State<DiceCard>
             height: _cardHeight,
             decoration: BoxDecoration(
               color: _diceBackgroundColor,
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               border: Border.all(
-                color: widget.isHeld ? _heldBorderColor : Colors.grey.shade300,
+                color: widget.isHeld
+                    ? _heldBorderColor
+                    : const Color(0xFFE0E0E0),
                 width: _borderWidth,
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: Color(0x1A000000),
                   blurRadius: 4.0,
-                  offset: const Offset(0, 2),
+                  offset: Offset(0, 2),
                 ),
               ],
             ),
             child: Center(
               child: Text(
                 _faceText,
-                style: GoogleFonts.permanentMarker(
+                style: const TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
                   color: _diceTextColor,

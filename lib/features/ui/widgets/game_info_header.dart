@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// A header widget displaying game information.
 ///
@@ -50,7 +49,7 @@ class GameInfoHeader extends StatelessWidget {
         children: [
           _TurnDisplay(turnNumber: turnNumber),
           const VerticalDivider(
-            color: Colors.white54,
+            color: Color(0x80FFFFFF),
             thickness: 1.0,
             width: 40.0,
           ),
@@ -77,18 +76,18 @@ class _TurnDisplay extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+        const Text(
           'Turn',
-          style: GoogleFonts.openSans(
+          style: TextStyle(
             fontSize: 12.0,
             color: Colors.white70,
             fontWeight: FontWeight.normal,
           ),
         ),
-        const SizedBox(height: 4.0),
+        const SizedBox(height: 4),
         Text(
           '$turnNumber',
-          style: GoogleFonts.openSans(
+          style: const TextStyle(
             fontSize: 24.0,
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -129,7 +128,7 @@ class _ScoreDisplay extends StatelessWidget {
           isCurrent: true,
         ),
         if (highScore > 0) ...[
-          const SizedBox(height: 8.0),
+          const SizedBox(height: 8),
           _buildScoreColumn(
             label: 'High Score',
             score: highScore,
@@ -159,16 +158,16 @@ class _ScoreDisplay extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.openSans(
+                style: TextStyle(
                   fontSize: 11.0,
                   color: isCurrent ? Colors.white : Colors.white70,
                   fontWeight: FontWeight.normal,
                 ),
               ),
-              const SizedBox(height: 2.0),
+              const SizedBox(height: 2),
               Text(
                 '$score',
-                style: GoogleFonts.openSans(
+                style: TextStyle(
                   fontSize: isCurrent ? 32.0 : 16.0,
                   color: isCurrent ? Colors.white : Colors.white70,
                   fontWeight: FontWeight.bold,

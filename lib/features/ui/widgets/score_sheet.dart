@@ -44,9 +44,9 @@ class ScoreSheet extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: const Color(0xFF212121),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[700]!, width: 2),
+        border: Border.all(color: const Color(0xFF424242), width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -55,9 +55,10 @@ class ScoreSheet extends StatelessWidget {
           children: [
             Text(
               'Score Sheet',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                fontSize: 24.0,
               ),
             ),
             const SizedBox(height: 16),
@@ -102,9 +103,10 @@ class ScoreSheet extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Colors.grey[300],
+          style: const TextStyle(
+            color: Color(0xFFE0E0E0),
             fontWeight: FontWeight.w600,
+            fontSize: 18.0,
           ),
         ),
         const SizedBox(height: 8),
@@ -172,9 +174,9 @@ class ScoreSheet extends StatelessWidget {
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Text(
+                    child: const Text(
                       '0',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -207,10 +209,10 @@ class ScoreSheet extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          const Text(
             'Bonus',
             style: TextStyle(
-              color: Colors.grey[300],
+              color: Color(0xFFE0E0E0),
               fontWeight: FontWeight.w600,
             ),
           ),
