@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/features/ui/widgets/game_controls.dart';
 
+Widget createTestApp(Widget child) {
+  return MaterialApp(
+    theme: ThemeData(splashFactory: NoSplash.splashFactory),
+    home: Scaffold(body: child),
+  );
+}
+
 void main() {
   group('GameControls', () {
     group('Roll button disabled when no rolls remaining', () {
@@ -9,13 +16,11 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 0,
-                isTurnActive: true,
-                isGameOver: false,
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 0,
+              isTurnActive: true,
+              isGameOver: false,
             ),
           ),
         );
@@ -31,14 +36,12 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 3,
-                isTurnActive: true,
-                isGameOver: false,
-                onRoll: () {},
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 3,
+              isTurnActive: true,
+              isGameOver: false,
+              onRoll: () {},
             ),
           ),
         );
@@ -54,13 +57,11 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 3,
-                isTurnActive: false,
-                isGameOver: false,
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 3,
+              isTurnActive: false,
+              isGameOver: false,
             ),
           ),
         );
@@ -78,13 +79,11 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 3,
-                isTurnActive: true,
-                isGameOver: false,
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 3,
+              isTurnActive: true,
+              isGameOver: false,
             ),
           ),
         );
@@ -96,13 +95,11 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 2,
-                isTurnActive: true,
-                isGameOver: false,
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 2,
+              isTurnActive: true,
+              isGameOver: false,
             ),
           ),
         );
@@ -114,13 +111,11 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 1,
-                isTurnActive: true,
-                isGameOver: false,
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 1,
+              isTurnActive: true,
+              isGameOver: false,
             ),
           ),
         );
@@ -134,13 +129,11 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 3,
-                isTurnActive: true,
-                isGameOver: false,
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 3,
+              isTurnActive: true,
+              isGameOver: false,
             ),
           ),
         );
@@ -160,14 +153,12 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 3,
-                isTurnActive: true,
-                isGameOver: true,
-                onNewGame: () {},
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 3,
+              isTurnActive: true,
+              isGameOver: true,
+              onNewGame: () {},
             ),
           ),
         );
@@ -189,16 +180,14 @@ void main() {
         bool newGameTriggered = false;
 
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: GameControls(
-                rollsRemaining: 3,
-                isTurnActive: true,
-                isGameOver: true,
-                onNewGame: () {
-                  newGameTriggered = true;
-                },
-              ),
+          createTestApp(
+            GameControls(
+              rollsRemaining: 3,
+              isTurnActive: true,
+              isGameOver: true,
+              onNewGame: () {
+                newGameTriggered = true;
+              },
             ),
           ),
         );

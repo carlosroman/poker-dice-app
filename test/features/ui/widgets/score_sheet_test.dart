@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/features/ui/widgets/score_sheet.dart';
 
+Widget createTestApp(Widget child) {
+  return MaterialApp(
+    theme: ThemeData(splashFactory: NoSplash.splashFactory),
+    home: Scaffold(body: child),
+  );
+}
+
 void main() {
   group('ScoreSheet', () {
     // Helper to create test categories
@@ -29,14 +36,12 @@ void main() {
       Function(int)? onCategorySelected,
       bool isTurnActive = true,
     }) {
-      return MaterialApp(
-        home: Scaffold(
-          body: ScoreSheet(
-            categories: categories,
-            potentialScores: potentialScores,
-            onCategorySelected: onCategorySelected,
-            isTurnActive: isTurnActive,
-          ),
+      return createTestApp(
+        ScoreSheet(
+          categories: categories,
+          potentialScores: potentialScores,
+          onCategorySelected: onCategorySelected,
+          isTurnActive: isTurnActive,
         ),
       );
     }
