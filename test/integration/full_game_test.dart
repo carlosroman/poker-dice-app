@@ -36,7 +36,7 @@ void main() {
 
         expect(state.turnNumber, 1);
         expect(state.rollsRemaining, MAX_ROLLS);
-        expect(state.isTurnActive, false);
+        expect(state.isTurnActive, true);
         expect(state.isGameOver, false);
 
         for (int i = 0; i < NUM_CATEGORIES; i++) {
@@ -84,22 +84,14 @@ void main() {
         expect(state.dice[0].isHeld, true);
         expect(state.dice[2].isHeld, true);
 
-        // Roll 2
+        // Roll 2 - then immediately select score before third roll
         container.read(gameProvider.notifier).rollDice();
         state = container.read(gameProvider);
-        expect(state.rollsRemaining, MAX_ROLLS - 2);
-        expect(state.isTurnActive, true);
-        expect(state.dice[0].isHeld, true);
-        expect(state.dice[2].isHeld, true);
+        expect(state.isCategoryScored(0), true);
+        expect(state.isCategoryScored(1), false);
+        expect(state.rollsRemaining, 1);
 
-        // Roll 3 (exhausts rolls, auto-end turn)
-        container.read(gameProvider.notifier).rollDice();
-        state = container.read(gameProvider);
-        expect(state.rollsRemaining, MAX_ROLLS);
-        expect(state.isTurnActive, true);
-
-        // Select score for category 1
-        final diceValues = state.dice.map((d) => d.value).toList();
+        final diceValues = state.dice.map((d) => d.value!).toList();
         final score = container
             .read(gameProvider.notifier)
             .getPotentialScores(diceValues)[1];
@@ -108,7 +100,7 @@ void main() {
         state = container.read(gameProvider);
         expect(state.isCategoryScored(1), true);
         expect(state.scoreCategories[1].score, score);
-        expect(state.turnNumber, 4);
+        expect(state.turnNumber, 3);
         expect(state.rollsRemaining, MAX_ROLLS);
       });
 
@@ -140,8 +132,12 @@ void main() {
         // After auto-end turn, rolls are reset
         expect(state.rollsRemaining, MAX_ROLLS);
 
+        // Roll again to get dice values (dice are null after auto-end turn)
+        container.read(gameProvider.notifier).rollDice();
+        state = container.read(gameProvider);
+
         // Select score for category 2
-        final diceValues = state.dice.map((d) => d.value).toList();
+        final diceValues = state.dice.map((d) => d.value!).toList();
         final score = container
             .read(gameProvider.notifier)
             .getPotentialScores(diceValues)[2];
@@ -162,8 +158,15 @@ void main() {
         expect(state.rollsRemaining, MAX_ROLLS);
         expect(state.isTurnActive, true);
 
+        // Roll again to get dice values (dice are null after auto-end turn)
+        container.read(gameProvider.notifier).rollDice();
+
         // Select score
-        final diceValues = state.dice.map((d) => d.value).toList();
+        final diceValues = container
+            .read(gameProvider)
+            .dice
+            .map((d) => d.value!)
+            .toList();
         final score = container
             .read(gameProvider.notifier)
             .getPotentialScores(diceValues)[3];
@@ -290,7 +293,7 @@ void main() {
       final diceValues = container
           .read(gameProvider)
           .dice
-          .map((d) => d.value)
+          .map((d) => d.value!)
           .toList();
       final score = container
           .read(gameProvider.notifier)
@@ -314,11 +317,14 @@ void main() {
       container.read(gameProvider.notifier).rollDice();
       container.read(gameProvider.notifier).rollDice();
 
+      // Turn auto-ended, roll again to get dice values
+      container.read(gameProvider.notifier).rollDice();
+
       // Turn auto-ended, now select score
       final diceValues = container
           .read(gameProvider)
           .dice
-          .map((d) => d.value)
+          .map((d) => d.value!)
           .toList();
       final score = container
           .read(gameProvider.notifier)
@@ -415,7 +421,7 @@ void main() {
       expect(state.isGameOver, false);
       expect(state.turnNumber, 1);
       expect(state.rollsRemaining, MAX_ROLLS);
-      expect(state.isTurnActive, false);
+      expect(state.isTurnActive, true);
 
       for (int i = 0; i < NUM_CATEGORIES; i++) {
         expect(state.isCategoryScored(i), false);
@@ -530,7 +536,8 @@ void main() {
       expect(state.isCategoryScored(1), false);
 
       container.read(gameProvider.notifier).rollDice();
-      final diceValues = state.dice.map((d) => d.value).toList();
+      state = container.read(gameProvider);
+      final diceValues = state.dice.map((d) => d.value!).toList();
       final score = container
           .read(gameProvider.notifier)
           .getPotentialScores(diceValues)[1];
@@ -564,12 +571,12 @@ void main() {
       container.read(gameProvider.notifier).rollDice();
 
       final state1 = container.read(gameProvider);
-      final diceValues1 = state1.dice.map((d) => d.value).toList();
+      final diceValues1 = state1.dice.map((d) => d.value!).toList();
 
       container.read(gameProvider.notifier).rollDice();
 
       final state2 = container.read(gameProvider);
-      final diceValues2 = state2.dice.map((d) => d.value).toList();
+      final diceValues2 = state2.dice.map((d) => d.value!).toList();
 
       // Dice values should have changed
       expect(diceValues1, isNot(equals(diceValues2)));
@@ -580,7 +587,7 @@ void main() {
       container.read(gameProvider.notifier).rollDice();
 
       final state1 = container.read(gameProvider);
-      final diceValues1 = state1.dice.map((d) => d.value).toList();
+      final diceValues1 = state1.dice.map((d) => d.value!).toList();
       final scores1 = container
           .read(gameProvider.notifier)
           .getPotentialScores(diceValues1);
@@ -588,7 +595,7 @@ void main() {
       container.read(gameProvider.notifier).rollDice();
 
       final state2 = container.read(gameProvider);
-      final diceValues2 = state2.dice.map((d) => d.value).toList();
+      final diceValues2 = state2.dice.map((d) => d.value!).toList();
       final scores2 = container
           .read(gameProvider.notifier)
           .getPotentialScores(diceValues2);
@@ -686,8 +693,12 @@ void main() {
       expect(state.rollsRemaining, MAX_ROLLS);
       expect(state.isTurnActive, true);
 
+      // Roll again to get dice values (dice are null after auto-end turn)
+      container.read(gameProvider.notifier).rollDice();
+      state = container.read(gameProvider);
+
       // Select score and verify rolls reset for next turn
-      final diceValues = state.dice.map((d) => d.value).toList();
+      final diceValues = state.dice.map((d) => d.value!).toList();
       final score = container
           .read(gameProvider.notifier)
           .getPotentialScores(diceValues)[1];

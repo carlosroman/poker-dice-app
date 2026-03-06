@@ -28,14 +28,14 @@ class GameState {
   ///
   /// [dice] defaults to 5 fresh dice.
   /// [rollsRemaining] defaults to [MAX_ROLLS].
-  /// [isTurnActive] defaults to false.
+  /// [isTurnActive] defaults to true.
   /// [scoreCategories] defaults to 13 unscored categories.
   /// [turnNumber] defaults to 1.
   /// [isGameOver] defaults to false.
   GameState({
     List<Dice>? dice,
     this.rollsRemaining = MAX_ROLLS,
-    this.isTurnActive = false,
+    this.isTurnActive = true,
     List<ScoreCategory>? scoreCategories,
     this.turnNumber = 1,
     this.isGameOver = false,
@@ -52,7 +52,7 @@ class GameState {
     return GameState(
       dice: List.generate(NUM_DICE, (_) => Dice()),
       rollsRemaining: MAX_ROLLS,
-      isTurnActive: false,
+      isTurnActive: true,
       scoreCategories: List.generate(
         NUM_CATEGORIES,
         (index) => ScoreCategory(index: index),

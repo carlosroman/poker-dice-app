@@ -7,7 +7,8 @@ import '../../../core/constants/dice_faces.dart';
 /// and supports hold functionality with visual feedback.
 class DiceCard extends StatefulWidget {
   /// The dice value (index 0-5 for card faces: 9, 10, J, Q, K, A).
-  final int value;
+  /// Null means the dice is unrolled/blank.
+  final int? value;
 
   /// Whether the dice is held.
   final bool isHeld;
@@ -74,7 +75,8 @@ class _DiceCardState extends State<DiceCard>
   }
 
   /// Gets the display text for the dice value.
-  String get _faceText => DICE_FACES[widget.value].toString();
+  String get _faceText =>
+      widget.value != null ? DICE_FACES[widget.value!].toString() : '';
 
   @override
   Widget build(BuildContext context) {

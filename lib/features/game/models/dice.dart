@@ -9,16 +9,17 @@ import '../../../core/constants/dice_faces.dart';
 class Dice {
   /// The dice value as an index (0-5) mapping to card faces:
   /// 0=9, 1=10, 2=J, 3=Q, 4=K, 5=A
-  final int value;
+  /// Null means the dice has not been rolled yet.
+  final int? value;
 
   /// Whether the dice is held between rolls.
   final bool isHeld;
 
   /// Creates a new Dice instance.
   ///
-  /// [value] defaults to 0 (face value 9).
+  /// [value] defaults to null (unrolled/blank).
   /// [isHeld] defaults to false.
-  const Dice({this.value = 0, this.isHeld = false});
+  const Dice({this.value, this.isHeld = false});
 
   /// Returns a new [Dice] instance with a random value (0-5).
   Dice roll() {
@@ -32,9 +33,9 @@ class Dice {
 
   /// Returns the actual card face value based on the value index.
   ///
-  /// Returns: 9, 10, 'J', 'Q', 'K', or 'A'
-  Object getFaceValue() {
-    return DICE_FACES[value];
+  /// Returns: 9, 10, 'J', 'Q', 'K', or 'A', or null if unrolled.
+  Object? getFaceValue() {
+    return value != null ? DICE_FACES[value!] : null;
   }
 
   /// Generates a random dice value between 0 and 5.

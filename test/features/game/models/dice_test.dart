@@ -75,7 +75,7 @@ void main() {
         final rolledValues = <int>[];
 
         for (int i = 0; i < 20; i++) {
-          rolledValues.add(dice.roll().value);
+          rolledValues.add(dice.roll().value!);
         }
 
         final uniqueValues = rolledValues.toSet();

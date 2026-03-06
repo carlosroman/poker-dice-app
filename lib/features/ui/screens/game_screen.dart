@@ -180,10 +180,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
     GameState gameState,
     WidgetRef ref,
   ) {
-    final diceValues = gameState.dice.map((d) => d.value).toList();
-    final potentialScores = ref
-        .read(gameProvider.notifier)
-        .getPotentialScores(diceValues);
+    final diceHaveValues = gameState.dice.every((d) => d.value != null);
+    final diceValues = diceHaveValues
+        ? gameState.dice.map((d) => d.value!).toList()
+        : List.filled(5, 0);
+    final potentialScores = diceHaveValues
+        ? ref.read(gameProvider.notifier).getPotentialScores(diceValues)
+        : List.filled(13, 0);
 
     return Container(
       decoration: BoxDecoration(
@@ -726,10 +729,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
     GameState gameState,
     WidgetRef ref,
   ) {
-    final diceValues = gameState.dice.map((d) => d.value).toList();
-    final potentialScores = ref
-        .read(gameProvider.notifier)
-        .getPotentialScores(diceValues);
+    final diceHaveValues = gameState.dice.every((d) => d.value != null);
+    final diceValues = diceHaveValues
+        ? gameState.dice.map((d) => d.value!).toList()
+        : List.filled(5, 0);
+    final potentialScores = diceHaveValues
+        ? ref.read(gameProvider.notifier).getPotentialScores(diceValues)
+        : List.filled(13, 0);
 
     showDialog(
       context: context,
