@@ -1,7 +1,7 @@
 ---
 name: flutter-dev
 mode: all
-description: Expert developer specializing in app development using Flutter and Dart.
+description: Dedicated Flutter/Dart implementation subagent. MUST be used for any mobile app UI, Flutter widget trees, state management (Bloc, Riverpod, Provider), navigation, animations, or platform channel work. Returns clean, production-ready Flutter code following modern architecture patterns.
 disable: false
 tools:
   write: true

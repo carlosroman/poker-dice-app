@@ -1,6 +1,6 @@
 ---
 name: quality-reviewer
-description: Reviews codebase to perform quality assurance
+description: Code review and quality assurance subagent. The main coding agent should delegate here whenever a codebase needs auditing, bug detection, security review, performance analysis, or best-practice validation across any programming language or framework.
 mode: all
 tools:
   read: true
