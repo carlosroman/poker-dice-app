@@ -108,7 +108,7 @@ void main() {
       expect(stateAfter.dice[4].value, heldValues[2]);
     });
 
-    test('auto-end turn when rolls reach 0', () {
+    test('turn stays active when rolls reach 0', () {
       // Activate turn by scoring a category
       container.read(gameProvider.notifier).selectScore(0, 10);
 
@@ -121,40 +121,35 @@ void main() {
       expect(stateAfterTwoRolls.isTurnActive, true);
 
       // Roll one more time to exhaust rolls (rolls: 1→0)
-      // This triggers auto-end turn which calls _endTurn()
+      // Turn should stay active - user must select a score to end turn
       container.read(gameProvider.notifier).rollDice();
 
       final state = container.read(gameProvider);
 
-      // After _endTurn, rolls are reset to MAX_ROLLS and turn is active
-      expect(state.rollsRemaining, MAX_ROLLS);
+      // Turn stays active, rolls are 0, dice are not reset
+      expect(state.rollsRemaining, 0);
       expect(state.isTurnActive, true);
-      expect(state.dice.length, NUM_DICE);
     });
 
-    test('rollDice() does nothing when turn is not active', () {
+    test('rollDice() does nothing when rolls reach 0', () {
       // First, score a category to activate a new turn
       container.read(gameProvider.notifier).selectScore(0, 10);
 
-      // Exhaust all rolls (3 rolls: 3→2→1→0, then auto-end turn)
+      // Exhaust all rolls (3 rolls: 3→2→1→0)
       container.read(gameProvider.notifier).rollDice();
       container.read(gameProvider.notifier).rollDice();
       container.read(gameProvider.notifier).rollDice();
 
-      // After auto-end turn, turn is active again with fresh rolls
-      final stateAfterAutoEnd = container.read(gameProvider);
-      expect(stateAfterAutoEnd.rollsRemaining, MAX_ROLLS);
-      expect(stateAfterAutoEnd.isTurnActive, true);
+      // After 3 rolls, rollsRemaining should be 0 but turn is still active
+      final stateAfterRolls = container.read(gameProvider);
+      expect(stateAfterRolls.rollsRemaining, 0);
+      expect(stateAfterRolls.isTurnActive, true);
 
-      // Score to end turn and make it inactive
-      container.read(gameProvider.notifier).selectScore(1, 10);
-
-      final rollsBefore = container.read(gameProvider).rollsRemaining;
-
-      // Try to roll - should work since turn is active
+      // Try to roll again - should do nothing since rollsRemaining is 0
       container.read(gameProvider.notifier).rollDice();
 
-      expect(container.read(gameProvider).rollsRemaining, rollsBefore - 1);
+      // Rolls should still be 0
+      expect(container.read(gameProvider).rollsRemaining, 0);
     });
   });
 

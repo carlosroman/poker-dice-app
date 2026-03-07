@@ -125,16 +125,13 @@ void main() {
           expect(diceAfterRoll2[i].value, state.dice[i].value);
         }
 
-        // Roll 3 - this exhausts rolls and auto-ends turn, resetting dice
+        // Roll 3 - this exhausts rolls but turn stays active
         container.read(gameProvider.notifier).rollDice();
         state = container.read(gameProvider);
 
-        // After auto-end turn, rolls are reset
-        expect(state.rollsRemaining, MAX_ROLLS);
-
-        // Roll again to get dice values (dice are null after auto-end turn)
-        container.read(gameProvider.notifier).rollDice();
-        state = container.read(gameProvider);
+        // After 3 rolls, rollsRemaining is 0 but turn is still active
+        expect(state.rollsRemaining, 0);
+        expect(state.isTurnActive, true);
 
         // Select score for category 2
         final diceValues = state.dice.map((d) => d.value!).toList();
@@ -145,7 +142,8 @@ void main() {
 
         final nextState = container.read(gameProvider);
         expect(nextState.isCategoryScored(2), true);
-        expect(nextState.turnNumber, 4);
+        expect(nextState.turnNumber, 3);
+        expect(nextState.rollsRemaining, MAX_ROLLS);
       });
 
       test('roll → select score without holding', () {
@@ -155,18 +153,11 @@ void main() {
         container.read(gameProvider.notifier).rollDice();
 
         final state = container.read(gameProvider);
-        expect(state.rollsRemaining, MAX_ROLLS);
+        expect(state.rollsRemaining, 0);
         expect(state.isTurnActive, true);
 
-        // Roll again to get dice values (dice are null after auto-end turn)
-        container.read(gameProvider.notifier).rollDice();
-
         // Select score
-        final diceValues = container
-            .read(gameProvider)
-            .dice
-            .map((d) => d.value!)
-            .toList();
+        final diceValues = state.dice.map((d) => d.value!).toList();
         final score = container
             .read(gameProvider.notifier)
             .getPotentialScores(diceValues)[3];
@@ -174,7 +165,8 @@ void main() {
 
         final nextState = container.read(gameProvider);
         expect(nextState.isCategoryScored(3), true);
-        expect(nextState.turnNumber, 4);
+        expect(nextState.turnNumber, 3);
+        expect(nextState.rollsRemaining, MAX_ROLLS);
       });
     });
 
@@ -311,28 +303,26 @@ void main() {
       expect(state.rollsRemaining, MAX_ROLLS);
     });
 
-    test('turn advances even after auto-end turn', () {
+    test('turn advances when score is selected after rolls exhausted', () {
       container.read(gameProvider.notifier).selectScore(0, 10);
       container.read(gameProvider.notifier).rollDice();
       container.read(gameProvider.notifier).rollDice();
       container.read(gameProvider.notifier).rollDice();
 
-      // Turn auto-ended, roll again to get dice values
-      container.read(gameProvider.notifier).rollDice();
+      // After 3 rolls, rollsRemaining is 0 but turn is still active
+      final stateAfterRolls = container.read(gameProvider);
+      expect(stateAfterRolls.rollsRemaining, 0);
+      expect(stateAfterRolls.isTurnActive, true);
 
-      // Turn auto-ended, now select score
-      final diceValues = container
-          .read(gameProvider)
-          .dice
-          .map((d) => d.value!)
-          .toList();
+      // Select score to end turn
+      final diceValues = stateAfterRolls.dice.map((d) => d.value!).toList();
       final score = container
           .read(gameProvider.notifier)
           .getPotentialScores(diceValues)[1];
       container.read(gameProvider.notifier).selectScore(1, score);
 
       final state = container.read(gameProvider);
-      expect(state.turnNumber, 4);
+      expect(state.turnNumber, 3);
       expect(state.isCategoryScored(1), true);
       expect(state.rollsRemaining, MAX_ROLLS);
     });
@@ -525,7 +515,9 @@ void main() {
 
       container.read(gameProvider.notifier).rollDice();
       state = container.read(gameProvider);
-      expect(state.rollsRemaining, MAX_ROLLS);
+      // After 3 rolls, rollsRemaining is 0 but turn is still active
+      expect(state.rollsRemaining, 0);
+      expect(state.isTurnActive, true);
     });
 
     test('UI state syncs with game state - category scored status', () {
@@ -690,14 +682,11 @@ void main() {
 
       container.read(gameProvider.notifier).rollDice();
       state = container.read(gameProvider);
-      expect(state.rollsRemaining, MAX_ROLLS);
+      // After 3 rolls, rollsRemaining is 0 but turn is still active
+      expect(state.rollsRemaining, 0);
       expect(state.isTurnActive, true);
 
-      // Roll again to get dice values (dice are null after auto-end turn)
-      container.read(gameProvider.notifier).rollDice();
-      state = container.read(gameProvider);
-
-      // Select score and verify rolls reset for next turn
+      // Select score to end turn and reset rolls
       final diceValues = state.dice.map((d) => d.value!).toList();
       final score = container
           .read(gameProvider.notifier)
@@ -706,7 +695,7 @@ void main() {
 
       state = container.read(gameProvider);
       expect(state.rollsRemaining, MAX_ROLLS);
-      expect(state.turnNumber, 4);
+      expect(state.turnNumber, 3);
     });
   });
 }

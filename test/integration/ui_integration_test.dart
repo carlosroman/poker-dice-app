@@ -132,10 +132,10 @@ void main() {
       expect(state.rollsRemaining, MAX_ROLLS - 2);
       expect(state.isTurnActive, true);
 
-      // After third roll - 0 rolls remaining, turn ends, resets to MAX
+      // After third roll - 0 rolls remaining, turn stays active
       container.read(gameProvider.notifier).rollDice();
       state = container.read(gameProvider);
-      expect(state.rollsRemaining, MAX_ROLLS);
+      expect(state.rollsRemaining, 0);
       expect(state.isTurnActive, true);
     });
 
@@ -300,16 +300,10 @@ void main() {
       expect(state.dice[0].isHeld, true);
       expect(state.dice[2].isHeld, true);
 
-      // Roll 3 - exhausts rolls, turn auto-ends, resets to MAX
+      // Roll 3 - exhausts rolls, turn stays active
       container.read(gameProvider.notifier).rollDice();
       state = container.read(gameProvider);
-      expect(state.rollsRemaining, MAX_ROLLS);
-      expect(state.isTurnActive, true);
-
-      // Roll again for new turn
-      container.read(gameProvider.notifier).rollDice();
-      state = container.read(gameProvider);
-      expect(state.rollsRemaining, MAX_ROLLS - 1);
+      expect(state.rollsRemaining, 0);
       expect(state.isTurnActive, true);
 
       // Select score - UI should show category scored and turn advance
@@ -321,7 +315,8 @@ void main() {
       container.read(gameProvider.notifier).selectScore(4, score);
       state = container.read(gameProvider);
       expect(state.isCategoryScored(4), true);
-      expect(state.turnNumber, 3);
+      expect(state.turnNumber, 2);
+      expect(state.rollsRemaining, MAX_ROLLS);
     });
 
     test('multiple turns maintain correct UI state', () {

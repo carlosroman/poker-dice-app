@@ -46,22 +46,22 @@ void main() {
         // Hold additional dice
         container.read(gameProvider.notifier).toggleHold(4);
 
-        // Roll 3 - this triggers auto-end turn since rolls reach 0
+        // Roll 3 - rolls reach 0 but turn stays active
         container.read(gameProvider.notifier).rollDice();
         state = container.read(gameProvider);
-        expect(state.rollsRemaining, MAX_ROLLS);
+        expect(state.rollsRemaining, 0);
         expect(state.isTurnActive, true);
 
-        // Select score - should advance turn
+        // Select score - should advance turn and reset rolls
         container.read(gameProvider.notifier).selectScore(1, 15);
         state = container.read(gameProvider);
         expect(state.rollsRemaining, MAX_ROLLS);
         expect(state.isTurnActive, true);
-        expect(state.turnNumber, 4);
+        expect(state.turnNumber, 3);
       },
     );
 
-    test('dice are reset for new turn', () {
+    test('dice are reset for new turn after score selection', () {
       // Activate turn and roll dice
       container.read(gameProvider.notifier).selectScore(0, 10);
       container.read(gameProvider.notifier).rollDice();
@@ -72,16 +72,23 @@ void main() {
         container.read(gameProvider.notifier).toggleHold(i);
       }
 
-      // Roll to exhaust turns (triggers auto-end turn)
+      // Roll to exhaust rolls (turn stays active)
       container.read(gameProvider.notifier).rollDice();
 
-      final stateAfterAutoEnd = container.read(gameProvider);
-      expect(stateAfterAutoEnd.rollsRemaining, MAX_ROLLS);
-      expect(stateAfterAutoEnd.isTurnActive, true);
+      final stateAfterRolls = container.read(gameProvider);
+      expect(stateAfterRolls.rollsRemaining, 0);
+      expect(stateAfterRolls.isTurnActive, true);
+
+      // Select score to end turn and reset dice
+      container.read(gameProvider.notifier).selectScore(1, 15);
+
+      final stateAfterScore = container.read(gameProvider);
+      expect(stateAfterScore.rollsRemaining, MAX_ROLLS);
+      expect(stateAfterScore.isTurnActive, true);
 
       // Verify dice are fresh (not held)
       for (int i = 0; i < NUM_DICE; i++) {
-        expect(stateAfterAutoEnd.dice[i].isHeld, false);
+        expect(stateAfterScore.dice[i].isHeld, false);
       }
     });
   });
@@ -201,10 +208,10 @@ void main() {
       expect(state.rollsRemaining, 1);
       expect(state.dice[0].isHeld, true);
 
-      // Final roll - triggers auto-end turn, resetting rolls
+      // Final roll - rolls reach 0 but turn stays active
       container.read(gameProvider.notifier).rollDice();
       state = container.read(gameProvider);
-      expect(state.rollsRemaining, MAX_ROLLS);
+      expect(state.rollsRemaining, 0);
       expect(state.isTurnActive, true);
     });
   });

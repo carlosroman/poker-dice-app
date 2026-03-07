@@ -25,7 +25,9 @@ class GameNotifier extends Notifier<GameState> {
 
   /// Rolls all non-held dice and decrements rolls remaining.
   ///
-  /// If no rolls remain after this action, the turn ends automatically.
+  /// The turn remains active after rolling. The user must select a score category
+  /// to end the turn. When rolls reach 0, the roll button is disabled but the
+  /// turn stays active until a score is selected.
   void rollDice() {
     if (!state.isTurnActive || state.rollsRemaining <= 0) {
       return;
@@ -39,20 +41,15 @@ class GameNotifier extends Notifier<GameState> {
     }
 
     final rollsRemaining = state.rollsRemaining - 1;
-    final isTurnActive = rollsRemaining > 0;
 
     state = GameState(
       dice: updatedDice,
       rollsRemaining: rollsRemaining,
-      isTurnActive: isTurnActive,
+      isTurnActive: true,
       scoreCategories: state.scoreCategories,
       turnNumber: state.turnNumber,
       isGameOver: state.isGameOver,
     );
-
-    if (!isTurnActive) {
-      _endTurn();
-    }
   }
 
   /// Toggles the hold state for the dice at the specified index.
