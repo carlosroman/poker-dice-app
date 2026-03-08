@@ -9,75 +9,64 @@ library;
 /// Provides static methods to evaluate dice combinations and
 /// calculate scores for all 12 scoring categories plus bonus.
 class Scoring {
-  /// Calculates score for Pair of 9s category.
+  /// Calculates score for As category.
   ///
-  /// Returns sum of all dice showing 9 (value index 0).
-  /// Returns 0 if no 9s are present.
-  static int scorePairOf9s(List<int> diceValues) {
-    return countOccurrences(diceValues, 0) * 9;
-  }
-
-  /// Calculates score for Pair of 10s category.
-  ///
-  /// Returns sum of all dice showing 10 (value index 1).
-  /// Returns 0 if no 10s are present.
-  static int scorePairOf10s(List<int> diceValues) {
-    return countOccurrences(diceValues, 1) * 10;
-  }
-
-  /// Calculates score for Pair of Jacks category.
-  ///
-  /// Returns sum of all dice showing Jack (value index 2).
-  /// Returns 0 if no Jacks are present.
-  static int scorePairOfJacks(List<int> diceValues) {
-    return countOccurrences(diceValues, 2) * 11;
-  }
-
-  /// Calculates score for Pair of Queens category.
-  ///
-  /// Returns sum of all dice showing Queen (value index 3).
-  /// Returns 0 if no Queens are present.
-  static int scorePairOfQueens(List<int> diceValues) {
-    return countOccurrences(diceValues, 3) * 12;
-  }
-
-  /// Calculates score for Pair of Kings category.
-  ///
-  /// Returns sum of all dice showing King (value index 4).
-  /// Returns 0 if no Kings are present.
-  static int scorePairOfKings(List<int> diceValues) {
-    return countOccurrences(diceValues, 4) * 13;
-  }
-
-  /// Calculates score for Pair of Aces category.
-  ///
-  /// Returns sum of all dice showing Ace (value index 5).
+  /// Returns count of Aces (value index 5) multiplied by 6.
   /// Returns 0 if no Aces are present.
-  static int scorePairOfAces(List<int> diceValues) {
-    return countOccurrences(diceValues, 5) * 14;
+  static int scoreAs(List<int> diceValues) {
+    return countOccurrences(diceValues, 5) * 6;
   }
 
-  /// Calculates score for Two Pair category.
+  /// Calculates score for Ks category.
   ///
-  /// Returns sum of the 4 dice forming two different pairs.
-  /// Returns 0 if two pairs are not present.
-  static int scoreTwoPair(List<int> diceValues) {
-    if (!hasTwoPair(diceValues)) {
-      return 0;
+  /// Returns count of Kings (value index 4) multiplied by 5.
+  /// Returns 0 if no Kings are present.
+  static int scoreKs(List<int> diceValues) {
+    return countOccurrences(diceValues, 4) * 5;
+  }
+
+  /// Calculates score for Qs category.
+  ///
+  /// Returns count of Queens (value index 3) multiplied by 4.
+  /// Returns 0 if no Queens are present.
+  static int scoreQs(List<int> diceValues) {
+    return countOccurrences(diceValues, 3) * 4;
+  }
+
+  /// Calculates score for Js category.
+  ///
+  /// Returns count of Jacks (value index 2) multiplied by 3.
+  /// Returns 0 if no Jacks are present.
+  static int scoreJs(List<int> diceValues) {
+    return countOccurrences(diceValues, 2) * 3;
+  }
+
+  /// Calculates score for 10s category.
+  ///
+  /// Returns count of 10s (value index 1) multiplied by 2.
+  /// Returns 0 if no 10s are present.
+  static int score10s(List<int> diceValues) {
+    return countOccurrences(diceValues, 1) * 2;
+  }
+
+  /// Calculates score for 9s category.
+  ///
+  /// Returns count of 9s (value index 0) multiplied by 1.
+  /// Returns 0 if no 9s are present.
+  static int score9s(List<int> diceValues) {
+    return countOccurrences(diceValues, 0) * 1;
+  }
+
+  /// Calculates score for Flush category.
+  ///
+  /// Returns sum of all dice if all 5 dice have different values (5 unique values).
+  /// Returns 0 otherwise.
+  static int scoreFlush(List<int> diceValues) {
+    final uniqueValues = diceValues.toSet();
+    if (uniqueValues.length == 5) {
+      return diceValues.fold(0, (sum, value) => sum + value);
     }
-
-    final Map<int, int> counts = getDiceCounts(diceValues);
-    int sum = 0;
-    int pairsFound = 0;
-
-    for (final entry in counts.entries) {
-      if (entry.value == 2 && pairsFound < 2) {
-        sum += entry.key * 2;
-        pairsFound++;
-      }
-    }
-
-    return sum;
+    return 0;
   }
 
   /// Calculates score for Three of a Kind category.
@@ -88,7 +77,6 @@ class Scoring {
     if (!hasThreeOfAKind(diceValues)) {
       return 0;
     }
-
     return diceValues.fold(0, (sum, value) => sum + value);
   }
 
@@ -100,30 +88,25 @@ class Scoring {
     if (!hasFourOfAKind(diceValues)) {
       return 0;
     }
-
     return diceValues.fold(0, (sum, value) => sum + value);
   }
 
   /// Calculates score for Straight category.
   ///
-  /// Returns 25 points if dice form a straight (5 consecutive values).
+  /// Returns 40 points if dice form a straight (5 consecutive values).
   /// Small Straight: 9-10-J-Q-K (indices 0-4)
   /// Large Straight: 10-J-Q-K-A (indices 1-5)
   /// Returns 0 if straight is not present.
   static int scoreStraight(List<int> diceValues) {
-    return hasStraight(diceValues) ? 25 : 0;
+    return hasStraight(diceValues) ? 40 : 0;
   }
 
   /// Calculates score for Full House category.
   ///
-  /// Returns sum of all dice if a three + pair combination exists.
+  /// Returns 25 points if a three + pair combination exists.
   /// Returns 0 if full house is not present.
   static int scoreFullHouse(List<int> diceValues) {
-    if (!hasFullHouse(diceValues)) {
-      return 0;
-    }
-
-    return diceValues.fold(0, (sum, value) => sum + value);
+    return hasFullHouse(diceValues) ? 25 : 0;
   }
 
   /// Calculates score for Yatzy category.
@@ -132,6 +115,44 @@ class Scoring {
   /// Returns 0 if yatzy is not present.
   static int scoreYatzy(List<int> diceValues) {
     return hasYatzy(diceValues) ? 50 : 0;
+  }
+
+  /// Alias for scoreAs for test compatibility.
+  static int scorePairOfAces(List<int> diceValues) => scoreAs(diceValues);
+
+  /// Alias for scoreKs for test compatibility.
+  static int scorePairOfKings(List<int> diceValues) => scoreKs(diceValues);
+
+  /// Alias for scoreQs for test compatibility.
+  static int scorePairOfQueens(List<int> diceValues) => scoreQs(diceValues);
+
+  /// Alias for scoreJs for test compatibility.
+  static int scorePairOfJacks(List<int> diceValues) => scoreJs(diceValues);
+
+  /// Alias for score10s for test compatibility.
+  static int scorePairOf10s(List<int> diceValues) => score10s(diceValues);
+
+  /// Alias for score9s for test compatibility.
+  static int scorePairOf9s(List<int> diceValues) => score9s(diceValues);
+
+  /// Calculates score for Two Pair category.
+  ///
+  /// Returns sum of the 4 dice forming the two pairs.
+  /// Returns 0 if two pairs are not present.
+  static int scoreTwoPair(List<int> diceValues) {
+    if (!hasTwoPair(diceValues)) {
+      return 0;
+    }
+    final counts = getDiceCounts(diceValues);
+    int sum = 0;
+    int pairCount = 0;
+    for (final entry in counts.entries) {
+      if (entry.value == 2) {
+        sum += entry.key * 2;
+        pairCount++;
+      }
+    }
+    return pairCount == 2 ? sum : 0;
   }
 
   /// Counts how many dice match a specific value index.
@@ -157,11 +178,9 @@ class Scoring {
   /// Returns a map where keys are value indices and values are counts.
   static Map<int, int> getDiceCounts(List<int> diceValues) {
     final Map<int, int> counts = {};
-
     for (final value in diceValues) {
       counts[value] = (counts[value] ?? 0) + 1;
     }
-
     return counts;
   }
 
@@ -173,13 +192,11 @@ class Scoring {
   static bool hasTwoPair(List<int> diceValues) {
     final Map<int, int> counts = getDiceCounts(diceValues);
     int pairs = 0;
-
     for (final count in counts.values) {
       if (count == 2) {
         pairs++;
       }
     }
-
     return pairs == 2;
   }
 
@@ -190,13 +207,11 @@ class Scoring {
   /// Returns true if any value appears 3 or more times.
   static bool hasThreeOfAKind(List<int> diceValues) {
     final Map<int, int> counts = getDiceCounts(diceValues);
-
     for (final count in counts.values) {
       if (count >= 3) {
         return true;
       }
     }
-
     return false;
   }
 
@@ -207,13 +222,11 @@ class Scoring {
   /// Returns true if any value appears 4 or more times.
   static bool hasFourOfAKind(List<int> diceValues) {
     final Map<int, int> counts = getDiceCounts(diceValues);
-
     for (final count in counts.values) {
       if (count >= 4) {
         return true;
       }
     }
-
     return false;
   }
 
@@ -226,24 +239,17 @@ class Scoring {
   /// - Large Straight: 10-J-Q-K-A (indices 1-5)
   static bool hasStraight(List<int> diceValues) {
     final uniqueValues = diceValues.toSet();
-
-    // Must have exactly 5 unique values for a straight
     if (uniqueValues.length != 5) {
       return false;
     }
-
-    // Check for small straight (0, 1, 2, 3, 4)
     const smallStraight = {0, 1, 2, 3, 4};
     if (uniqueValues.intersection(smallStraight).length == 5) {
       return true;
     }
-
-    // Check for large straight (1, 2, 3, 4, 5)
     const largeStraight = {1, 2, 3, 4, 5};
     if (uniqueValues.intersection(largeStraight).length == 5) {
       return true;
     }
-
     return false;
   }
 
@@ -256,7 +262,6 @@ class Scoring {
     final Map<int, int> counts = getDiceCounts(diceValues);
     bool hasThree = false;
     bool hasTwo = false;
-
     for (final count in counts.values) {
       if (count == 3) {
         hasThree = true;
@@ -264,7 +269,6 @@ class Scoring {
         hasTwo = true;
       }
     }
-
     return hasThree && hasTwo;
   }
 
@@ -275,13 +279,11 @@ class Scoring {
   /// Returns true if all dice match (Yatzy).
   static bool hasYatzy(List<int> diceValues) {
     final Map<int, int> counts = getDiceCounts(diceValues);
-
     for (final count in counts.values) {
       if (count == 5) {
         return true;
       }
     }
-
     return false;
   }
 }

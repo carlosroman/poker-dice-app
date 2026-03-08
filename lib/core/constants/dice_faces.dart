@@ -35,34 +35,33 @@ const int NUM_DICE = 5;
 /// - 1 bonus category
 const int NUM_CATEGORIES = 13;
 
-/// Upper section scoring category names.
+/// Minor section scoring category names.
 ///
-/// Each category scores the sum of all dice matching the specified face.
-const List<String> UPPER_CATEGORIES = [
-  'Pair of 9s',
-  'Pair of 10s',
-  'Pair of Jacks',
-  'Pair of Queens',
-  'Pair of Kings',
-  'Pair of Aces',
-];
+/// Scoring rules (count of matching dice × multiplier):
+/// - 9s: count × 1 (1 each)
+/// - 10s: count × 2 (2 each)
+/// - Js: count × 3 (3 each)
+/// - Qs: count × 4 (4 each)
+/// - Ks: count × 5 (5 each)
+/// - As: count × 6 (6 each)
+const List<String> UPPER_CATEGORIES = ['9s', '10s', 'Js', 'Qs', 'Ks', 'As'];
 
-/// Lower section scoring category names.
+/// Major section scoring category names.
 ///
 /// Scoring rules:
-/// - Two Pair: Two different pairs (sum of 4 dice)
-/// - Three of a Kind: At least 3 same (sum of all)
-/// - Four of a Kind: At least 4 same (sum of all)
-/// - Straight: 9-10-J-Q-K-A (25 points)
-/// - Full House: Three + Pair (sum of all)
-/// - Yatzy: All 5 same (50 points)
+/// - Three of a Kind: sum of all dice
+/// - Four of a Kind: sum of all dice
+/// - Full House: 25 points
+/// - Straight: 40 points
+/// - Flush: sum of all dice
+/// - Five of a Kind: 50 points
 const List<String> LOWER_CATEGORIES = [
-  'Two Pair',
   'Three of a Kind',
   'Four of a Kind',
-  'Straight',
   'Full House',
-  'Yatzy',
+  'Straight',
+  'Flush',
+  'Five of a Kind',
 ];
 
 /// Bonus category name.

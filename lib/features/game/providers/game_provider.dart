@@ -120,19 +120,19 @@ class GameNotifier extends Notifier<GameState> {
     }
 
     return [
-      Scoring.scorePairOf9s(diceValues),
-      Scoring.scorePairOf10s(diceValues),
-      Scoring.scorePairOfJacks(diceValues),
-      Scoring.scorePairOfQueens(diceValues),
-      Scoring.scorePairOfKings(diceValues),
-      Scoring.scorePairOfAces(diceValues),
-      Scoring.scoreTwoPair(diceValues),
+      Scoring.score9s(diceValues),
+      Scoring.score10s(diceValues),
+      Scoring.scoreJs(diceValues),
+      Scoring.scoreQs(diceValues),
+      Scoring.scoreKs(diceValues),
+      Scoring.scoreAs(diceValues),
       Scoring.scoreThreeOfAKind(diceValues),
       Scoring.scoreFourOfAKind(diceValues),
-      Scoring.scoreStraight(diceValues),
       Scoring.scoreFullHouse(diceValues),
+      Scoring.scoreStraight(diceValues),
+      Scoring.scoreFlush(diceValues),
       Scoring.scoreYatzy(diceValues),
-      0,
+      0, // Bonus
     ];
   }
 
