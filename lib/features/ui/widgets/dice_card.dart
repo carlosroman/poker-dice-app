@@ -28,11 +28,15 @@ class DiceCard extends StatefulWidget {
   State<DiceCard> createState() => _DiceCardState();
 }
 
-class _DiceCardState extends State<DiceCard>
-    with SingleTickerProviderStateMixin {
+class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+
+  // Roll animation controller and animations
+  late AnimationController _rollController;
+  late Animation<double> _rollXAnimation;
+  late Animation<double> _rollRotationAnimation;
 
   static const double _cardWidth = 60.0;
   static const double _cardHeight = 84.0;
@@ -57,6 +61,40 @@ class _DiceCardState extends State<DiceCard>
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
+    // Roll animation setup
+    _rollController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+
+    // Shake animation (left-right movement)
+    _rollXAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -5.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -5.0, end: 5.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 5.0, end: -3.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -3.0, end: 3.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 3.0, end: -1.5), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -1.5, end: 1.5), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 1.5, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _rollController, curve: Curves.easeInOut),
+        );
+
+    // Rotation animation (slight tilt during roll)
+    _rollRotationAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -8.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -8.0, end: 8.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 8.0, end: -5.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -5.0, end: 5.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 5.0, end: -3.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -3.0, end: 3.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 3.0, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _rollController, curve: Curves.easeInOut),
+        );
+
     _animationController.forward();
   }
 
@@ -66,11 +104,20 @@ class _DiceCardState extends State<DiceCard>
     if (oldWidget.isHeld != widget.isHeld) {
       _animationController.forward(from: 0.0);
     }
+    // Trigger roll animation when value changes (and dice is not held)
+    if (oldWidget.value != widget.value && !widget.isHeld) {
+      _triggerRollAnimation();
+    }
+  }
+
+  void _triggerRollAnimation() {
+    _rollController.forward(from: 0.0);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _rollController.dispose();
     super.dispose();
   }
 
@@ -80,44 +127,54 @@ class _DiceCardState extends State<DiceCard>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: _scaleAnimation.value,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-      child: AnimatedOpacity(
-        opacity: _opacityAnimation.value,
-        duration: const Duration(milliseconds: 200),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: _cardWidth,
-            height: _cardHeight,
-            decoration: BoxDecoration(
-              color: _diceBackgroundColor,
-              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              border: Border.all(
-                color: widget.isHeld
-                    ? _heldBorderColor
-                    : const Color(0xFFE0E0E0),
-                width: _borderWidth,
+    return AnimatedBuilder(
+      animation: _rollController,
+      builder: (context, child) {
+        return AnimatedScale(
+          scale: _scaleAnimation.value,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: AnimatedOpacity(
+            opacity: _opacityAnimation.value,
+            duration: const Duration(milliseconds: 200),
+            child: Transform.translate(
+              offset: Offset(_rollXAnimation.value, 0),
+              child: Transform.rotate(
+                angle: _rollRotationAnimation.value * (3.14159 / 180),
+                child: child,
               ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x1A000000),
-                  blurRadius: 4.0,
-                  offset: Offset(0, 2),
-                ),
-              ],
             ),
-            child: Center(
-              child: Text(
-                _faceText,
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  color: _diceTextColor,
-                ),
+          ),
+        );
+      },
+      child: GestureDetector(
+        onTap: widget.onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: _cardWidth,
+          height: _cardHeight,
+          decoration: BoxDecoration(
+            color: _diceBackgroundColor,
+            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+            border: Border.all(
+              color: widget.isHeld ? _heldBorderColor : const Color(0xFFE0E0E0),
+              width: _borderWidth,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 4.0,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              _faceText,
+              style: const TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+                color: _diceTextColor,
               ),
             ),
           ),
