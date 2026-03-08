@@ -106,7 +106,9 @@ class Scoring {
 
   /// Calculates score for Straight category.
   ///
-  /// Returns 25 points if all 6 unique values are present (9-10-J-Q-K-A).
+  /// Returns 25 points if dice form a straight (5 consecutive values).
+  /// Small Straight: 9-10-J-Q-K (indices 0-4)
+  /// Large Straight: 10-J-Q-K-A (indices 1-5)
   /// Returns 0 if straight is not present.
   static int scoreStraight(List<int> diceValues) {
     return hasStraight(diceValues) ? 25 : 0;
@@ -215,13 +217,34 @@ class Scoring {
     return false;
   }
 
-  /// Checks if the dice contain a straight (all 6 unique values).
+  /// Checks if the dice contain a straight (5 consecutive values).
   ///
   /// [diceValues] - List of value indices (0-5) representing dice faces.
   ///
-  /// Returns true if all 6 dice show different values (9-10-J-Q-K-A).
+  /// Returns true if dice form either:
+  /// - Small Straight: 9-10-J-Q-K (indices 0-4)
+  /// - Large Straight: 10-J-Q-K-A (indices 1-5)
   static bool hasStraight(List<int> diceValues) {
-    return diceValues.toSet().length == 6;
+    final uniqueValues = diceValues.toSet();
+
+    // Must have exactly 5 unique values for a straight
+    if (uniqueValues.length != 5) {
+      return false;
+    }
+
+    // Check for small straight (0, 1, 2, 3, 4)
+    const smallStraight = {0, 1, 2, 3, 4};
+    if (uniqueValues.intersection(smallStraight).length == 5) {
+      return true;
+    }
+
+    // Check for large straight (1, 2, 3, 4, 5)
+    const largeStraight = {1, 2, 3, 4, 5};
+    if (uniqueValues.intersection(largeStraight).length == 5) {
+      return true;
+    }
+
+    return false;
   }
 
   /// Checks if the dice contain a full house (three + pair).

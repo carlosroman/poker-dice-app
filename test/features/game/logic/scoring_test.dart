@@ -309,14 +309,24 @@ void main() {
         expect(Scoring.scoreStraight(dice), 0);
       });
 
-      test('returns 25 for straight (all 6 unique values)', () {
-        final dice = [0, 1, 2, 3, 4, 5];
+      test('returns 25 for small straight (9-10-J-Q-K)', () {
+        final dice = [0, 1, 2, 3, 4];
         expect(Scoring.scoreStraight(dice), 25);
       });
 
-      test('returns 25 for straight in any order', () {
-        final dice = [5, 3, 0, 4, 1, 2];
+      test('returns 25 for large straight (10-J-Q-K-A)', () {
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreStraight(dice), 25);
+      });
+
+      test('returns 25 for large straight in any order', () {
+        final dice = [5, 3, 1, 4, 2];
+        expect(Scoring.scoreStraight(dice), 25);
+      });
+
+      test('returns 0 when missing middle value', () {
+        final dice = [0, 1, 2, 3, 5];
+        expect(Scoring.scoreStraight(dice), 0);
       });
     });
 
