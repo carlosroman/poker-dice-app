@@ -296,7 +296,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       Icons.home,
       Icons.credit_card,
       Icons.credit_card,
-      '?',
+      'Y',
     ];
 
     return Column(
