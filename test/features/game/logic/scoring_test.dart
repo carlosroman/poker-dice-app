@@ -266,35 +266,99 @@ void main() {
       });
     });
 
-    group('scoreStraight', () {
-      test('returns 0 when straight not present', () {
+    group('scoreSmallStraight', () {
+      test('returns 0 when small straight not present', () {
+        final dice = [0, 0, 1, 2, 4];
+        expect(Scoring.scoreSmallStraight(dice), 0);
+      });
+
+      test('returns 0 when only 3 consecutive values present', () {
+        final dice = [0, 1, 2, 4, 5];
+        expect(Scoring.scoreSmallStraight(dice), 0);
+      });
+
+      test('returns 30 for 9-10-J-Q (indices 0-1-2-3)', () {
+        final dice = [0, 1, 2, 3, 4];
+        expect(Scoring.scoreSmallStraight(dice), 30);
+      });
+
+      test('returns 30 for 10-J-Q-K (indices 1-2-3-4)', () {
+        final dice = [1, 2, 3, 4, 0];
+        expect(Scoring.scoreSmallStraight(dice), 30);
+      });
+
+      test('returns 30 for J-Q-K-A (indices 2-3-4-5)', () {
+        final dice = [2, 3, 4, 5, 0];
+        expect(Scoring.scoreSmallStraight(dice), 30);
+      });
+
+      test('returns 30 for small straight in any order', () {
+        final dice = [3, 1, 2, 0, 5];
+        expect(Scoring.scoreSmallStraight(dice), 30);
+      });
+
+      test('returns 30 for long straight (also contains small straight)', () {
+        final dice = [0, 1, 2, 3, 4];
+        expect(Scoring.scoreSmallStraight(dice), 30);
+      });
+    });
+
+    group('scoreLongStraight', () {
+      test('returns 0 when long straight not present', () {
         final dice = [0, 0, 1, 2, 3];
-        expect(Scoring.scoreStraight(dice), 0);
+        expect(Scoring.scoreLongStraight(dice), 0);
       });
 
       test('returns 0 when duplicate values present', () {
         final dice = [0, 1, 2, 3, 3];
-        expect(Scoring.scoreStraight(dice), 0);
+        expect(Scoring.scoreLongStraight(dice), 0);
       });
 
-      test('returns 40 for small straight (9-10-J-Q-K)', () {
+      test('returns 40 for small long straight (9-10-J-Q-K)', () {
         final dice = [0, 1, 2, 3, 4];
-        expect(Scoring.scoreStraight(dice), 40);
+        expect(Scoring.scoreLongStraight(dice), 40);
       });
 
-      test('returns 40 for large straight (10-J-Q-K-A)', () {
+      test('returns 40 for large long straight (10-J-Q-K-A)', () {
         final dice = [1, 2, 3, 4, 5];
-        expect(Scoring.scoreStraight(dice), 40);
+        expect(Scoring.scoreLongStraight(dice), 40);
       });
 
-      test('returns 40 for large straight in any order', () {
+      test('returns 40 for large long straight in any order', () {
         final dice = [5, 3, 1, 4, 2];
-        expect(Scoring.scoreStraight(dice), 40);
+        expect(Scoring.scoreLongStraight(dice), 40);
       });
 
       test('returns 0 when missing middle value', () {
         final dice = [0, 1, 2, 3, 5];
-        expect(Scoring.scoreStraight(dice), 0);
+        expect(Scoring.scoreLongStraight(dice), 0);
+      });
+    });
+
+    group('scoreChance', () {
+      test('returns sum of all dice values', () {
+        final dice = [0, 1, 2, 3, 4];
+        expect(Scoring.scoreChance(dice), 10);
+      });
+
+      test('returns sum for all Aces', () {
+        final dice = [5, 5, 5, 5, 5];
+        expect(Scoring.scoreChance(dice), 25);
+      });
+
+      test('returns sum for mixed values', () {
+        final dice = [0, 2, 3, 4, 5];
+        expect(Scoring.scoreChance(dice), 14);
+      });
+
+      test('returns 0 for all 9s', () {
+        final dice = [0, 0, 0, 0, 0];
+        expect(Scoring.scoreChance(dice), 0);
+      });
+
+      test('always returns sum regardless of combination', () {
+        final dice = [1, 1, 3, 3, 5];
+        expect(Scoring.scoreChance(dice), 13);
       });
     });
 
@@ -359,11 +423,11 @@ void main() {
   });
 
   group('Bonus Calculation Tests', () {
-    test('returns 10 bonus when upper section total >= 30', () {
+    test('returns bonus when upper section total >= 65', () {
       final upperScores = [1, 2, 3, 4, 5, 6];
       int total = upperScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= 30, false);
+      expect(total >= 65, false);
     });
 
     test('upper section minimum scores for bonus', () {
@@ -371,22 +435,38 @@ void main() {
       final minScores = [1, 2, 3, 4, 5, 6];
       int total = minScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= 30, false);
+      expect(total >= 65, false);
     });
 
-    test('upper section with low scores still meets bonus', () {
+    test('upper section with low scores does not meet bonus', () {
       final lowScores = [0, 0, 0, 0, 0, 0];
       int total = lowScores.fold(0, (sum, score) => sum + score);
       expect(total, 0);
-      expect(total >= 30, false);
+      expect(total >= 65, false);
     });
 
-    test('upper section with minimal pairs meets bonus', () {
+    test('upper section with minimal pairs does not meet bonus', () {
       // One of each: 1+2+3+4+5+6 = 21
       final minimalScores = [1, 2, 3, 4, 5, 6];
       int total = minimalScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= 30, false);
+      expect(total >= 65, false);
+    });
+
+    test('upper section with high scores meets bonus threshold', () {
+      // Two of each: 2+4+6+8+10+12 = 42
+      final highScores = [2, 4, 6, 8, 10, 12];
+      int total = highScores.fold(0, (sum, score) => sum + score);
+      expect(total, 42);
+      expect(total >= 65, false);
+    });
+
+    test('upper section with maximum scores meets bonus', () {
+      // Five of each: 5+10+15+20+25+30 = 105
+      final maxScores = [5, 10, 15, 20, 25, 30];
+      int total = maxScores.fold(0, (sum, score) => sum + score);
+      expect(total, 105);
+      expect(total >= 65, true);
     });
   });
 
@@ -432,9 +512,9 @@ void main() {
         expect(Scoring.scoreFourOfAKind(dice), 25);
       });
 
-      test('scoreStraight returns 0', () {
+      test('scoreLongStraight returns 0', () {
         final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreStraight(dice), 0);
+        expect(Scoring.scoreLongStraight(dice), 0);
       });
 
       test('scoreFullHouse returns 0', () {

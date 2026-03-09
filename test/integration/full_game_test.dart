@@ -438,17 +438,19 @@ void main() {
     });
 
     test('final score includes bonus correctly', () {
-      // Score upper section categories to get bonus
-      container.read(gameProvider.notifier).selectScore(0, 10);
-      container.read(gameProvider.notifier).selectScore(1, 10);
-      container.read(gameProvider.notifier).selectScore(2, 10);
+      // Score upper section categories to get bonus (need 65+ for bonus)
+      container.read(gameProvider.notifier).selectScore(0, 15);
+      container.read(gameProvider.notifier).selectScore(1, 15);
+      container.read(gameProvider.notifier).selectScore(2, 15);
+      container.read(gameProvider.notifier).selectScore(3, 15);
+      container.read(gameProvider.notifier).selectScore(4, 15);
 
       final state = container.read(gameProvider);
-      expect(state.getUpperSectionTotal(), 30);
+      expect(state.getUpperSectionTotal(), 75);
       expect(state.getBonus(), 20);
 
       // Fill remaining categories
-      for (int i = 3; i < 13; i++) {
+      for (int i = 5; i < 13; i++) {
         container.read(gameProvider.notifier).selectScore(i, 10);
       }
 

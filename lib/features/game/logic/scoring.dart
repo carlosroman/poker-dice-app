@@ -57,16 +57,11 @@ class Scoring {
     return countOccurrences(diceValues, 0) * 1;
   }
 
-  /// Calculates score for Flush category.
+  /// Calculates score for Chance category.
   ///
-  /// Returns sum of all dice if all 5 dice have different values (5 unique values).
-  /// Returns 0 otherwise.
-  static int scoreFlush(List<int> diceValues) {
-    final uniqueValues = diceValues.toSet();
-    if (uniqueValues.length == 5) {
-      return diceValues.fold(0, (sum, value) => sum + value);
-    }
-    return 0;
+  /// Returns sum of all dice values.
+  static int scoreChance(List<int> diceValues) {
+    return diceValues.fold(0, (sum, value) => sum + value);
   }
 
   /// Calculates score for Three of a Kind category.
@@ -91,14 +86,23 @@ class Scoring {
     return diceValues.fold(0, (sum, value) => sum + value);
   }
 
-  /// Calculates score for Straight category.
+  /// Calculates score for Long Straight category.
   ///
-  /// Returns 40 points if dice form a straight (5 consecutive values).
-  /// Small Straight: 9-10-J-Q-K (indices 0-4)
-  /// Large Straight: 10-J-Q-K-A (indices 1-5)
-  /// Returns 0 if straight is not present.
-  static int scoreStraight(List<int> diceValues) {
-    return hasStraight(diceValues) ? 40 : 0;
+  /// Returns 40 points if dice form a long straight (5 consecutive values).
+  /// Small Long Straight: 9-10-J-Q-K (indices 0-4)
+  /// Large Long Straight: 10-J-Q-K-A (indices 1-5)
+  /// Returns 0 if long straight is not present.
+  static int scoreLongStraight(List<int> diceValues) {
+    return hasLongStraight(diceValues) ? 40 : 0;
+  }
+
+  /// Calculates score for Small Straight category.
+  ///
+  /// Returns 30 points if dice form a small straight (4 consecutive values).
+  /// Examples: 9-10-J-Q (0-1-2-3), 10-J-Q-K (1-2-3-4), J-Q-K-A (2-3-4-5)
+  /// Returns 0 if small straight is not present.
+  static int scoreSmallStraight(List<int> diceValues) {
+    return hasSmallStraight(diceValues) ? 30 : 0;
   }
 
   /// Calculates score for Full House category.
@@ -230,6 +234,53 @@ class Scoring {
     return false;
   }
 
+  /// Checks if the dice contain a small straight (4 consecutive values).
+  ///
+  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  ///
+  /// Returns true if dice contain any 4 consecutive values:
+  /// - 9-10-J-Q (indices 0-1-2-3)
+  /// - 10-J-Q-K (indices 1-2-3-4)
+  /// - J-Q-K-A (indices 2-3-4-5)
+  static bool hasSmallStraight(List<int> diceValues) {
+    final uniqueValues = diceValues.toSet();
+    // Check for 4 consecutive values starting at each possible index
+    const straights = [
+      {0, 1, 2, 3}, // 9-10-J-Q
+      {1, 2, 3, 4}, // 10-J-Q-K
+      {2, 3, 4, 5}, // J-Q-K-A
+    ];
+    for (final straight in straights) {
+      if (uniqueValues.intersection(straight).length == 4) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Checks if the dice contain a long straight (5 consecutive values).
+  ///
+  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  ///
+  /// Returns true if dice form either:
+  /// - Small Long Straight: 9-10-J-Q-K (indices 0-4)
+  /// - Large Long Straight: 10-J-Q-K-A (indices 1-5)
+  static bool hasLongStraight(List<int> diceValues) {
+    final uniqueValues = diceValues.toSet();
+    if (uniqueValues.length != 5) {
+      return false;
+    }
+    const smallLongStraight = {0, 1, 2, 3, 4};
+    if (uniqueValues.intersection(smallLongStraight).length == 5) {
+      return true;
+    }
+    const largeLongStraight = {1, 2, 3, 4, 5};
+    if (uniqueValues.intersection(largeLongStraight).length == 5) {
+      return true;
+    }
+    return false;
+  }
+
   /// Checks if the dice contain a straight (5 consecutive values).
   ///
   /// [diceValues] - List of value indices (0-5) representing dice faces.
@@ -237,20 +288,10 @@ class Scoring {
   /// Returns true if dice form either:
   /// - Small Straight: 9-10-J-Q-K (indices 0-4)
   /// - Large Straight: 10-J-Q-K-A (indices 1-5)
+  ///
+  /// Deprecated: Use [hasLongStraight] instead.
   static bool hasStraight(List<int> diceValues) {
-    final uniqueValues = diceValues.toSet();
-    if (uniqueValues.length != 5) {
-      return false;
-    }
-    const smallStraight = {0, 1, 2, 3, 4};
-    if (uniqueValues.intersection(smallStraight).length == 5) {
-      return true;
-    }
-    const largeStraight = {1, 2, 3, 4, 5};
-    if (uniqueValues.intersection(largeStraight).length == 5) {
-      return true;
-    }
-    return false;
+    return hasLongStraight(diceValues);
   }
 
   /// Checks if the dice contain a full house (three + pair).

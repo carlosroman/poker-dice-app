@@ -114,6 +114,16 @@ class GameNotifier extends Notifier<GameState> {
   /// [diceValues] - List of dice values (0-5) to calculate scores for.
   ///
   /// Returns a list of 13 integers representing potential scores for each category.
+  ///
+  /// Category order:
+  /// - Index 0-5: Upper section (9s, 10s, Js, Qs, Ks, As)
+  /// - Index 6: Three of a Kind
+  /// - Index 7: Four of a Kind
+  /// - Index 8: Full House
+  /// - Index 9: Sm. Straight (30 points for 4 consecutive)
+  /// - Index 10: Lg. Straight (40 points for 5 consecutive)
+  /// - Index 11: Chance (sum of all dice)
+  /// - Index 12: Bonus
   List<int> getPotentialScores(List<int> diceValues) {
     if (diceValues.length != NUM_DICE) {
       throw ArgumentError('diceValues must contain exactly 5 values');
@@ -129,9 +139,9 @@ class GameNotifier extends Notifier<GameState> {
       Scoring.scoreThreeOfAKind(diceValues),
       Scoring.scoreFourOfAKind(diceValues),
       Scoring.scoreFullHouse(diceValues),
-      Scoring.scoreStraight(diceValues),
-      Scoring.scoreFlush(diceValues),
-      Scoring.scoreYatzy(diceValues),
+      Scoring.scoreSmallStraight(diceValues),
+      Scoring.scoreLongStraight(diceValues),
+      Scoring.scoreChance(diceValues),
       0, // Bonus
     ];
   }

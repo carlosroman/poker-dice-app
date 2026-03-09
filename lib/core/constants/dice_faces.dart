@@ -19,7 +19,7 @@ const List<Object> DICE_FACES = [9, 10, 'J', 'Q', 'K', 'A'];
 const int MAX_ROLLS = 3;
 
 /// Minimum sum required in upper section to earn bonus.
-const int BONUS_THRESHOLD = 30;
+const int BONUS_THRESHOLD = 65;
 
 /// Bonus points awarded when upper section sum meets threshold.
 const int BONUS_POINTS = 20;
@@ -52,16 +52,16 @@ const List<String> UPPER_CATEGORIES = ['9s', '10s', 'Js', 'Qs', 'Ks', 'As'];
 /// - Three of a Kind: sum of all dice
 /// - Four of a Kind: sum of all dice
 /// - Full House: 25 points
-/// - Straight: 40 points
-/// - Flush: sum of all dice
-/// - Five of a Kind: 50 points
+/// - Sm. Straight: 30 points (4 consecutive values)
+/// - Lg. Straight: 40 points (5 consecutive values)
+/// - Chance: sum of all dice
 const List<String> LOWER_CATEGORIES = [
   'Three of a Kind',
   'Four of a Kind',
   'Full House',
-  'Straight',
-  'Flush',
-  'Five of a Kind',
+  'Sm. Straight',
+  'Lg. Straight',
+  'Chance',
 ];
 
 /// Bonus category name.
