@@ -54,14 +54,14 @@ const List<String> UPPER_CATEGORIES = ['9s', '10s', 'Js', 'Qs', 'Ks', 'As'];
 /// - Full House: 25 points
 /// - Sm. Straight: 30 points (4 consecutive values)
 /// - Lg. Straight: 40 points (5 consecutive values)
-/// - Chance: sum of all dice
+/// - Yahtzee: 50 points (5 same)
 const List<String> LOWER_CATEGORIES = [
   'Three of a Kind',
   'Four of a Kind',
   'Full House',
   'Sm. Straight',
   'Lg. Straight',
-  'Chance',
+  'Yahtzee',
 ];
 
 /// Bonus category name.

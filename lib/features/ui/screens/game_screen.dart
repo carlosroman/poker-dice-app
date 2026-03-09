@@ -296,7 +296,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       Icons.home,
       Icons.credit_card,
       Icons.credit_card,
-      'Yatzy',
+      '?',
     ];
 
     return Column(
@@ -981,7 +981,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 style: GoogleFonts.openSans(color: Colors.grey[300]),
               ),
               Text(
-                '• Yatzy: 50 points (5 same)',
+                '• Yahtzee: 50 points (5 of a kind)',
                 style: GoogleFonts.openSans(color: Colors.grey[300]),
               ),
             ],

@@ -122,7 +122,7 @@ class GameNotifier extends Notifier<GameState> {
   /// - Index 8: Full House
   /// - Index 9: Sm. Straight (30 points for 4 consecutive)
   /// - Index 10: Lg. Straight (40 points for 5 consecutive)
-  /// - Index 11: Chance (sum of all dice)
+  /// - Index 11: Yahtzee (50 points for 5 of a kind)
   /// - Index 12: Bonus
   List<int> getPotentialScores(List<int> diceValues) {
     if (diceValues.length != NUM_DICE) {
@@ -141,7 +141,7 @@ class GameNotifier extends Notifier<GameState> {
       Scoring.scoreFullHouse(diceValues),
       Scoring.scoreSmallStraight(diceValues),
       Scoring.scoreLongStraight(diceValues),
-      Scoring.scoreChance(diceValues),
+      Scoring.scoreYatzy(diceValues),
       0, // Bonus
     ];
   }
