@@ -31,9 +31,9 @@ const int NUM_DICE = 5;
 ///
 /// Breakdown:
 /// - 6 upper section categories (pairs of each face)
-/// - 6 lower section categories (combinations)
+/// - 7 lower section categories (combinations + Chance)
 /// - 1 bonus category
-const int NUM_CATEGORIES = 13;
+const int NUM_CATEGORIES = 14;
 
 /// Minor section scoring category names.
 ///
@@ -55,6 +55,7 @@ const List<String> UPPER_CATEGORIES = ['9s', '10s', 'Js', 'Qs', 'Ks', 'As'];
 /// - Sm. Straight: 30 points (4 consecutive values)
 /// - Lg. Straight: 40 points (5 consecutive values)
 /// - Yahtzee: 50 points (5 same)
+/// - Chance: sum of all dice
 const List<String> LOWER_CATEGORIES = [
   'Three of a Kind',
   'Four of a Kind',
@@ -62,6 +63,7 @@ const List<String> LOWER_CATEGORIES = [
   'Sm. Straight',
   'Lg. Straight',
   'Yahtzee',
+  'Chance',
 ];
 
 /// Bonus category name.

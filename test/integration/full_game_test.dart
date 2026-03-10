@@ -170,10 +170,10 @@ void main() {
       });
     });
 
-    group('Game ends when all 13 categories filled tests', () {
-      test('filling 12th category ends game', () {
-        // Score 11 categories
-        for (int i = 0; i < 11; i++) {
+    group('Game ends when all 14 categories filled tests', () {
+      test('filling 13th category ends game', () {
+        // Score 12 categories
+        for (int i = 0; i < 12; i++) {
           container.read(gameProvider.notifier).selectScore(i, i * 5);
         }
 
@@ -181,8 +181,8 @@ void main() {
         expect(state.isGameOver, false);
         expect(state.categoriesRemaining(), 2);
 
-        // Score the 12th category - triggers game over (1 category remains)
-        container.read(gameProvider.notifier).selectScore(11, 55);
+        // Score the 13th category - triggers game over (1 category remains)
+        container.read(gameProvider.notifier).selectScore(12, 55);
 
         state = container.read(gameProvider);
         expect(state.isGameOver, true);
@@ -190,8 +190,8 @@ void main() {
       });
 
       test('game over prevents further play', () {
-        // Fill all 13 categories
-        for (int i = 0; i < 13; i++) {
+        // Fill all 14 categories
+        for (int i = 0; i < 14; i++) {
           container.read(gameProvider.notifier).selectScore(i, i * 5);
         }
 
@@ -206,16 +206,16 @@ void main() {
         expect(state.isTurnActive, false);
       });
 
-      test('game over triggers after 12 categories are filled', () {
-        // Score 11 categories
-        for (int i = 0; i < 11; i++) {
+      test('game over triggers after 13 categories are filled', () {
+        // Score 12 categories
+        for (int i = 0; i < 12; i++) {
           container.read(gameProvider.notifier).selectScore(i, 10);
         }
 
         expect(container.read(gameProvider).isGameOver, false);
 
-        // Score 12th category - triggers game over
-        container.read(gameProvider.notifier).selectScore(11, 55);
+        // Score 13th category - triggers game over
+        container.read(gameProvider.notifier).selectScore(12, 55);
 
         expect(container.read(gameProvider).isGameOver, true);
       });
@@ -355,7 +355,7 @@ void main() {
       await container.read(scoreProvider.future);
 
       // Fill all categories with known scores
-      for (int i = 0; i < 13; i++) {
+      for (int i = 0; i < NUM_CATEGORIES; i++) {
         container.read(gameProvider.notifier).selectScore(i, (i + 1) * 10);
       }
 
@@ -364,7 +364,7 @@ void main() {
 
       // Calculate expected total
       int expectedTotal = 0;
-      for (int i = 0; i < 13; i++) {
+      for (int i = 0; i < NUM_CATEGORIES; i++) {
         expectedTotal += (i + 1) * 10;
       }
       expectedTotal += state.getBonus();
@@ -384,7 +384,7 @@ void main() {
       await container.read(scoreProvider.future);
 
       // Fill all categories
-      for (int i = 0; i < 13; i++) {
+      for (int i = 0; i < NUM_CATEGORIES; i++) {
         container.read(gameProvider.notifier).selectScore(i, i * 10);
       }
 
@@ -398,7 +398,7 @@ void main() {
 
     test('can play again after game over', () {
       // Fill all categories to trigger game over
-      for (int i = 0; i < 13; i++) {
+      for (int i = 0; i < NUM_CATEGORIES; i++) {
         container.read(gameProvider.notifier).selectScore(i, i * 5);
       }
 
@@ -450,7 +450,7 @@ void main() {
       expect(state.getBonus(), 20);
 
       // Fill remaining categories
-      for (int i = 5; i < 13; i++) {
+      for (int i = 5; i < NUM_CATEGORIES; i++) {
         container.read(gameProvider.notifier).selectScore(i, 10);
       }
 
@@ -624,8 +624,8 @@ void main() {
       expect(state.turnNumber, 1);
       expect(state.isGameOver, false);
 
-      // Play all 12 turns (game ends after 12th category)
-      for (int turn = 0; turn < 12; turn++) {
+      // Play all NUM_CATEGORIES turns (game ends after last category)
+      for (int turn = 0; turn < NUM_CATEGORIES; turn++) {
         // If not first turn, roll dice
         if (turn > 0) {
           container.read(gameProvider.notifier).rollDice();
@@ -639,12 +639,12 @@ void main() {
 
         state = container.read(gameProvider);
 
-        if (turn < 11) {
+        if (turn < 12) {
           expect(state.isGameOver, false);
           expect(state.turnNumber, turn + 2);
         } else {
           expect(state.isGameOver, true);
-          expect(state.turnNumber, 12);
+          expect(state.turnNumber, 13);
         }
 
         expect(state.isCategoryScored(categoryIndex), true);

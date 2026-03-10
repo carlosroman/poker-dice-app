@@ -193,8 +193,8 @@ void main() {
       expect(state2.turnNumber, 3);
     });
 
-    test('game over when all 13 categories filled', () {
-      // Score all 13 categories
+    test('game over when all 14 categories filled', () {
+      // Score all 14 categories
       for (int i = 0; i < NUM_CATEGORIES; i++) {
         container.read(gameProvider.notifier).selectScore(i, i * 5);
       }
@@ -207,7 +207,7 @@ void main() {
 
     test('selectScore() with invalid index does nothing', () {
       container.read(gameProvider.notifier).selectScore(-1, 10);
-      container.read(gameProvider.notifier).selectScore(13, 10);
+      container.read(gameProvider.notifier).selectScore(14, 10);
 
       final state = container.read(gameProvider);
       for (int i = 0; i < NUM_CATEGORIES; i++) {

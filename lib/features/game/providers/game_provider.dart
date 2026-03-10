@@ -75,7 +75,7 @@ class GameNotifier extends Notifier<GameState> {
 
   /// Scores a category and advances the turn.
   ///
-  /// [categoryIndex] - The index of the category to score (0-12).
+  /// [categoryIndex] - The index of the category to score (0-13).
   /// [score] - The score value to assign to the category.
   ///
   /// If all categories are filled after scoring, the game ends.
@@ -113,7 +113,7 @@ class GameNotifier extends Notifier<GameState> {
   ///
   /// [diceValues] - List of dice values (0-5) to calculate scores for.
   ///
-  /// Returns a list of 13 integers representing potential scores for each category.
+  /// Returns a list of 14 integers representing potential scores for each category.
   ///
   /// Category order:
   /// - Index 0-5: Upper section (9s, 10s, Js, Qs, Ks, As)
@@ -123,7 +123,8 @@ class GameNotifier extends Notifier<GameState> {
   /// - Index 9: Sm. Straight (30 points for 4 consecutive)
   /// - Index 10: Lg. Straight (40 points for 5 consecutive)
   /// - Index 11: Yahtzee (50 points for 5 of a kind)
-  /// - Index 12: Bonus
+  /// - Index 12: Chance (sum of all dice)
+  /// - Index 13: Bonus
   List<int> getPotentialScores(List<int> diceValues) {
     if (diceValues.length != NUM_DICE) {
       throw ArgumentError('diceValues must contain exactly 5 values');
@@ -142,6 +143,7 @@ class GameNotifier extends Notifier<GameState> {
       Scoring.scoreSmallStraight(diceValues),
       Scoring.scoreLongStraight(diceValues),
       Scoring.scoreYatzy(diceValues),
+      Scoring.scoreChance(diceValues),
       0, // Bonus
     ];
   }

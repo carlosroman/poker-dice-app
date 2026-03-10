@@ -186,7 +186,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         : List.filled(5, 0);
     final potentialScores = diceHaveValues
         ? ref.read(gameProvider.notifier).getPotentialScores(diceValues)
-        : List.filled(13, 0);
+        : List.filled(NUM_CATEGORIES, 0);
 
     return Container(
       decoration: BoxDecoration(
@@ -297,6 +297,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       Icons.credit_card,
       Icons.credit_card,
       'Y',
+      'C',
     ];
 
     return Column(
@@ -735,7 +736,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         : List.filled(5, 0);
     final potentialScores = diceHaveValues
         ? ref.read(gameProvider.notifier).getPotentialScores(diceValues)
-        : List.filled(13, 0);
+        : List.filled(NUM_CATEGORIES, 0);
 
     showDialog(
       context: context,
@@ -753,7 +754,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           width: double.maxFinite,
           child: ListView(
             shrinkWrap: true,
-            children: List.generate(13, (index) {
+            children: List.generate(NUM_CATEGORIES, (index) {
               final isScored = gameState.isCategoryScored(index);
               final category = gameState.scoreCategories[index];
               final potentialScore = isScored ? null : potentialScores[index];

@@ -13,9 +13,9 @@ class ScoreCategory {
   });
 }
 
-/// A widget that displays the poker dice score sheet with all 13 categories.
+/// A widget that displays the poker dice score sheet with all 14 categories.
 class ScoreSheet extends StatelessWidget {
-  /// All 13 scoring categories for poker dice.
+  /// All 14 scoring categories for poker dice.
   final List<ScoreCategory> categories;
 
   /// Potential scores for each category (null if already scored).
@@ -38,9 +38,9 @@ class ScoreSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final upperCategories = categories.take(6).toList();
-    final lowerCategories = categories.skip(6).take(6).toList();
+    final lowerCategories = categories.skip(6).take(7).toList();
     final upperScores = potentialScores.take(6).toList();
-    final lowerScores = potentialScores.skip(6).take(6).toList();
+    final lowerScores = potentialScores.skip(6).take(7).toList();
 
     return Container(
       decoration: BoxDecoration(

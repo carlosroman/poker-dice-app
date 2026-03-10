@@ -94,9 +94,9 @@ void main() {
   });
 
   group('Game over detection tests', () {
-    test('filling the 12th category triggers game over', () {
-      // Score 11 categories (leaving 2 remaining)
-      for (int i = 0; i < 11; i++) {
+    test('filling the 13th category triggers game over', () {
+      // Score 12 categories (leaving 2 remaining)
+      for (int i = 0; i < 12; i++) {
         container.read(gameProvider.notifier).selectScore(i, i * 5);
       }
 
@@ -104,30 +104,30 @@ void main() {
       expect(state.isGameOver, false);
       expect(state.categoriesRemaining(), 2);
 
-      // Score the 12th category - this triggers game over (categoriesRemaining <= 1)
-      container.read(gameProvider.notifier).selectScore(11, 55);
+      // Score the 13th category - this triggers game over (categoriesRemaining <= 1)
+      container.read(gameProvider.notifier).selectScore(12, 55);
 
       state = container.read(gameProvider);
       expect(state.isGameOver, true);
     });
 
-    test('isGameOver becomes true when 12 categories are filled', () {
-      // Score 11 categories
-      for (int i = 0; i < 11; i++) {
+    test('isGameOver becomes true when 13 categories are filled', () {
+      // Score 12 categories
+      for (int i = 0; i < 12; i++) {
         container.read(gameProvider.notifier).selectScore(i, i * 5);
       }
 
       expect(container.read(gameProvider).isGameOver, false);
 
-      // Fill the 12th category - triggers game over
-      container.read(gameProvider.notifier).selectScore(11, 50);
+      // Fill the 13th category - triggers game over
+      container.read(gameProvider.notifier).selectScore(12, 50);
 
       expect(container.read(gameProvider).isGameOver, true);
     });
 
     test('no more turns can be played after game over', () {
-      // Score 12 categories to trigger game over
-      for (int i = 0; i < 12; i++) {
+      // Score NUM_CATEGORIES categories to trigger game over
+      for (int i = 0; i < NUM_CATEGORIES; i++) {
         container.read(gameProvider.notifier).selectScore(i, i * 5);
       }
 
@@ -139,7 +139,7 @@ void main() {
       final state = container.read(gameProvider);
       expect(state.isGameOver, true);
       expect(state.rollsRemaining, MAX_ROLLS);
-      expect(state.turnNumber, 12);
+      expect(state.turnNumber, 13);
     });
   });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/features/ui/widgets/score_sheet.dart';
+import 'package:poker_dice/core/constants/dice_faces.dart';
 
 Widget createTestApp(Widget child) {
   return MaterialApp(
@@ -23,10 +24,11 @@ void main() {
         ScoreCategory(name: 'Three of a Kind', minScore: 0, maxScore: 30),
         ScoreCategory(name: 'Four of a Kind', minScore: 0, maxScore: 30),
         ScoreCategory(name: 'Full House', minScore: 0, maxScore: 30),
-        ScoreCategory(name: 'Straight', minScore: 0, maxScore: 30),
-        ScoreCategory(name: 'Flush', minScore: 0, maxScore: 30),
-        ScoreCategory(name: 'Five of a Kind', minScore: 0, maxScore: 30),
-        ScoreCategory(name: 'Super Bonus', minScore: 0, maxScore: 50),
+        ScoreCategory(name: 'Sm. Straight', minScore: 0, maxScore: 30),
+        ScoreCategory(name: 'Lg. Straight', minScore: 0, maxScore: 30),
+        ScoreCategory(name: 'Yahtzee', minScore: 0, maxScore: 30),
+        ScoreCategory(name: 'Chance', minScore: 0, maxScore: 30),
+        ScoreCategory(name: 'Bonus', minScore: 0, maxScore: 50),
       ];
     }
 
@@ -47,7 +49,7 @@ void main() {
     }
 
     group('displays all categories', () {
-      testWidgets('displays all 12 category names', (
+      testWidgets('displays all 14 category names', (
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
@@ -55,7 +57,7 @@ void main() {
         await tester.pumpWidget(
           createScoreSheet(
             categories: categories,
-            potentialScores: List.filled(12, 0),
+            potentialScores: List.filled(14, 0),
           ),
         );
 
@@ -68,9 +70,10 @@ void main() {
         expect(find.text('Three of a Kind'), findsOneWidget);
         expect(find.text('Four of a Kind'), findsOneWidget);
         expect(find.text('Full House'), findsOneWidget);
-        expect(find.text('Straight'), findsOneWidget);
-        expect(find.text('Flush'), findsOneWidget);
-        expect(find.text('Five of a Kind'), findsOneWidget);
+        expect(find.text('Sm. Straight'), findsOneWidget);
+        expect(find.text('Lg. Straight'), findsOneWidget);
+        expect(find.text('Yahtzee'), findsOneWidget);
+        expect(find.text('Chance'), findsOneWidget);
       });
 
       testWidgets('upper section shows 6 pair categories', (
@@ -81,7 +84,7 @@ void main() {
         await tester.pumpWidget(
           createScoreSheet(
             categories: categories,
-            potentialScores: List.filled(13, 0),
+            potentialScores: List.filled(NUM_CATEGORIES, 0),
           ),
         );
 
@@ -94,7 +97,7 @@ void main() {
         expect(find.text('As'), findsOneWidget);
       });
 
-      testWidgets('lower section shows 6 combination categories', (
+      testWidgets('lower section shows 7 combination categories', (
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
@@ -102,7 +105,7 @@ void main() {
         await tester.pumpWidget(
           createScoreSheet(
             categories: categories,
-            potentialScores: List.filled(13, 0),
+            potentialScores: List.filled(14, 0),
           ),
         );
 
@@ -110,9 +113,10 @@ void main() {
         expect(find.text('Three of a Kind'), findsOneWidget);
         expect(find.text('Four of a Kind'), findsOneWidget);
         expect(find.text('Full House'), findsOneWidget);
-        expect(find.text('Straight'), findsOneWidget);
-        expect(find.text('Flush'), findsOneWidget);
-        expect(find.text('Five of a Kind'), findsOneWidget);
+        expect(find.text('Sm. Straight'), findsOneWidget);
+        expect(find.text('Lg. Straight'), findsOneWidget);
+        expect(find.text('Yahtzee'), findsOneWidget);
+        expect(find.text('Chance'), findsOneWidget);
       });
     });
 
@@ -121,7 +125,21 @@ void main() {
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
-        final potentialScores = [15, 20, 10, 25, 30, 5, 12, 18, 22, 28, 15, 30];
+        final potentialScores = [
+          15,
+          20,
+          10,
+          25,
+          30,
+          5,
+          12,
+          18,
+          22,
+          28,
+          15,
+          30,
+          25,
+        ];
 
         await tester.pumpWidget(
           createScoreSheet(
@@ -133,7 +151,7 @@ void main() {
         expect(find.text('15'), findsWidgets);
         expect(find.text('20'), findsOneWidget);
         expect(find.text('10'), findsOneWidget);
-        expect(find.text('25'), findsOneWidget);
+        expect(find.text('25'), findsWidgets);
         expect(find.text('30'), findsWidgets);
         expect(find.text('5'), findsOneWidget);
         expect(find.text('12'), findsOneWidget);
@@ -146,7 +164,7 @@ void main() {
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
-        final potentialScores = List<int?>.generate(12, (index) => null);
+        final potentialScores = List<int?>.generate(14, (index) => null);
 
         await tester.pumpWidget(
           createScoreSheet(
@@ -155,14 +173,14 @@ void main() {
           ),
         );
 
-        expect(find.text('0'), findsNWidgets(13));
+        expect(find.text('0'), findsNWidgets(14));
       });
 
       testWidgets('disabled categories are grayed out', (
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
-        final potentialScores = List.filled(12, 0);
+        final potentialScores = List.filled(14, 0);
 
         await tester.pumpWidget(
           createScoreSheet(
@@ -191,7 +209,7 @@ void main() {
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
-        final potentialScores = List.filled(13, 0);
+        final potentialScores = List.filled(14, 0);
         int? selectedCategoryIndex;
 
         await tester.pumpWidget(
@@ -215,7 +233,7 @@ void main() {
         WidgetTester tester,
       ) async {
         final categories = createTestCategories();
-        final potentialScores = List<int?>.generate(12, (index) => null);
+        final potentialScores = List<int?>.generate(14, (index) => null);
         int? selectedCategoryIndex;
 
         await tester.pumpWidget(
@@ -243,7 +261,7 @@ void main() {
         'tap on unavailable category when turn inactive does not trigger callback',
         (WidgetTester tester) async {
           final categories = createTestCategories();
-          final potentialScores = List.filled(12, 0);
+          final potentialScores = List.filled(14, 0);
           int? selectedCategoryIndex;
 
           await tester.pumpWidget(
