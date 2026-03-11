@@ -24,6 +24,9 @@ class GameState {
   /// Whether the game has ended.
   final bool isGameOver;
 
+  /// Index of the category currently selected but not yet confirmed (null if none).
+  final int? pendingSelection;
+
   /// Creates a new GameState instance.
   ///
   /// [dice] defaults to 5 fresh dice.
@@ -32,6 +35,7 @@ class GameState {
   /// [scoreCategories] defaults to 13 unscored categories.
   /// [turnNumber] defaults to 1.
   /// [isGameOver] defaults to false.
+  /// [pendingSelection] defaults to null (no pending selection).
   GameState({
     List<Dice>? dice,
     this.rollsRemaining = MAX_ROLLS,
@@ -39,13 +43,15 @@ class GameState {
     List<ScoreCategory>? scoreCategories,
     this.turnNumber = 1,
     this.isGameOver = false,
+    int? pendingSelection,
   }) : dice = dice ?? List.generate(NUM_DICE, (_) => Dice()),
        scoreCategories =
            scoreCategories ??
            List.generate(
              NUM_CATEGORIES,
              (index) => ScoreCategory(index: index),
-           );
+           ),
+       pendingSelection = pendingSelection;
 
   /// Returns a new [GameState] with fresh state for a new game.
   GameState resetGame() {
@@ -59,6 +65,7 @@ class GameState {
       ),
       turnNumber: 1,
       isGameOver: false,
+      pendingSelection: null,
     );
   }
 
@@ -71,6 +78,40 @@ class GameState {
       scoreCategories: scoreCategories,
       turnNumber: turnNumber,
       isGameOver: isGameOver,
+      pendingSelection: null,
+    );
+  }
+
+  /// Returns a new [GameState] with the pending selection set.
+  ///
+  /// [index] is the category index to set as pending, or null to clear.
+  GameState selectPending(int? index) {
+    return GameState(
+      dice: dice,
+      rollsRemaining: rollsRemaining,
+      isTurnActive: isTurnActive,
+      scoreCategories: scoreCategories,
+      turnNumber: turnNumber,
+      isGameOver: isGameOver,
+      pendingSelection: index,
+    );
+  }
+
+  /// Returns the pending selection index, or null if none.
+  int? getPendingSelection() {
+    return pendingSelection;
+  }
+
+  /// Returns a new [GameState] with the pending selection cleared.
+  GameState clearPendingSelection() {
+    return GameState(
+      dice: dice,
+      rollsRemaining: rollsRemaining,
+      isTurnActive: isTurnActive,
+      scoreCategories: scoreCategories,
+      turnNumber: turnNumber,
+      isGameOver: isGameOver,
+      pendingSelection: null,
     );
   }
 
@@ -88,6 +129,7 @@ class GameState {
       scoreCategories: updatedCategories,
       turnNumber: turnNumber,
       isGameOver: isGameOver,
+      pendingSelection: null,
     );
   }
 

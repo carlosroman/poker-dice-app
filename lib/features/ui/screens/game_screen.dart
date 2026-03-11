@@ -272,7 +272,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
             scoredValue: scoredValue,
             potentialScore: potentialScore,
             isMinor: true,
-            onTap: () => _onCategorySelected(ref, index, potentialScore ?? 0),
+            isPending: gameState.pendingSelection == index,
+            onTap: () => _onCategorySelected(ref, index),
             enabled: !isScored && gameState.isTurnActive,
           );
         }),
@@ -327,7 +328,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
             scoredValue: scoredValue,
             potentialScore: potentialScore,
             isMinor: false,
-            onTap: () => _onCategorySelected(ref, index, potentialScore ?? 0),
+            isPending: gameState.pendingSelection == index,
+            onTap: () => _onCategorySelected(ref, index),
             enabled: !isScored && gameState.isTurnActive,
           );
         }),
@@ -344,6 +346,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     required int scoredValue,
     required int? potentialScore,
     required bool isMinor,
+    required bool isPending,
     required VoidCallback? onTap,
     required bool enabled,
   }) {
@@ -357,11 +360,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: enabled ? Colors.grey[800] : Colors.transparent,
+              color: isPending
+                  ? const Color(0xFFFFA726).withValues(alpha: 0.2)
+                  : enabled
+                  ? Colors.grey[800]
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isScored ? Colors.blue : Colors.grey[600]!,
-                width: isScored ? 2 : 1,
+                color: isScored
+                    ? Colors.blue
+                    : isPending
+                    ? const Color(0xFFFFA726)
+                    : Colors.grey[600]!,
+                width: isScored || isPending ? 2 : 1,
               ),
             ),
             child: Row(
@@ -371,7 +382,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFA726),
+                    color: isPending
+                        ? const Color(0xFFFFA726)
+                        : const Color(0xFFFFA726),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Center(
@@ -385,12 +398,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     isMinor ? _getDieFaceValue(category) : category,
                     style: GoogleFonts.openSans(
                       fontSize: 10,
-                      color: enabled
+                      color: isPending
+                          ? const Color(0xFFFFA726)
+                          : enabled
                           ? Colors.grey[200]
                           : isScored
                           ? Colors.blue[300]
                           : Colors.grey[500],
-                      fontWeight: isScored
+                      fontWeight: isScored || isPending
                           ? FontWeight.w600
                           : FontWeight.normal,
                     ),
@@ -422,7 +437,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     potentialScore?.toString() ?? '0',
                     style: GoogleFonts.openSans(
                       fontSize: 11,
-                      color: enabled ? Colors.white : Colors.grey[600],
+                      color: isPending
+                          ? const Color(0xFFFFA726)
+                          : enabled
+                          ? Colors.white
+                          : Colors.grey[600],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -609,23 +628,25 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
-  /// Builds the PLAY button to submit score.
+  /// Builds the PLAY button to confirm pending selection and submit score.
   Widget _buildPlayButton(
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
   ) {
-    final canPlay = gameState.isTurnActive;
+    // Can only play if there's a pending selection and turn is active
+    final hasPendingSelection = gameState.pendingSelection != null;
+    final canPlay = gameState.isTurnActive && hasPendingSelection;
 
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: canPlay
-            ? () => _showScoreSelectionDialog(context, gameState, ref)
+            ? () => ref.read(gameProvider.notifier).confirmSelection()
             : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFFFFA726),
+          backgroundColor: canPlay ? Colors.white : Colors.grey[600],
+          foregroundColor: canPlay ? const Color(0xFFFFA726) : Colors.grey[400],
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -724,135 +745,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
-  /// Shows the score selection dialog when PLAY is pressed.
-  void _showScoreSelectionDialog(
-    BuildContext context,
-    GameState gameState,
-    WidgetRef ref,
-  ) {
-    final diceHaveValues = gameState.dice.every((d) => d.value != null);
-    final diceValues = diceHaveValues
-        ? gameState.dice.map((d) => d.value!).toList()
-        : List.filled(5, 0);
-    final potentialScores = diceHaveValues
-        ? ref.read(gameProvider.notifier).getPotentialScores(diceValues)
-        : List.filled(NUM_CATEGORIES, 0);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          'Select Category',
-          style: GoogleFonts.openSans(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: List.generate(NUM_CATEGORIES, (index) {
-              final isScored = gameState.isCategoryScored(index);
-              final category = gameState.scoreCategories[index];
-              final potentialScore = isScored ? null : potentialScores[index];
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: isScored || !gameState.isTurnActive
-                        ? null
-                        : () {
-                            Navigator.of(context).pop();
-                            _onCategorySelected(
-                              ref,
-                              index,
-                              potentialScore ?? 0,
-                            );
-                          },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isScored
-                            ? Colors.blue[900]
-                            : !gameState.isTurnActive
-                            ? Colors.grey[800]
-                            : null,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isScored ? Colors.blue : Colors.grey[600]!,
-                          width: isScored ? 2 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              category.name,
-                              style: GoogleFonts.openSans(
-                                color: isScored
-                                    ? Colors.blue[300]
-                                    : !gameState.isTurnActive
-                                    ? Colors.grey[500]
-                                    : Colors.white,
-                                fontWeight: isScored
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          if (isScored)
-                            Text(
-                              '${category.score}',
-                              style: GoogleFonts.openSans(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          else
-                            Text(
-                              potentialScore.toString(),
-                              style: GoogleFonts.openSans(
-                                color: !gameState.isTurnActive
-                                    ? Colors.grey[600]
-                                    : Colors.white,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.openSans(color: Colors.grey[300]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Handles category selection and advances to next turn.
-  void _onCategorySelected(WidgetRef ref, int index, int score) {
-    ref.read(gameProvider.notifier).selectScore(index, score);
+  /// Handles category selection - marks it as pending.
+  void _onCategorySelected(WidgetRef ref, int index) {
+    ref.read(gameProvider.notifier).selectPending(index);
   }
 
   /// Shows menu dialog with game options.

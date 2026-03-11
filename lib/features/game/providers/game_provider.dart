@@ -25,30 +25,36 @@ class GameNotifier extends Notifier<GameState> {
 
   /// Rolls all non-held dice and decrements rolls remaining.
   ///
-  /// The turn remains active after rolling. The user must select a score category
-  /// to end the turn. When rolls reach 0, the roll button is disabled but the
-  /// turn stays active until a score is selected.
+  /// The turn remains active after rolling. If there's a pending selection,
+  /// it is cleared when rolling. When rolls reach 0, the roll button is disabled
+  /// but the turn stays active until a score is confirmed.
   void rollDice() {
     if (!state.isTurnActive || state.rollsRemaining <= 0) {
       return;
     }
 
-    final updatedDice = List<Dice>.from(state.dice);
+    // Clear any pending selection when rolling
+    final stateWithoutPending = state.pendingSelection != null
+        ? state.clearPendingSelection()
+        : state;
+
+    final updatedDice = List<Dice>.from(stateWithoutPending.dice);
     for (int i = 0; i < updatedDice.length; i++) {
       if (!updatedDice[i].isHeld) {
         updatedDice[i] = updatedDice[i].roll();
       }
     }
 
-    final rollsRemaining = state.rollsRemaining - 1;
+    final rollsRemaining = stateWithoutPending.rollsRemaining - 1;
 
     state = GameState(
       dice: updatedDice,
       rollsRemaining: rollsRemaining,
       isTurnActive: true,
-      scoreCategories: state.scoreCategories,
-      turnNumber: state.turnNumber,
-      isGameOver: state.isGameOver,
+      scoreCategories: stateWithoutPending.scoreCategories,
+      turnNumber: stateWithoutPending.turnNumber,
+      isGameOver: stateWithoutPending.isGameOver,
+      pendingSelection: null,
     );
   }
 
@@ -73,12 +79,77 @@ class GameNotifier extends Notifier<GameState> {
     );
   }
 
-  /// Scores a category and advances the turn.
+  /// Sets a category as pending selection (not yet scored).
+  ///
+  /// [categoryIndex] - The index of the category to select (0-12).
+  ///
+  /// This marks the category as pending, waiting for confirmation via [confirmSelection].
+  /// If [categoryIndex] is -1 or null, clears any pending selection.
+  void selectPending(int categoryIndex) {
+    if (categoryIndex < -1 || categoryIndex >= state.scoreCategories.length) {
+      return;
+    }
+
+    // Can't select an already scored category
+    if (categoryIndex >= 0 && state.isCategoryScored(categoryIndex)) {
+      return;
+    }
+
+    state = state.selectPending(categoryIndex == -1 ? null : categoryIndex);
+  }
+
+  /// Confirms the pending selection and scores the category.
+  ///
+  /// If there's a pending selection, it will be scored with its potential score
+  /// and the turn will end. If no pending selection exists, does nothing.
+  ///
+  /// If all categories are filled after scoring, the game ends.
+  void confirmSelection() {
+    final pendingIndex = state.pendingSelection;
+
+    // No pending selection to confirm
+    if (pendingIndex == null) {
+      return;
+    }
+
+    // Can't confirm an already scored category
+    if (state.isCategoryScored(pendingIndex)) {
+      state = state.clearPendingSelection();
+      return;
+    }
+
+    // Calculate the score for the pending category
+    final diceValues = state.dice.map((d) => d.value ?? 0).toList();
+    final potentialScores = getPotentialScores(diceValues);
+    final score = potentialScores[pendingIndex];
+
+    state = state.fillCategory(pendingIndex, score);
+
+    if (state.categoriesRemaining() <= 1) {
+      state = GameState(
+        dice: state.dice,
+        rollsRemaining: state.rollsRemaining,
+        isTurnActive: false,
+        scoreCategories: state.scoreCategories,
+        turnNumber: state.turnNumber,
+        isGameOver: true,
+        pendingSelection: null,
+      );
+    } else {
+      _endTurn();
+    }
+  }
+
+  /// Scores a category and advances the turn (legacy method, use [selectPending] + [confirmSelection]).
   ///
   /// [categoryIndex] - The index of the category to score (0-13).
   /// [score] - The score value to assign to the category.
   ///
   /// If all categories are filled after scoring, the game ends.
+  ///
+  /// This method maintains backward compatibility by directly scoring the category
+  /// with the provided score value, bypassing the two-step flow.
+  @Deprecated('Use selectPending() followed by confirmSelection() instead')
   void selectScore(int categoryIndex, int score) {
     if (categoryIndex < 0 || categoryIndex >= state.scoreCategories.length) {
       return;
@@ -98,6 +169,7 @@ class GameNotifier extends Notifier<GameState> {
         scoreCategories: state.scoreCategories,
         turnNumber: state.turnNumber,
         isGameOver: true,
+        pendingSelection: null,
       );
     } else {
       _endTurn();
@@ -157,6 +229,7 @@ class GameNotifier extends Notifier<GameState> {
       scoreCategories: state.scoreCategories,
       turnNumber: state.turnNumber + 1,
       isGameOver: state.isGameOver,
+      pendingSelection: null,
     );
   }
 }

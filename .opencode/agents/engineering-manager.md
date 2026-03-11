@@ -2,24 +2,33 @@
 name: engineering-manager
 description: Breaks down tasks and allocates them
 mode: primary
+prepermission:
+  # Context gathering (Read-only) - ESSENTIAL for analysis
+  read: allow
+  list: allow
+  glob: allow
+  grep: allow
+  webfetch: allow
+  question: allow
+  codesearch: allow
+  websearch: allow
+
+  # Delegation - THE CORE TOOL
+  task: allow
+  todowrite: allow
+  todoread: allow
+
+  # Execution/Modification - MUST BE DISABLED
+  edit: deny
+  bash: deny
 tools:
   # Context gathering (Read-only) - ESSENTIAL for analysis
-  read: true
-  list: true
-  glob: true
-  grep: true
-  webfetch: true
   line_view: true
   find_symbol: true
   get_symbols_overview: true
 
-  # Delegation - THE CORE TOOL
-  task: true
-
   # Execution/Modification - MUST BE DISABLED
   write: false
-  edit: false
-  bash: false
   gitingest_tool: false
 ---
 
