@@ -43,15 +43,14 @@ class GameState {
     List<ScoreCategory>? scoreCategories,
     this.turnNumber = 1,
     this.isGameOver = false,
-    int? pendingSelection,
+    this.pendingSelection,
   }) : dice = dice ?? List.generate(NUM_DICE, (_) => Dice()),
        scoreCategories =
            scoreCategories ??
            List.generate(
              NUM_CATEGORIES,
              (index) => ScoreCategory(index: index),
-           ),
-       pendingSelection = pendingSelection;
+           );
 
   /// Returns a new [GameState] with fresh state for a new game.
   GameState resetGame() {
@@ -100,6 +99,44 @@ class GameState {
   /// Returns the pending selection index, or null if none.
   int? getPendingSelection() {
     return pendingSelection;
+  }
+
+  /// Serializes this [GameState] to a JSON map.
+  ///
+  /// Returns a map containing all game state properties.
+  Map<String, dynamic> toJson() {
+    return {
+      'dice': dice.map((d) => d.toJson()).toList(),
+      'rollsRemaining': rollsRemaining,
+      'isTurnActive': isTurnActive,
+      'scoreCategories': scoreCategories.map((c) => c.toJson()).toList(),
+      'turnNumber': turnNumber,
+      'isGameOver': isGameOver,
+      'pendingSelection': pendingSelection,
+    };
+  }
+
+  /// Creates a [GameState] instance from a JSON map.
+  ///
+  /// [json] should contain all game state properties.
+  factory GameState.fromJson(Map<String, dynamic> json) {
+    return GameState(
+      dice:
+          (json['dice'] as List<dynamic>?)
+              ?.map((d) => Dice.fromJson(d as Map<String, dynamic>))
+              .toList() ??
+          List.generate(NUM_DICE, (_) => Dice()),
+      rollsRemaining: (json['rollsRemaining'] as int?) ?? MAX_ROLLS,
+      isTurnActive: (json['isTurnActive'] as bool?) ?? true,
+      scoreCategories:
+          (json['scoreCategories'] as List<dynamic>?)
+              ?.map((c) => ScoreCategory.fromJson(c as Map<String, dynamic>))
+              .toList() ??
+          List.generate(NUM_CATEGORIES, (index) => ScoreCategory(index: index)),
+      turnNumber: (json['turnNumber'] as int?) ?? 1,
+      isGameOver: (json['isGameOver'] as bool?) ?? false,
+      pendingSelection: json['pendingSelection'] as int?,
+    );
   }
 
   /// Returns a new [GameState] with the pending selection cleared.
@@ -243,4 +280,21 @@ class ScoreCategory {
   @override
   String toString() =>
       'ScoreCategory(name: $name, score: $score, categoryIndex: $categoryIndex)';
+
+  /// Serializes this [ScoreCategory] to a JSON map.
+  ///
+  /// Returns a map with 'categoryIndex', 'score', and 'name' keys.
+  Map<String, dynamic> toJson() {
+    return {'categoryIndex': categoryIndex, 'score': score, 'name': name};
+  }
+
+  /// Creates a [ScoreCategory] instance from a JSON map.
+  ///
+  /// [json] should contain 'categoryIndex' (int), 'score' (int?), and 'name' (String) keys.
+  factory ScoreCategory.fromJson(Map<String, dynamic> json) {
+    return ScoreCategory(
+      index: json['categoryIndex'] as int,
+      score: json['score'] as int?,
+    );
+  }
 }

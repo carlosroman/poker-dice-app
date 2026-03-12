@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,6 +34,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _gameOverController;
   bool _wasGameOver = false;
+  Timer? _autoSaveTimer;
 
   @override
   void initState() {
@@ -40,6 +43,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
       duration: _fadeDuration,
       vsync: this,
     );
+    // Start auto-save timer to persist state periodically
+    _autoSaveTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _saveGameState();
+    });
   }
 
   @override
@@ -55,6 +62,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void dispose() {
     _gameOverController.dispose();
+    _autoSaveTimer?.cancel();
     super.dispose();
   }
 
@@ -545,8 +553,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 child: DiceCard(
                   value: dice.value,
                   isHeld: dice.isHeld,
-                  onTap: () =>
-                      ref.read(gameProvider.notifier).toggleHold(index),
+                  onTap: () {
+                    ref.read(gameProvider.notifier).toggleHold(index);
+                    _saveGameState();
+                  },
                 ),
               );
             }),
@@ -604,7 +614,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
       width: double.infinity,
       child: ElevatedButton(
         onPressed: isEnabled
-            ? () => ref.read(gameProvider.notifier).rollDice()
+            ? () {
+                ref.read(gameProvider.notifier).rollDice();
+                _saveGameState();
+              }
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled
@@ -642,7 +655,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
       width: double.infinity,
       child: ElevatedButton(
         onPressed: canPlay
-            ? () => ref.read(gameProvider.notifier).confirmSelection()
+            ? () {
+                ref.read(gameProvider.notifier).confirmSelection();
+                _saveGameState();
+              }
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: canPlay ? Colors.white : Colors.grey[600],
@@ -708,7 +724,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ],
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    // Clear saved state before starting new game
+                    await ref.read(gameProvider.notifier).clearSavedState();
                     ref.read(gameProvider.notifier).resetGame();
                     if (isHighScore) {
                       ref
@@ -748,6 +766,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// Handles category selection - marks it as pending.
   void _onCategorySelected(WidgetRef ref, int index) {
     ref.read(gameProvider.notifier).selectPending(index);
+    _saveGameState();
+  }
+
+  /// Saves the current game state to persistent storage.
+  void _saveGameState() {
+    final gameNotifier = ref.read(gameProvider.notifier);
+    gameNotifier.saveState();
   }
 
   /// Shows menu dialog with game options.
@@ -777,8 +802,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 'Restart Game',
                 style: GoogleFonts.openSans(color: Colors.white),
               ),
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
+                // Clear saved state before resetting game
+                await ref.read(gameProvider.notifier).clearSavedState();
                 ref.read(gameProvider.notifier).resetGame();
               },
             ),

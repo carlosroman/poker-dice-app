@@ -59,4 +59,21 @@ class Dice {
 
   @override
   String toString() => 'Dice(value: $value, isHeld: $isHeld)';
+
+  /// Serializes this [Dice] to a JSON map.
+  ///
+  /// Returns a map with 'value' and 'isHeld' keys.
+  Map<String, dynamic> toJson() {
+    return {'value': value, 'isHeld': isHeld};
+  }
+
+  /// Creates a [Dice] instance from a JSON map.
+  ///
+  /// [json] should contain 'value' (int?) and 'isHeld' (bool) keys.
+  factory Dice.fromJson(Map<String, dynamic> json) {
+    return Dice(
+      value: json['value'] as int?,
+      isHeld: (json['isHeld'] as bool?) ?? false,
+    );
+  }
 }

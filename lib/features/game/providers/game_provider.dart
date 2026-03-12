@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/dice_faces.dart';
+import 'game_state_provider.dart';
+import '../data/game_state_repository.dart';
 import '../logic/scoring.dart';
 import '../models/dice.dart';
 import '../models/game_state.dart';
@@ -179,6 +181,30 @@ class GameNotifier extends Notifier<GameState> {
   /// Resets the game to start a new game.
   void resetGame() {
     state = GameState();
+  }
+
+  /// Loads the game from a saved [GameState].
+  ///
+  /// This method restores the game state from a previously saved state,
+  /// allowing the user to continue from where they left off.
+  void loadFromSavedState(GameState savedState) {
+    state = savedState;
+  }
+
+  /// Saves the current game state to persistence.
+  ///
+  /// Uses the [GameStateRepository] to persist the current state.
+  /// Returns a [Future] that completes when the save is done.
+  Future<bool> saveState() async {
+    return await ref.read(gameStateRepositoryProvider).saveGameState(state);
+  }
+
+  /// Clears the saved game state from persistence.
+  ///
+  /// This is called when a new game starts or when the game ends.
+  /// Returns a [Future] that completes when the clear is done.
+  Future<bool> clearSavedState() async {
+    return await ref.read(gameStateRepositoryProvider).clearGameState();
   }
 
   /// Calculates potential scores for all categories based on current dice.

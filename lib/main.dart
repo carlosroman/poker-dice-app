@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/score/score_provider.dart';
-import 'features/ui/screens/game_screen.dart';
+import 'features/ui/screens/title_screen.dart';
 
 /// Main entry point for the Poker Dice application.
 ///
@@ -31,7 +31,7 @@ void main() async {
 
 /// PokerDiceApp is the root widget of the application.
 ///
-/// Configures MaterialApp with dark theme and sets GameScreen as the home.
+/// Configures MaterialApp with dark theme and sets TitleScreen as the home.
 class PokerDiceApp extends StatelessWidget {
   /// Creates a [PokerDiceApp] widget.
   const PokerDiceApp({super.key});
@@ -42,7 +42,7 @@ class PokerDiceApp extends StatelessWidget {
       title: 'Poker Dice',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: const GameScreen(),
+      home: const TitleScreen(),
     );
   }
 }
