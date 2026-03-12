@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,7 +32,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _gameOverController;
   bool _wasGameOver = false;
-  Timer? _autoSaveTimer;
 
   @override
   void initState() {
@@ -43,10 +40,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
       duration: _fadeDuration,
       vsync: this,
     );
-    // Start auto-save timer to persist state periodically
-    _autoSaveTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      _saveGameState();
-    });
   }
 
   @override
@@ -62,7 +55,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void dispose() {
     _gameOverController.dispose();
-    _autoSaveTimer?.cancel();
     super.dispose();
   }
 
@@ -142,12 +134,67 @@ class _GameScreenState extends ConsumerState<GameScreen>
         color: const Color(0xFFFFA726),
         shape: const CircleBorder(),
         child: InkWell(
-          onTap: () => Navigator.of(context).pop(),
+          onTap: () => _handleBackNavigation(context),
           borderRadius: const BorderRadius.all(Radius.circular(24)),
           child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
         ),
       ),
     );
+  }
+
+  /// Handles back navigation with confirmation if turn is active.
+  Future<void> _handleBackNavigation(BuildContext context) async {
+    final gameState = ref.read(gameProvider);
+    final navigator = Navigator.of(context);
+    bool shouldNavigate = true;
+
+    // Show confirmation if turn is active and dice have been rolled
+    if (gameState.isTurnActive &&
+        gameState.turnNumber > 1 &&
+        gameState.dice.any((d) => d.value != null)) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            'Leave Game?',
+            style: GoogleFonts.openSans(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Your current turn will be lost. Game state will be saved.',
+            style: GoogleFonts.openSans(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.openSans(color: Colors.grey[400]),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFFFA726),
+              ),
+              child: const Text('Leave'),
+            ),
+          ],
+        ),
+      );
+
+      shouldNavigate = confirmed == true;
+    }
+
+    if (shouldNavigate && mounted) {
+      navigator.pop();
+    }
   }
 
   /// Builds the score display - "2070 You" format (large white text).
