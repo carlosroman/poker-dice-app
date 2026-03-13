@@ -142,59 +142,71 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
-  /// Handles back navigation with confirmation if turn is active.
+  /// Handles back navigation with confirmation dialog.
+  ///
+  /// Always saves the game state before navigating back.
+  /// Shows a dialog with three options:
+  /// - Cancel: Stay in the game
+  /// - Save & Continue Later: Save state and return to title screen
+  /// - Restart Game: Clear saved state and start fresh
   Future<void> _handleBackNavigation(BuildContext context) async {
-    final gameState = ref.read(gameProvider);
+    // Always save current state first
+    _saveGameState();
+
     final navigator = Navigator.of(context);
-    bool shouldNavigate = true;
 
-    // Show confirmation if turn is active and dice have been rolled
-    if (gameState.isTurnActive &&
-        gameState.turnNumber > 1 &&
-        gameState.dice.any((d) => d.value != null)) {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          backgroundColor: Colors.grey[900],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    // Show confirmation dialog with options
+    final choice = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          'Leave Game?',
+          style: GoogleFonts.openSans(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-          title: Text(
-            'Leave Game?',
-            style: GoogleFonts.openSans(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            'Your current turn will be lost. Game state will be saved.',
-            style: GoogleFonts.openSans(color: Colors.white70),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.openSans(color: Colors.grey[400]),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFFFA726),
-              ),
-              child: const Text('Leave'),
-            ),
-          ],
         ),
-      );
+        content: Text(
+          'Your game will be saved. What would you like to do?',
+          style: GoogleFonts.openSans(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(0),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.openSans(color: Colors.grey[400]),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(1),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFFFA726),
+            ),
+            child: const Text('Save & Continue Later'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(2),
+            style: TextButton.styleFrom(foregroundColor: Colors.red[300]),
+            child: const Text('Restart Game'),
+          ),
+        ],
+      ),
+    );
 
-      shouldNavigate = confirmed == true;
-    }
-
-    if (shouldNavigate && mounted) {
+    // Handle the user's choice
+    if (choice == 1 && mounted) {
+      // Save & Continue - just pop back to title
+      navigator.pop();
+    } else if (choice == 2 && mounted) {
+      // Restart - clear state and navigate to title
+      await ref.read(gameProvider.notifier).clearSavedState();
+      ref.read(gameProvider.notifier).resetGame();
       navigator.pop();
     }
+    // choice == 0 means cancel, do nothing (stay in game)
   }
 
   /// Builds the score display - "2070 You" format (large white text).
