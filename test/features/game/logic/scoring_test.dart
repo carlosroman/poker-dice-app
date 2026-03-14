@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:poker_dice/core/constants/dice_faces.dart';
 import 'package:poker_dice/features/game/logic/scoring.dart';
 
 void main() {
@@ -210,27 +211,27 @@ void main() {
 
       test('returns sum of all dice for three of a kind', () {
         final dice = [0, 0, 0, 1, 2];
-        expect(Scoring.scoreThreeOfAKind(dice), 3);
+        expect(Scoring.scoreThreeOfAKind(dice), 8);
       });
 
       test('returns sum of all dice for four of a kind', () {
         final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.scoreThreeOfAKind(dice), 1);
+        expect(Scoring.scoreThreeOfAKind(dice), 6);
       });
 
       test('returns sum of all dice for five of a kind (Yatzy)', () {
         final dice = [0, 0, 0, 0, 0];
-        expect(Scoring.scoreThreeOfAKind(dice), 0);
+        expect(Scoring.scoreThreeOfAKind(dice), 5);
       });
 
       test('returns sum of all dice for Aces three of a kind', () {
         final dice = [5, 5, 5, 0, 1];
-        expect(Scoring.scoreThreeOfAKind(dice), 16);
+        expect(Scoring.scoreThreeOfAKind(dice), 21);
       });
 
       test('returns sum of all dice for 9s three of a kind', () {
         final dice = [0, 0, 0, 1, 2];
-        expect(Scoring.scoreThreeOfAKind(dice), 3);
+        expect(Scoring.scoreThreeOfAKind(dice), 8);
       });
     });
 
@@ -247,22 +248,22 @@ void main() {
 
       test('returns sum of all dice for four of a kind', () {
         final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.scoreFourOfAKind(dice), 1);
+        expect(Scoring.scoreFourOfAKind(dice), 6);
       });
 
       test('returns sum of all dice for five of a kind (Yatzy)', () {
         final dice = [1, 1, 1, 1, 1];
-        expect(Scoring.scoreFourOfAKind(dice), 5);
+        expect(Scoring.scoreFourOfAKind(dice), 10);
       });
 
       test('returns sum of all dice for Kings four of a kind', () {
         final dice = [4, 4, 4, 4, 0];
-        expect(Scoring.scoreFourOfAKind(dice), 16);
+        expect(Scoring.scoreFourOfAKind(dice), 21);
       });
 
       test('returns sum of all dice for 9s four of a kind', () {
         final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.scoreFourOfAKind(dice), 1);
+        expect(Scoring.scoreFourOfAKind(dice), 6);
       });
     });
 
@@ -338,27 +339,27 @@ void main() {
     group('scoreChance', () {
       test('returns sum of all dice values', () {
         final dice = [0, 1, 2, 3, 4];
-        expect(Scoring.scoreChance(dice), 10);
+        expect(Scoring.scoreChance(dice), 15);
       });
 
       test('returns sum for all Aces', () {
         final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreChance(dice), 25);
+        expect(Scoring.scoreChance(dice), 30);
       });
 
       test('returns sum for mixed values', () {
         final dice = [0, 2, 3, 4, 5];
-        expect(Scoring.scoreChance(dice), 14);
+        expect(Scoring.scoreChance(dice), 19);
       });
 
-      test('returns 0 for all 9s', () {
+      test('returns 5 for all 9s', () {
         final dice = [0, 0, 0, 0, 0];
-        expect(Scoring.scoreChance(dice), 0);
+        expect(Scoring.scoreChance(dice), 5);
       });
 
       test('always returns sum regardless of combination', () {
         final dice = [1, 1, 3, 3, 5];
-        expect(Scoring.scoreChance(dice), 13);
+        expect(Scoring.scoreChance(dice), 18);
       });
     });
 
@@ -423,11 +424,15 @@ void main() {
   });
 
   group('Bonus Calculation Tests', () {
-    test('returns bonus when upper section total >= 65', () {
+    test('check bonus threshold is 63', () {
+      expect(BONUS_THRESHOLD, 63);
+    });
+
+    test('returns bonus when upper section total >= 63', () {
       final upperScores = [1, 2, 3, 4, 5, 6];
       int total = upperScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= 65, false);
+      expect(total >= BONUS_THRESHOLD, false);
     });
 
     test('upper section minimum scores for bonus', () {
@@ -435,14 +440,14 @@ void main() {
       final minScores = [1, 2, 3, 4, 5, 6];
       int total = minScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= 65, false);
+      expect(total >= BONUS_THRESHOLD, false);
     });
 
     test('upper section with low scores does not meet bonus', () {
       final lowScores = [0, 0, 0, 0, 0, 0];
       int total = lowScores.fold(0, (sum, score) => sum + score);
       expect(total, 0);
-      expect(total >= 65, false);
+      expect(total >= BONUS_THRESHOLD, false);
     });
 
     test('upper section with minimal pairs does not meet bonus', () {
@@ -450,15 +455,15 @@ void main() {
       final minimalScores = [1, 2, 3, 4, 5, 6];
       int total = minimalScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= 65, false);
+      expect(total >= BONUS_THRESHOLD, false);
     });
 
     test('upper section with high scores meets bonus threshold', () {
-      // Two of each: 2+4+6+8+10+12 = 42
-      final highScores = [2, 4, 6, 8, 10, 12];
+      // Two of each: 5+8+15+8+15+12 = 63
+      final highScores = [5, 8, 15, 8, 15, 12];
       int total = highScores.fold(0, (sum, score) => sum + score);
-      expect(total, 42);
-      expect(total >= 65, false);
+      expect(total, 63);
+      expect(total >= BONUS_THRESHOLD, true);
     });
 
     test('upper section with maximum scores meets bonus', () {
@@ -466,7 +471,7 @@ void main() {
       final maxScores = [5, 10, 15, 20, 25, 30];
       int total = maxScores.fold(0, (sum, score) => sum + score);
       expect(total, 105);
-      expect(total >= 65, true);
+      expect(total >= BONUS_THRESHOLD, true);
     });
   });
 
@@ -504,12 +509,12 @@ void main() {
 
       test('scoreThreeOfAKind returns sum of all', () {
         final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreThreeOfAKind(dice), 25);
+        expect(Scoring.scoreThreeOfAKind(dice), 30);
       });
 
       test('scoreFourOfAKind returns sum of all', () {
         final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreFourOfAKind(dice), 25);
+        expect(Scoring.scoreFourOfAKind(dice), 30);
       });
 
       test('scoreLongStraight returns 0', () {
@@ -545,8 +550,8 @@ void main() {
       test('returns 5 of a kind counts for all pair categories', () {
         final dice = [2, 2, 2, 2, 2];
         expect(Scoring.scoreJs(dice), 15);
-        expect(Scoring.scoreThreeOfAKind(dice), 10);
-        expect(Scoring.scoreFourOfAKind(dice), 10);
+        expect(Scoring.scoreThreeOfAKind(dice), 15);
+        expect(Scoring.scoreFourOfAKind(dice), 15);
         expect(Scoring.scoreYatzy(dice), 50);
       });
     });

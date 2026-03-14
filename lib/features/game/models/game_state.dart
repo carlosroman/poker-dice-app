@@ -195,7 +195,7 @@ class GameState {
 
   /// Calculates the bonus score.
   ///
-  /// Returns 20 points if upper section total is >= 30, otherwise 0.
+  /// Returns 20 points if upper section total is >= BONUS_THRESHOLD, otherwise 0.
   int getBonus() {
     return getUpperSectionTotal() >= BONUS_THRESHOLD ? BONUS_POINTS : 0;
   }

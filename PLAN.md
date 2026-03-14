@@ -17,7 +17,7 @@ A comprehensive multi-phase plan for implementing a Flutter-based Yatzy (poker d
 - Select dice to hold between rolls
 - Choose one scoring category per turn (can score 0)
 - Game ends when all 13 categories are filled
-- Upper section bonus: +20 if total ≥ 30
+- Upper section bonus: +35 if total >= 63
 
 ---
 

@@ -19,10 +19,10 @@ const List<Object> DICE_FACES = [9, 10, 'J', 'Q', 'K', 'A'];
 const int MAX_ROLLS = 3;
 
 /// Minimum sum required in upper section to earn bonus.
-const int BONUS_THRESHOLD = 65;
+const int BONUS_THRESHOLD = 63;
 
 /// Bonus points awarded when upper section sum meets threshold.
-const int BONUS_POINTS = 20;
+const int BONUS_POINTS = 35;
 
 /// Number of dice used in the game.
 const int NUM_DICE = 5;
