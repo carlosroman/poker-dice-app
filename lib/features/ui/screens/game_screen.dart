@@ -151,7 +151,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// - Restart Game: Clear saved state and start fresh
   Future<void> _handleBackNavigation(BuildContext context) async {
     // Always save current state first
-    _saveGameState();
+    await _saveGameState();
 
     final navigator = Navigator.of(context);
 
@@ -198,8 +198,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
     // Handle the user's choice
     if (choice == 1 && mounted) {
-      // Save & Continue - just pop back to title
-      navigator.pop();
+      // Save & Continue - navigate back to title screen
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } else if (choice == 2 && mounted) {
       // Restart - clear state and navigate to title
       await ref.read(gameProvider.notifier).clearSavedState();
@@ -829,9 +829,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   /// Saves the current game state to persistent storage.
-  void _saveGameState() {
+  Future<void> _saveGameState() async {
     final gameNotifier = ref.read(gameProvider.notifier);
-    gameNotifier.saveState();
+    await gameNotifier.saveState();
   }
 
   /// Shows menu dialog with game options.

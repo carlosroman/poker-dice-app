@@ -196,7 +196,9 @@ class GameNotifier extends Notifier<GameState> {
   /// Uses the [GameStateRepository] to persist the current state.
   /// Returns a [Future] that completes when the save is done.
   Future<bool> saveState() async {
-    return await ref.read(gameStateRepositoryProvider).saveGameState(state);
+    final notifier = ref.read(gameStateProvider.notifier);
+    final success = await notifier.saveGameState(state);
+    return success;
   }
 
   /// Clears the saved game state from persistence.
