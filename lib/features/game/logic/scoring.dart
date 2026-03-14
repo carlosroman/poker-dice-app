@@ -59,9 +59,10 @@ class Scoring {
 
   /// Calculates score for Chance category.
   ///
-  /// Returns sum of all dice values.
+  /// Returns sum of all dice values. 9 = 1 pt, 10 = 2pt, etc.
   static int scoreChance(List<int> diceValues) {
-    return diceValues.fold(0, (sum, value) => sum + value);
+    // + 1 as 0 = 9pt so must score as 1, 1 = 10 so must score as 2pt
+    return diceValues.fold(0, (sum, value) => sum + value + 1);
   }
 
   /// Calculates score for Three of a Kind category.
@@ -72,7 +73,7 @@ class Scoring {
     if (!hasThreeOfAKind(diceValues)) {
       return 0;
     }
-    return diceValues.fold(0, (sum, value) => sum + value);
+    return diceValues.fold(0, (sum, value) => sum + value + 1);
   }
 
   /// Calculates score for Four of a Kind category.
@@ -83,7 +84,7 @@ class Scoring {
     if (!hasFourOfAKind(diceValues)) {
       return 0;
     }
-    return diceValues.fold(0, (sum, value) => sum + value);
+    return diceValues.fold(0, (sum, value) => sum + value + 1);
   }
 
   /// Calculates score for Long Straight category.
