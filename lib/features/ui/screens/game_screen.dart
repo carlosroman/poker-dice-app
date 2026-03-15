@@ -690,7 +690,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           elevation: isEnabled ? 4 : 0,
         ),
         child: Text(
-          'ROLL',
+          'ROLL (${gameState.rollsRemaining})',
           style: GoogleFonts.openSans(
             fontSize: 20,
             fontWeight: FontWeight.bold,

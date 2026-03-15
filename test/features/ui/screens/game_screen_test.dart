@@ -186,7 +186,7 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('ROLL'), findsOneWidget);
+        expect(find.textContaining('ROLL'), findsOneWidget);
         expect(find.text('PLAY'), findsOneWidget);
       });
     });
