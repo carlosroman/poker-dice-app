@@ -634,11 +634,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
   ) {
     return Column(
       children: [
-        // Roll button with rolls remaining counter
-        _buildRollButton(context, gameState, ref),
-        const SizedBox(height: 16),
-        // Play button (large, white with orange text)
-        _buildPlayButton(context, gameState, ref),
+        // Roll and Play buttons side by side
+        Row(
+          children: [
+            // Roll button with rolls remaining counter
+            Expanded(child: _buildRollButton(context, gameState, ref)),
+            const SizedBox(width: 16),
+            // Play button (large, white with orange text)
+            Expanded(child: _buildPlayButton(context, gameState, ref)),
+          ],
+        ),
         const SizedBox(height: 8),
         // Game over indicator with fade animation
         AnimatedOpacity(
@@ -669,33 +674,23 @@ class _GameScreenState extends ConsumerState<GameScreen>
   ) {
     final isEnabled = gameState.rollsRemaining > 0 && gameState.isTurnActive;
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isEnabled
-            ? () {
-                ref.read(gameProvider.notifier).rollDice();
-                _saveGameState();
-              }
-            : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isEnabled
-              ? const Color(0xFFFFA726)
-              : Colors.grey[600],
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: isEnabled ? 4 : 0,
-        ),
-        child: Text(
-          'ROLL (${gameState.rollsRemaining})',
-          style: GoogleFonts.openSans(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+    return ElevatedButton(
+      onPressed: isEnabled
+          ? () {
+              ref.read(gameProvider.notifier).rollDice();
+              _saveGameState();
+            }
+          : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isEnabled ? const Color(0xFFFFA726) : Colors.grey[600],
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: isEnabled ? 4 : 0,
+      ),
+      child: Text(
+        'ROLL (${gameState.rollsRemaining})',
+        style: GoogleFonts.openSans(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -710,31 +705,23 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final hasPendingSelection = gameState.pendingSelection != null;
     final canPlay = gameState.isTurnActive && hasPendingSelection;
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: canPlay
-            ? () {
-                ref.read(gameProvider.notifier).confirmSelection();
-                _saveGameState();
-              }
-            : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: canPlay ? Colors.white : Colors.grey[600],
-          foregroundColor: canPlay ? const Color(0xFFFFA726) : Colors.grey[400],
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: canPlay ? 4 : 0,
-        ),
-        child: Text(
-          'PLAY',
-          style: GoogleFonts.openSans(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+    return ElevatedButton(
+      onPressed: canPlay
+          ? () {
+              ref.read(gameProvider.notifier).confirmSelection();
+              _saveGameState();
+            }
+          : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: canPlay ? Colors.white : Colors.grey[600],
+        foregroundColor: canPlay ? const Color(0xFFFFA726) : Colors.grey[400],
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: canPlay ? 4 : 0,
+      ),
+      child: Text(
+        'PLAY',
+        style: GoogleFonts.openSans(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
