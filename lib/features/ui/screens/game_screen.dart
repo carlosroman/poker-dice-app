@@ -84,25 +84,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
               const SizedBox(height: 24),
               _buildControlsSection(context, gameState, ref, scoreAsync),
               const SizedBox(height: 16),
-              AnimatedOpacity(
-                opacity: gameState.isGameOver ? 1.0 : 0.0,
-                duration: _fadeDuration,
-                curve: Curves.easeInOut,
-                child: AnimatedContainer(
-                  duration: _fadeDuration,
-                  margin: const EdgeInsets.only(top: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFFFA726),
-                      width: 2,
-                    ),
-                  ),
-                  child: _buildGameOverContent(context, ref, scoreAsync),
-                ),
-              ),
             ],
           ),
         ),
