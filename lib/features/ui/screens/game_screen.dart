@@ -11,6 +11,27 @@ import '../widgets/dice_card.dart';
 const _animationDuration = Duration(milliseconds: 300);
 const _fadeDuration = Duration(milliseconds: 250);
 
+/// Helper class for responsive sizing based on screen dimensions
+class _ResponsiveSizes {
+  final double screenWidth;
+  final double screenHeight;
+  final double scale;
+
+  _ResponsiveSizes(this.screenWidth, this.screenHeight)
+    : scale = screenWidth / 375; // Base on 375px wide phone
+
+  double get fontSizeSmall => 10 * scale;
+  double get fontSizeMedium => 14 * scale;
+  double get fontSizeLarge => 18 * scale;
+  double get fontSizeXLarge => 24 * scale;
+  double get spacingSmall => 6 * scale;
+  double get spacingMedium => 12 * scale;
+  double get spacingLarge => 20 * scale;
+  double get padding => 12 * scale;
+  double get buttonPaddingVertical => 14 * scale;
+  double get iconSize => 16 * scale;
+}
+
 /// Main game screen for the Poker Dice game.
 ///
 /// Displays the complete game interface including:
@@ -62,50 +83,75 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
     final scoreAsync = ref.watch(scoreProvider);
+    final screenSize = MediaQuery.of(context).size;
+    final sizes = _ResponsiveSizes(screenSize.width, screenSize.height);
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      appBar: _buildAppBar(context, gameState, ref),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 8),
-              AnimatedSwitcher(
-                duration: _animationDuration,
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                child: _buildScorecardSection(context, gameState, ref),
-              ),
-              const SizedBox(height: 16),
-              _buildDiceDisplaySection(context, gameState, ref),
-              const SizedBox(height: 16),
-              _buildControlsSection(context, gameState, ref, scoreAsync),
-              AnimatedOpacity(
-                opacity: gameState.isGameOver ? 1.0 : 0.0,
-                duration: _fadeDuration,
-                curve: Curves.easeInOut,
-                child: AnimatedContainer(
-                  duration: _fadeDuration,
-                  margin: const EdgeInsets.only(top: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFFFA726),
-                      width: 2,
+      appBar: _buildAppBar(context, gameState, ref, sizes),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: EdgeInsets.all(sizes.padding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: sizes.spacingSmall + 2),
+                    AnimatedSwitcher(
+                      duration: _animationDuration,
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      child: _buildScorecardSection(
+                        context,
+                        gameState,
+                        ref,
+                        sizes,
+                      ),
                     ),
-                  ),
-                  child: _buildGameOverContent(context, ref, scoreAsync),
+                    SizedBox(height: sizes.spacingMedium),
+                    _buildDiceDisplaySection(context, gameState, ref, sizes),
+                    SizedBox(height: sizes.spacingMedium),
+                    _buildControlsSection(
+                      context,
+                      gameState,
+                      ref,
+                      scoreAsync,
+                      sizes,
+                    ),
+                    AnimatedOpacity(
+                      opacity: gameState.isGameOver ? 1.0 : 0.0,
+                      duration: _fadeDuration,
+                      curve: Curves.easeInOut,
+                      child: AnimatedContainer(
+                        duration: _fadeDuration,
+                        margin: EdgeInsets.only(top: sizes.spacingSmall),
+                        padding: EdgeInsets.all(sizes.padding),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFFFA726),
+                            width: 2,
+                          ),
+                        ),
+                        child: _buildGameOverContent(
+                          context,
+                          ref,
+                          scoreAsync,
+                          sizes,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: sizes.spacingSmall),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -115,28 +161,33 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     return AppBar(
       backgroundColor: const Color(0xFF2C3E50),
       elevation: 4,
-      leading: _buildBackButton(context),
+      leading: _buildBackButton(context, sizes),
       centerTitle: true,
-      title: _buildScoreDisplay(gameState),
-      actions: [_buildMenuButton(context, gameState, ref)],
+      title: _buildScoreDisplay(gameState, sizes),
+      actions: [_buildMenuButton(context, gameState, ref, sizes)],
     );
   }
 
   /// Builds the back arrow button (circular, yellow/orange).
-  Widget _buildBackButton(BuildContext context) {
+  Widget _buildBackButton(BuildContext context, _ResponsiveSizes sizes) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0),
+      padding: EdgeInsets.only(left: sizes.spacingSmall + 2),
       child: Material(
         color: const Color(0xFFFFA726),
         shape: const CircleBorder(),
         child: InkWell(
           onTap: () => _handleBackNavigation(context),
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+          borderRadius: BorderRadius.circular(24 * sizes.scale),
+          child: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            size: 24 * sizes.scale,
+          ),
         ),
       ),
     );
@@ -210,11 +261,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   /// Builds the score display - "2070 You" format (large white text).
-  Widget _buildScoreDisplay(GameState gameState) {
+  Widget _buildScoreDisplay(GameState gameState, _ResponsiveSizes sizes) {
     return Text(
       '${gameState.getTotalScore()} You',
       style: GoogleFonts.openSans(
-        fontSize: 24,
+        fontSize: sizes.fontSizeXLarge,
         color: Colors.white,
         fontWeight: FontWeight.bold,
       ),
@@ -226,16 +277,17 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: EdgeInsets.only(right: sizes.spacingSmall + 2),
       child: Material(
         color: const Color(0xFFFFA726),
         shape: const CircleBorder(),
         child: InkWell(
-          onTap: () => _showMenuDialog(context, gameState, ref),
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          child: const Icon(Icons.list, color: Colors.white, size: 24),
+          onTap: () => _showMenuDialog(context, gameState, ref, sizes),
+          borderRadius: BorderRadius.circular(24 * sizes.scale),
+          child: Icon(Icons.list, color: Colors.white, size: 24 * sizes.scale),
         ),
       ),
     );
@@ -246,6 +298,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     final diceHaveValues = gameState.dice.every((d) => d.value != null);
     final diceValues = diceHaveValues
@@ -262,19 +315,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
         border: Border.all(color: Colors.grey[700]!, width: 2),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(sizes.padding + 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Scorecard',
               style: GoogleFonts.openSans(
-                fontSize: 18,
+                fontSize: sizes.fontSizeLarge,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: sizes.spacingMedium),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -284,15 +337,17 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     gameState,
                     potentialScores,
                     ref,
+                    sizes,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: sizes.spacingMedium),
                 Expanded(
                   child: _buildMajorColumn(
                     context,
                     gameState,
                     potentialScores,
                     ref,
+                    sizes,
                   ),
                 ),
               ],
@@ -309,6 +364,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     GameState gameState,
     List<int> potentialScores,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     final minorCategories = UPPER_CATEGORIES;
 
@@ -318,12 +374,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
         Text(
           'Minor',
           style: GoogleFonts.openSans(
-            fontSize: 14,
+            fontSize: sizes.fontSizeMedium,
             color: Colors.grey[300],
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: sizes.spacingSmall + 2),
         ...minorCategories.asMap().entries.map((entry) {
           final index = entry.key;
           final category = entry.value;
@@ -342,10 +398,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
             isPending: gameState.pendingSelection == index,
             onTap: () => _onCategorySelected(ref, index),
             enabled: !isScored && gameState.isTurnActive,
+            sizes: sizes,
           );
         }),
-        const SizedBox(height: 8),
-        _buildBonusRow(context, gameState),
+        SizedBox(height: sizes.spacingSmall + 2),
+        _buildBonusRow(context, gameState, sizes),
       ],
     );
   }
@@ -356,6 +413,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     GameState gameState,
     List<int> potentialScores,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     final majorCategories = LOWER_CATEGORIES;
     final majorIcons = [
@@ -374,12 +432,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
         Text(
           'Major',
           style: GoogleFonts.openSans(
-            fontSize: 14,
+            fontSize: sizes.fontSizeMedium,
             color: Colors.grey[300],
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: sizes.spacingSmall + 2),
         ...majorCategories.asMap().entries.map((entry) {
           final index = entry.key + 6;
           final category = entry.value;
@@ -398,6 +456,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             isPending: gameState.pendingSelection == index,
             onTap: () => _onCategorySelected(ref, index),
             enabled: !isScored && gameState.isTurnActive,
+            sizes: sizes,
           );
         }),
       ],
@@ -416,16 +475,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
     required bool isPending,
     required VoidCallback? onTap,
     required bool enabled,
+    required _ResponsiveSizes sizes,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: sizes.spacingSmall - 2),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(8),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: EdgeInsets.symmetric(
+              horizontal: sizes.iconSize / 2,
+              vertical: sizes.spacingSmall - 4,
+            ),
             decoration: BoxDecoration(
               color: isPending
                   ? const Color(0xFFFFA726).withValues(alpha: 0.2)
@@ -446,8 +509,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
               children: [
                 // Yellow die face icon box
                 Container(
-                  width: 32,
-                  height: 32,
+                  width: 32 * sizes.scale,
+                  height: 32 * sizes.scale,
                   decoration: BoxDecoration(
                     color: isPending
                         ? const Color(0xFFFFA726)
@@ -455,16 +518,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Center(
-                    child: _buildIconWidget(icon, isIcon: icon is IconData),
+                    child: _buildIconWidget(
+                      icon,
+                      isIcon: icon is IconData,
+                      sizes: sizes,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: sizes.spacingSmall + 2),
                 // Category name
                 Expanded(
                   child: Text(
                     isMinor ? _getDieFaceValue(category) : category,
                     style: GoogleFonts.openSans(
-                      fontSize: 10,
+                      fontSize: sizes.fontSizeSmall,
                       color: isPending
                           ? const Color(0xFFFFA726)
                           : enabled
@@ -481,8 +548,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 // Score box (blue) if scored
                 if (isScored)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: sizes.iconSize / 2 + 2,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
@@ -492,7 +559,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     child: Text(
                       '$scoredValue',
                       style: GoogleFonts.openSans(
-                        fontSize: 11,
+                        fontSize: sizes.fontSizeSmall + 1,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -503,7 +570,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   Text(
                     potentialScore?.toString() ?? '0',
                     style: GoogleFonts.openSans(
-                      fontSize: 11,
+                      fontSize: sizes.fontSizeSmall + 1,
                       color: isPending
                           ? const Color(0xFFFFA726)
                           : enabled
@@ -521,14 +588,21 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   /// Builds the bonus row with progress indicator.
-  Widget _buildBonusRow(BuildContext context, GameState gameState) {
+  Widget _buildBonusRow(
+    BuildContext context,
+    GameState gameState,
+    _ResponsiveSizes sizes,
+  ) {
     final upperSectionTotal = gameState.getUpperSectionTotal();
     final bonusEligible = upperSectionTotal >= BONUS_THRESHOLD;
     final bonusScore = gameState.getBonus();
     final progress = upperSectionTotal / BONUS_THRESHOLD;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: sizes.iconSize / 2,
+        vertical: sizes.spacingSmall - 4,
+      ),
       decoration: BoxDecoration(
         color: bonusEligible ? Colors.green[900] : Colors.grey[800],
         borderRadius: BorderRadius.circular(8),
@@ -543,15 +617,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
             child: Text(
               'BONUS +20',
               style: GoogleFonts.openSans(
-                fontSize: 10,
+                fontSize: sizes.fontSizeSmall,
                 color: bonusEligible ? Colors.green[300] : Colors.grey[500],
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: sizes.spacingSmall + 2),
           SizedBox(
-            width: 60,
+            width: 60 * sizes.scale,
             child: Stack(
               children: [
                 Container(
@@ -574,11 +648,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: sizes.spacingSmall + 2),
           Text(
             bonusScore > 0 ? '+$bonusScore' : '0',
             style: GoogleFonts.openSans(
-              fontSize: 11,
+              fontSize: sizes.fontSizeSmall + 1,
               color: bonusEligible ? Colors.green[300] : Colors.grey[500],
               fontWeight: FontWeight.bold,
             ),
@@ -593,6 +667,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     return AnimatedSwitcher(
       duration: _animationDuration,
@@ -600,7 +675,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       switchOutCurve: Curves.easeIn,
       child: Container(
         key: ValueKey(gameState.turnNumber),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: sizes.spacingMedium + 4),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -608,7 +683,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
             children: List.generate(gameState.dice.length, (index) {
               final dice = gameState.dice[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: sizes.spacingSmall - 2,
+                ),
                 child: DiceCard(
                   value: dice.value,
                   isHeld: dice.isHeld,
@@ -631,6 +708,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     GameState gameState,
     WidgetRef ref,
     AsyncValue<int> scoreAsync,
+    _ResponsiveSizes sizes,
   ) {
     return Column(
       children: [
@@ -638,13 +716,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
         Row(
           children: [
             // Roll button with rolls remaining counter
-            Expanded(child: _buildRollButton(context, gameState, ref)),
-            const SizedBox(width: 16),
+            Expanded(child: _buildRollButton(context, gameState, ref, sizes)),
+            SizedBox(width: sizes.spacingMedium + 4),
             // Play button (large, white with orange text)
-            Expanded(child: _buildPlayButton(context, gameState, ref)),
+            Expanded(child: _buildPlayButton(context, gameState, ref, sizes)),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: sizes.spacingSmall + 2),
       ],
     );
   }
@@ -654,6 +732,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     final isEnabled = gameState.rollsRemaining > 0 && gameState.isTurnActive;
 
@@ -667,13 +746,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
       style: ElevatedButton.styleFrom(
         backgroundColor: isEnabled ? const Color(0xFFFFA726) : Colors.grey[600],
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: sizes.buttonPaddingVertical),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: isEnabled ? 4 : 0,
       ),
       child: Text(
         'ROLL (${gameState.rollsRemaining})',
-        style: GoogleFonts.openSans(fontSize: 20, fontWeight: FontWeight.bold),
+        style: GoogleFonts.openSans(
+          fontSize: sizes.fontSizeLarge + 2,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -683,6 +765,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     // Can only play if there's a pending selection and turn is active
     final hasPendingSelection = gameState.pendingSelection != null;
@@ -698,13 +781,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
       style: ElevatedButton.styleFrom(
         backgroundColor: canPlay ? Colors.white : Colors.grey[600],
         foregroundColor: canPlay ? const Color(0xFFFFA726) : Colors.grey[400],
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: sizes.buttonPaddingVertical),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: canPlay ? 4 : 0,
       ),
       child: Text(
         'PLAY',
-        style: GoogleFonts.openSans(fontSize: 20, fontWeight: FontWeight.bold),
+        style: GoogleFonts.openSans(
+          fontSize: sizes.fontSizeLarge + 2,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -714,18 +800,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     WidgetRef ref,
     AsyncValue<int> scoreAsync,
+    _ResponsiveSizes sizes,
   ) {
     return Column(
       children: [
         Text(
           'GAME OVER',
           style: GoogleFonts.openSans(
-            fontSize: 20,
+            fontSize: sizes.fontSizeLarge + 2,
             color: const Color(0xFFFFA726),
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: sizes.spacingSmall),
         scoreAsync.when(
           data: (highScore) {
             final finalScore = ref.read(gameProvider).getTotalScore();
@@ -735,23 +822,23 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 Text(
                   'Final Score: $finalScore',
                   style: GoogleFonts.openSans(
-                    fontSize: 16,
+                    fontSize: sizes.fontSizeMedium + 2,
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 if (isHighScore) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: sizes.spacingSmall - 4),
                   Text(
                     'NEW HIGH SCORE!',
                     style: GoogleFonts.openSans(
-                      fontSize: 14,
+                      fontSize: sizes.fontSizeMedium,
                       color: Colors.green[300],
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
-                const SizedBox(height: 8),
+                SizedBox(height: sizes.spacingMedium),
                 ElevatedButton(
                   onPressed: () async {
                     // Clear saved state before starting new game
@@ -766,9 +853,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFA726),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: sizes.padding * 2,
+                      vertical: sizes.buttonPaddingVertical - 2,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -777,7 +864,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   child: Text(
                     'PLAY AGAIN',
                     style: GoogleFonts.openSans(
-                      fontSize: 14,
+                      fontSize: sizes.fontSizeMedium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -809,6 +896,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     BuildContext context,
     GameState gameState,
     WidgetRef ref,
+    _ResponsiveSizes sizes,
   ) {
     showDialog(
       context: context,
@@ -820,16 +908,24 @@ class _GameScreenState extends ConsumerState<GameScreen>
           style: GoogleFonts.openSans(
             color: Colors.white,
             fontWeight: FontWeight.bold,
+            fontSize: sizes.fontSizeLarge,
           ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.refresh, color: Color(0xFFFFA726)),
+              leading: Icon(
+                Icons.refresh,
+                color: const Color(0xFFFFA726),
+                size: sizes.iconSize,
+              ),
               title: Text(
                 'Restart Game',
-                style: GoogleFonts.openSans(color: Colors.white),
+                style: GoogleFonts.openSans(
+                  color: Colors.white,
+                  fontSize: sizes.fontSizeMedium,
+                ),
               ),
               onTap: () async {
                 Navigator.of(context).pop();
@@ -839,14 +935,21 @@ class _GameScreenState extends ConsumerState<GameScreen>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.info, color: Color(0xFFFFA726)),
+              leading: Icon(
+                Icons.info,
+                color: const Color(0xFFFFA726),
+                size: sizes.iconSize,
+              ),
               title: Text(
                 'Game Rules',
-                style: GoogleFonts.openSans(color: Colors.white),
+                style: GoogleFonts.openSans(
+                  color: Colors.white,
+                  fontSize: sizes.fontSizeMedium,
+                ),
               ),
               onTap: () {
                 Navigator.of(context).pop();
-                _showRulesDialog(context);
+                _showRulesDialog(context, sizes);
               },
             ),
           ],
@@ -856,7 +959,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Close',
-              style: GoogleFonts.openSans(color: Colors.grey[300]),
+              style: GoogleFonts.openSans(
+                color: Colors.grey[300],
+                fontSize: sizes.fontSizeMedium,
+              ),
             ),
           ),
         ],
@@ -865,7 +971,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   /// Shows game rules dialog.
-  void _showRulesDialog(BuildContext context) {
+  void _showRulesDialog(BuildContext context, _ResponsiveSizes sizes) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -876,6 +982,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           style: GoogleFonts.openSans(
             color: Colors.white,
             fontWeight: FontWeight.bold,
+            fontSize: sizes.fontSizeLarge,
           ),
         ),
         content: SingleChildScrollView(
@@ -888,53 +995,77 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 style: GoogleFonts.openSans(
                   color: Colors.orange[300],
                   fontWeight: FontWeight.bold,
+                  fontSize: sizes.fontSizeMedium,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: sizes.spacingSmall - 2),
               Text(
                 'Score pairs of each face value (9, 10, J, Q, K, A).',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: sizes.spacingMedium - 4),
               Text(
                 'Bonus: +20 if upper section total >= 30',
                 style: GoogleFonts.openSans(
                   color: Colors.green[300],
                   fontWeight: FontWeight.w600,
+                  fontSize: sizes.fontSizeSmall + 2,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: sizes.spacingLarge - 4),
               Text(
                 'Lower Section:',
                 style: GoogleFonts.openSans(
                   color: Colors.orange[300],
                   fontWeight: FontWeight.bold,
+                  fontSize: sizes.fontSizeMedium,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: sizes.spacingSmall - 2),
               Text(
                 '• Three of a Kind: Sum of all dice (3+ same)',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
               Text(
                 '• Four of a Kind: Sum of all dice (4+ same)',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
               Text(
                 '• Full House: Sum of all dice (3+2)',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
               Text(
                 '• Small Straight: 25 points (5 consecutive)',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
               Text(
                 '• Large Straight: 25 points (6 consecutive)',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
               Text(
                 '• Yahtzee: 50 points (5 of a kind)',
-                style: GoogleFonts.openSans(color: Colors.grey[300]),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[300],
+                  fontSize: sizes.fontSizeSmall + 2,
+                ),
               ),
             ],
           ),
@@ -944,7 +1075,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Close',
-              style: GoogleFonts.openSans(color: Colors.grey[300]),
+              style: GoogleFonts.openSans(
+                color: Colors.grey[300],
+                fontSize: sizes.fontSizeMedium,
+              ),
             ),
           ),
         ],
@@ -953,14 +1087,18 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   /// Returns the icon widget based on whether it's an icon data or text.
-  Widget _buildIconWidget(Object icon, {required bool isIcon}) {
+  Widget _buildIconWidget(
+    Object icon, {
+    required bool isIcon,
+    required _ResponsiveSizes sizes,
+  }) {
     if (isIcon) {
-      return Icon(icon as IconData, color: Colors.white, size: 16);
+      return Icon(icon as IconData, color: Colors.white, size: sizes.iconSize);
     } else {
       return Text(
         icon.toString(),
         style: GoogleFonts.openSans(
-          fontSize: 12,
+          fontSize: sizes.iconSize,
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
