@@ -68,20 +68,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
       appBar: _buildAppBar(context, gameState, ref),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               AnimatedSwitcher(
                 duration: _animationDuration,
                 switchInCurve: Curves.easeOut,
                 switchOutCurve: Curves.easeIn,
                 child: _buildScorecardSection(context, gameState, ref),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               _buildDiceDisplaySection(context, gameState, ref),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               _buildControlsSection(context, gameState, ref, scoreAsync),
               AnimatedOpacity(
                 opacity: gameState.isGameOver ? 1.0 : 0.0,
@@ -89,8 +89,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 curve: Curves.easeInOut,
                 child: AnimatedContainer(
                   duration: _fadeDuration,
-                  margin: const EdgeInsets.only(top: 16),
-                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(top: 12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.grey[800],
                     borderRadius: BorderRadius.circular(12),
@@ -102,7 +102,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   child: _buildGameOverContent(context, ref, scoreAsync),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -725,7 +725,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         scoreAsync.when(
           data: (highScore) {
             final finalScore = ref.read(gameProvider).getTotalScore();
@@ -741,7 +741,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   ),
                 ),
                 if (isHighScore) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     'NEW HIGH SCORE!',
                     style: GoogleFonts.openSans(
@@ -751,7 +751,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     ),
                   ),
                 ],
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () async {
                     // Clear saved state before starting new game
