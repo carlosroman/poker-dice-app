@@ -72,6 +72,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final gameState = ref.read(gameProvider);
     if (gameState.isGameOver && !_wasGameOver) {
       _gameOverController.forward();
+      // Show modal when game over triggers
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showGameOverModal(context);
+        }
+      });
     }
     _wasGameOver = gameState.isGameOver;
   }
@@ -80,6 +86,31 @@ class _GameScreenState extends ConsumerState<GameScreen>
   void dispose() {
     _gameOverController.dispose();
     super.dispose();
+  }
+
+  /// Shows the game over modal dialog
+  void _showGameOverModal(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => Consumer(
+        builder: (dialogContext, ref, _) {
+          final scoreAsync = ref.watch(scoreProvider);
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFFFA726), width: 3),
+              ),
+              child: _buildGameOverContent(context, ref, scoreAsync),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -128,31 +159,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       scoreAsync,
                       sizes,
                     ),
-                    AnimatedOpacity(
-                      opacity: gameState.isGameOver ? 1.0 : 0.0,
-                      duration: _fadeDuration,
-                      curve: Curves.easeInOut,
-                      child: AnimatedContainer(
-                        duration: _fadeDuration,
-                        margin: EdgeInsets.only(top: sizes.spacingSmall),
-                        padding: EdgeInsets.all(sizes.padding),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFFFA726),
-                            width: 2,
-                          ),
-                        ),
-                        child: _buildGameOverContent(
-                          context,
-                          ref,
-                          scoreAsync,
-                          sizes,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: sizes.spacingSmall),
                   ],
                 ),
               ),
@@ -802,52 +808,57 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
-  /// Builds the game over content.
+  /// Builds the game over content for the modal dialog.
   Widget _buildGameOverContent(
     BuildContext context,
     WidgetRef ref,
     AsyncValue<int> scoreAsync,
-    _ResponsiveSizes sizes,
   ) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           'GAME OVER',
           style: GoogleFonts.openSans(
-            fontSize: sizes.fontSizeLarge + 2,
+            fontSize: 28,
             color: const Color(0xFFFFA726),
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: sizes.spacingSmall),
+        const SizedBox(height: 16),
         scoreAsync.when(
           data: (highScore) {
             final finalScore = ref.read(gameProvider).getTotalScore();
             final isHighScore = finalScore > highScore;
             return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Final Score: $finalScore',
                   style: GoogleFonts.openSans(
-                    fontSize: sizes.fontSizeMedium + 2,
+                    fontSize: 20,
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 if (isHighScore) ...[
-                  SizedBox(height: sizes.spacingSmall - 4),
+                  const SizedBox(height: 8),
                   Text(
                     'NEW HIGH SCORE!',
                     style: GoogleFonts.openSans(
-                      fontSize: sizes.fontSizeMedium,
+                      fontSize: 18,
                       color: Colors.green[300],
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
-                SizedBox(height: sizes.spacingMedium),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () async {
+                    // Close dialog first
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                     // Clear saved state before starting new game
                     await ref.read(gameProvider.notifier).clearSavedState();
                     ref.read(gameProvider.notifier).resetGame();
@@ -860,9 +871,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFA726),
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: sizes.padding * 2,
-                      vertical: sizes.buttonPaddingVertical - 2,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 48,
+                      vertical: 16,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -871,7 +882,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   child: Text(
                     'PLAY AGAIN',
                     style: GoogleFonts.openSans(
-                      fontSize: sizes.fontSizeMedium,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
