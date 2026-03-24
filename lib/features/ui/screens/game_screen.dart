@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,20 +17,22 @@ class _ResponsiveSizes {
   final double screenWidth;
   final double screenHeight;
   final double scale;
+  final bool isWeb;
 
-  _ResponsiveSizes(this.screenWidth, this.screenHeight)
-    : scale = screenWidth / 375; // Base on 375px wide phone
+  _ResponsiveSizes(this.screenWidth, this.screenHeight, {this.isWeb = false})
+    : scale = isWeb ? 1.0 : (screenWidth / 375);
 
-  double get fontSizeSmall => 10 * scale;
-  double get fontSizeMedium => 14 * scale;
-  double get fontSizeLarge => 18 * scale;
-  double get fontSizeXLarge => 24 * scale;
-  double get spacingSmall => 6 * scale;
-  double get spacingMedium => 12 * scale;
-  double get spacingLarge => 20 * scale;
-  double get padding => 12 * scale;
-  double get buttonPaddingVertical => 14 * scale;
-  double get iconSize => 16 * scale;
+  // For web, use fixed sizes; for mobile, use scaled sizes
+  double get fontSizeSmall => isWeb ? 10 : 10 * scale;
+  double get fontSizeMedium => isWeb ? 14 : 14 * scale;
+  double get fontSizeLarge => isWeb ? 18 : 18 * scale;
+  double get fontSizeXLarge => isWeb ? 24 : 24 * scale;
+  double get spacingSmall => isWeb ? 8 : 6 * scale;
+  double get spacingMedium => isWeb ? 16 : 12 * scale;
+  double get spacingLarge => isWeb ? 24 : 20 * scale;
+  double get padding => isWeb ? 16 : 12 * scale;
+  double get buttonPaddingVertical => isWeb ? 16 : 14 * scale;
+  double get iconSize => isWeb ? 16 : 16 * scale;
 }
 
 /// Main game screen for the Poker Dice game.
@@ -84,7 +87,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final gameState = ref.watch(gameProvider);
     final scoreAsync = ref.watch(scoreProvider);
     final screenSize = MediaQuery.of(context).size;
-    final sizes = _ResponsiveSizes(screenSize.width, screenSize.height);
+    final sizes = _ResponsiveSizes(
+      screenSize.width,
+      screenSize.height,
+      isWeb: kIsWeb,
+    );
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
