@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_dice/core/constants/dice_faces.dart';
 import 'package:poker_dice/features/ui/screens/game_screen.dart';
 import 'package:poker_dice/features/ui/widgets/dice_card.dart';
 import 'package:poker_dice/features/game/providers/game_provider.dart';
@@ -373,6 +374,99 @@ void main() {
         await tester.pump();
 
         expect(find.byType(DiceCard), findsNWidgets(5));
+      });
+    });
+
+    group('Game over modal', () {
+      testWidgets('game over modal appears when all categories are filled', (
+        WidgetTester tester,
+      ) async {
+        container = ProviderContainer(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+          ],
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(
+                mockSharedPreferences,
+              ),
+            ],
+            child: const MaterialApp(home: GameScreen()),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        // Fill all 14 categories to trigger game over
+        // Game ends when categoriesRemaining() <= 1 after filling a category
+        for (int i = 0; i < NUM_CATEGORIES; i++) {
+          container.read(gameProvider.notifier).selectPending(i);
+          await tester.pump();
+          container.read(gameProvider.notifier).confirmSelection();
+          await tester.pumpAndSettle();
+        }
+
+        // Verify game is over
+        var gameState = container.read(gameProvider);
+        expect(
+          gameState.isGameOver,
+          isTrue,
+          reason: 'Game should be over after all categories filled',
+        );
+      });
+
+      testWidgets('Play Again button resets the game', (
+        WidgetTester tester,
+      ) async {
+        container = ProviderContainer(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+          ],
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(
+                mockSharedPreferences,
+              ),
+            ],
+            child: const MaterialApp(home: GameScreen()),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        // Verify initial game state
+        var gameState = container.read(gameProvider);
+        expect(gameState.isGameOver, isFalse);
+        expect(gameState.turnNumber, equals(1));
+        expect(gameState.rollsRemaining, equals(MAX_ROLLS));
+
+        // Fill all 14 categories to trigger game over
+        for (int i = 0; i < NUM_CATEGORIES; i++) {
+          container.read(gameProvider.notifier).selectPending(i);
+          await tester.pump();
+          container.read(gameProvider.notifier).confirmSelection();
+          await tester.pumpAndSettle();
+        }
+
+        // Verify game is over
+        gameState = container.read(gameProvider);
+        expect(gameState.isGameOver, isTrue);
+
+        // Reset the game (simulating Play Again button action)
+        container.read(gameProvider.notifier).resetGame();
+        await tester.pump();
+
+        // Verify game has been reset
+        gameState = container.read(gameProvider);
+        expect(gameState.isGameOver, isFalse);
+        expect(gameState.turnNumber, equals(1));
+        expect(gameState.rollsRemaining, equals(MAX_ROLLS));
       });
     });
   });

@@ -56,6 +56,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _gameOverController;
   bool _wasGameOver = false;
+  bool _modalShown = false;
 
   @override
   void initState() {
@@ -64,22 +65,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
       duration: _fadeDuration,
       vsync: this,
     );
+    _wasGameOver = false;
+    _modalShown = false;
   }
 
-  @override
-  void didUpdateWidget(GameScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final gameState = ref.read(gameProvider);
-    if (gameState.isGameOver && !_wasGameOver) {
-      _gameOverController.forward();
-      // Show modal when game over triggers
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _showGameOverModal(context);
-        }
-      });
-    }
-    _wasGameOver = gameState.isGameOver;
+  void _resetGameOverFlags() {
+    _wasGameOver = false;
+    _modalShown = false;
+    _gameOverController.reset();
   }
 
   @override
@@ -123,6 +116,24 @@ class _GameScreenState extends ConsumerState<GameScreen>
       screenSize.height,
       isWeb: kIsWeb,
     );
+
+    // Check for game over transition in build method
+    if (gameState.isGameOver && !_wasGameOver && !_modalShown) {
+      _wasGameOver = true;
+      _modalShown = true;
+      _gameOverController.forward();
+      // Show modal after frame is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showGameOverModal(context);
+        }
+      });
+    }
+
+    // Reset flags when game is reset (isGameOver goes from true to false)
+    if (!gameState.isGameOver && _wasGameOver) {
+      _resetGameOverFlags();
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
@@ -859,6 +870,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     if (context.mounted) {
                       Navigator.of(context).pop();
                     }
+                    // Reset flags
+                    _resetGameOverFlags();
                     // Clear saved state before starting new game
                     await ref.read(gameProvider.notifier).clearSavedState();
                     ref.read(gameProvider.notifier).resetGame();
