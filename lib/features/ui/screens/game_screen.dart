@@ -228,8 +228,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     // Always save current state first
     await _saveGameState();
 
-    final navigator = Navigator.of(context);
-
     // Show confirmation dialog with options
     final choice = await showDialog<int>(
       context: context,
@@ -272,14 +270,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
 
     // Handle the user's choice
-    if (choice == 1 && mounted) {
+    if (!context.mounted) return;
+
+    if (choice == 1) {
       // Save & Continue - navigate back to title screen
       Navigator.of(context).popUntil((route) => route.isFirst);
-    } else if (choice == 2 && mounted) {
-      // Restart - clear state and navigate to title
+    } else if (choice == 2) {
+      // Restart - clear state and reset game (stay on game screen)
       await ref.read(gameProvider.notifier).clearSavedState();
       ref.read(gameProvider.notifier).resetGame();
-      navigator.pop();
+      // Dialog already closed by button tap, stay on game screen
     }
     // choice == 0 means cancel, do nothing (stay in game)
   }
