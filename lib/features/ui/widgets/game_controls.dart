@@ -89,14 +89,17 @@ class _RollButton extends StatelessWidget {
                 color: isEnabled ? const Color(0xFFB3E5FC) : Colors.grey[600],
                 shape: BoxShape.circle,
               ),
-              child: Text(
-                '$rollsRemaining',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isEnabled ? const Color(0xFFFFA726) : Colors.grey[400],
+              child: Center(
+                child: Text(
+                  '$rollsRemaining',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isEnabled
+                        ? const Color(0xFF1A237E)
+                        : Colors.grey[400],
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           ],
