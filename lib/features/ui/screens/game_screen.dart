@@ -642,7 +642,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         children: [
           Expanded(
             child: Text(
-              'BONUS +20',
+              'BONUS +$BONUS_POINTS',
               style: GoogleFonts.openSans(
                 fontSize: sizes.fontSizeSmall,
                 color: bonusEligible ? Colors.green[300] : Colors.grey[500],
@@ -1043,7 +1043,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               ),
               SizedBox(height: sizes.spacingMedium - 4),
               Text(
-                'Bonus: +20 if upper section total >= 30',
+                'Bonus: +$BONUS_POINTS if upper section total >= $BONUS_THRESHOLD',
                 style: GoogleFonts.openSans(
                   color: Colors.green[300],
                   fontWeight: FontWeight.w600,
