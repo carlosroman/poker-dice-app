@@ -228,6 +228,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     // Always save current state first
     await _saveGameState();
 
+    // Check if context is still valid after async operation
+    if (!context.mounted) return;
+
     // Show confirmation dialog with options
     final choice = await showDialog<int>(
       context: context,
@@ -714,6 +717,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   value: dice.value,
                   isHeld: dice.isHeld,
                   onTap: () {
+                    debugPrint('DiceCard tapped at index $index');
                     ref.read(gameProvider.notifier).toggleHold(index);
                     _saveGameState();
                   },

@@ -68,6 +68,11 @@ class GameNotifier extends Notifier<GameState> {
       return;
     }
 
+    // Don't allow holding dice that haven't been rolled yet
+    if (state.dice[diceIndex].value == null) {
+      return;
+    }
+
     final updatedDice = List<Dice>.from(state.dice);
     updatedDice[diceIndex] = updatedDice[diceIndex].toggleHold();
 

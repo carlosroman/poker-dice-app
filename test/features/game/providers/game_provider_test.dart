@@ -62,11 +62,11 @@ void main() {
     });
 
     test('rollDice() only rolls non-held dice', () {
-      // Hold the first dice before any roll
-      container.read(gameProvider.notifier).toggleHold(0);
-
-      // First roll to get some dice values (held dice stays null)
+      // First roll to get dice values
       container.read(gameProvider.notifier).rollDice();
+
+      // THEN hold the first dice
+      container.read(gameProvider.notifier).toggleHold(0);
 
       final stateBefore = container.read(gameProvider);
       final heldDiceValue = stateBefore.dice[0].value;
@@ -76,19 +76,19 @@ void main() {
 
       final stateAfter = container.read(gameProvider);
 
-      // Held dice should retain its value (null if never rolled)
+      // Held dice should retain its value
       expect(stateAfter.dice[0].value, heldDiceValue);
       expect(stateAfter.dice[0].isHeld, true);
     });
 
     test('held dice retain their values across multiple rolls', () {
-      // Hold dice at indices 0, 2, and 4 before first roll
+      // First roll to get dice values
+      container.read(gameProvider.notifier).rollDice();
+
+      // THEN hold dice at indices 0, 2, and 4
       container.read(gameProvider.notifier).toggleHold(0);
       container.read(gameProvider.notifier).toggleHold(2);
       container.read(gameProvider.notifier).toggleHold(4);
-
-      // First roll to get dice values (held dice stay null)
-      container.read(gameProvider.notifier).rollDice();
 
       final stateBefore = container.read(gameProvider);
       final heldValues = [
@@ -102,7 +102,7 @@ void main() {
 
       final stateAfter = container.read(gameProvider);
 
-      // Held dice should retain values (null if never rolled)
+      // Held dice should retain values
       expect(stateAfter.dice[0].value, heldValues[0]);
       expect(stateAfter.dice[2].value, heldValues[1]);
       expect(stateAfter.dice[4].value, heldValues[2]);

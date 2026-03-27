@@ -44,6 +44,7 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   static const Color _diceBackgroundColor = Colors.white;
   static const Color _diceTextColor = Colors.black;
   static const Color _heldBorderColor = Color(0xFFFF6F00);
+  static const Color _unrolledDiceBackgroundColor = Colors.grey;
 
   @override
   void initState() {
@@ -154,27 +155,37 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
           width: _cardWidth,
           height: _cardHeight,
           decoration: BoxDecoration(
-            color: _diceBackgroundColor,
+            color: widget.value != null
+                ? _diceBackgroundColor
+                : _unrolledDiceBackgroundColor,
             borderRadius: const BorderRadius.all(Radius.circular(8.0)),
             border: Border.all(
-              color: widget.isHeld ? _heldBorderColor : const Color(0xFFE0E0E0),
+              color: widget.isHeld
+                  ? _heldBorderColor
+                  : widget.value != null
+                  ? const Color(0xFFE0E0E0)
+                  : Colors.grey[400]!,
               width: _borderWidth,
             ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x1A000000),
-                blurRadius: 4.0,
-                offset: Offset(0, 2),
-              ),
-            ],
+            boxShadow: widget.value != null
+                ? const [
+                    BoxShadow(
+                      color: Color(0x1A000000),
+                      blurRadius: 4.0,
+                      offset: Offset(0, 2),
+                    ),
+                  ]
+                : [],
           ),
           child: Center(
             child: Text(
               _faceText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
-                color: _diceTextColor,
+                color: widget.value != null
+                    ? _diceTextColor
+                    : Colors.grey[500]!,
               ),
             ),
           ),
