@@ -778,12 +778,36 @@ class _GameScreenState extends ConsumerState<GameScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: isEnabled ? 4 : 0,
       ),
-      child: Text(
-        'ROLL (${gameState.rollsRemaining})',
-        style: GoogleFonts.openSans(
-          fontSize: sizes.fontSizeLarge + 2,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'ROLL',
+            style: GoogleFonts.openSans(
+              fontSize: sizes.fontSizeLarge + 2,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(width: sizes.spacingMedium),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isEnabled ? const Color(0xFFB3E5FC) : Colors.grey[600],
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '${gameState.rollsRemaining}',
+                style: GoogleFonts.openSans(
+                  fontSize: sizes.fontSizeMedium,
+                  fontWeight: FontWeight.bold,
+                  color: isEnabled ? const Color(0xFF1A237E) : Colors.grey[400],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
