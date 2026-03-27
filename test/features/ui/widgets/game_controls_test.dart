@@ -75,7 +75,7 @@ void main() {
     });
 
     group('Roll button displays rolls remaining', () {
-      testWidgets('rollsRemaining=3 shows "ROLL (3)"', (
+      testWidgets('rollsRemaining=3 shows ROLL with badge', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
@@ -88,10 +88,11 @@ void main() {
           ),
         );
 
-        expect(find.text('ROLL (3)'), findsOneWidget);
+        expect(find.text('ROLL'), findsOneWidget);
+        expect(find.text('3'), findsOneWidget);
       });
 
-      testWidgets('rollsRemaining=2 shows "ROLL (2)"', (
+      testWidgets('rollsRemaining=2 shows ROLL with badge', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
@@ -104,10 +105,11 @@ void main() {
           ),
         );
 
-        expect(find.text('ROLL (2)'), findsOneWidget);
+        expect(find.text('ROLL'), findsOneWidget);
+        expect(find.text('2'), findsOneWidget);
       });
 
-      testWidgets('rollsRemaining=1 shows "ROLL (1)"', (
+      testWidgets('rollsRemaining=1 shows ROLL with badge', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
@@ -120,7 +122,25 @@ void main() {
           ),
         );
 
-        expect(find.text('ROLL (1)'), findsOneWidget);
+        expect(find.text('ROLL'), findsOneWidget);
+        expect(find.text('1'), findsOneWidget);
+      });
+
+      testWidgets('rollsRemaining=0 shows disabled ROLL with badge', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          createTestApp(
+            GameControls(
+              rollsRemaining: 0,
+              isTurnActive: true,
+              isGameOver: false,
+            ),
+          ),
+        );
+
+        expect(find.text('ROLL'), findsOneWidget);
+        expect(find.text('0'), findsOneWidget);
       });
     });
 

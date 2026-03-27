@@ -74,9 +74,32 @@ class _RollButton extends StatelessWidget {
           ),
           elevation: isEnabled ? 4 : 0,
         ),
-        child: Text(
-          'ROLL ($rollsRemaining)',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'ROLL',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isEnabled ? const Color(0xFFB3E5FC) : Colors.grey[600],
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                '$rollsRemaining',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isEnabled ? const Color(0xFFFFA726) : Colors.grey[400],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );
