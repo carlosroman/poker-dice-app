@@ -38,8 +38,8 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   late Animation<double> _rollXAnimation;
   late Animation<double> _rollRotationAnimation;
 
-  static const double _cardWidth = 60.0;
-  static const double _cardHeight = 84.0;
+  static const double _cardWidth = 70.0;
+  static const double _cardHeight = 70.0;
   static const double _borderWidth = 2.0;
   static const Color _diceBackgroundColor = Colors.white;
   static const Color _diceTextColor = Colors.black;
@@ -158,7 +158,7 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
             color: widget.value != null
                 ? _diceBackgroundColor
                 : _unrolledDiceBackgroundColor,
-            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
             border: Border.all(
               color: widget.isHeld
                   ? _heldBorderColor
