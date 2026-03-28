@@ -1213,6 +1213,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Widget _getDiceFaceIcon(int index) {
     // index 0-5 maps to values 1-6
     final diceValue = index + 1;
-    return DiceDot(value: diceValue, size: 24.0, pipColor: Colors.white);
+    return DiceDot(
+      value: diceValue,
+      size: 24.0,
+      pipColor: Colors.black,
+      showBackground: false,
+    );
   }
 }
