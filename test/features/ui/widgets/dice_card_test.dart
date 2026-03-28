@@ -1,68 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/features/ui/widgets/dice_card.dart';
+import 'package:poker_dice/features/ui/widgets/dice_dot.dart';
 
 void main() {
   group('DiceCard', () {
-    group('renders correct face', () {
-      testWidgets('value 0 displays 9', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 0, isHeld: false)),
-          ),
-        );
-
-        expect(find.text('9'), findsOneWidget);
-      });
-
-      testWidgets('value 1 displays 10', (WidgetTester tester) async {
+    group('renders correct dice dot', () {
+      testWidgets('value 1 displays 1 pip', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(body: DiceCard(value: 1, isHeld: false)),
           ),
         );
 
-        expect(find.text('10'), findsOneWidget);
+        expect(find.byType(DiceDot), findsOneWidget);
+        final diceDot = tester.widget<DiceDot>(find.byType(DiceDot).first);
+        expect(diceDot.value, 1);
       });
 
-      testWidgets('value 2 displays J', (WidgetTester tester) async {
+      testWidgets('value 2 displays 2 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(body: DiceCard(value: 2, isHeld: false)),
           ),
         );
 
-        expect(find.text('J'), findsOneWidget);
+        expect(find.byType(DiceDot), findsOneWidget);
+        final diceDot = tester.widget<DiceDot>(find.byType(DiceDot).first);
+        expect(diceDot.value, 2);
       });
 
-      testWidgets('value 3 displays Q', (WidgetTester tester) async {
+      testWidgets('value 3 displays 3 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(body: DiceCard(value: 3, isHeld: false)),
           ),
         );
 
-        expect(find.text('Q'), findsOneWidget);
+        expect(find.byType(DiceDot), findsOneWidget);
+        final diceDot = tester.widget<DiceDot>(find.byType(DiceDot).first);
+        expect(diceDot.value, 3);
       });
 
-      testWidgets('value 4 displays K', (WidgetTester tester) async {
+      testWidgets('value 4 displays 4 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(body: DiceCard(value: 4, isHeld: false)),
           ),
         );
 
-        expect(find.text('K'), findsOneWidget);
+        expect(find.byType(DiceDot), findsOneWidget);
+        final diceDot = tester.widget<DiceDot>(find.byType(DiceDot).first);
+        expect(diceDot.value, 4);
       });
 
-      testWidgets('value 5 displays A', (WidgetTester tester) async {
+      testWidgets('value 5 displays 5 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(body: DiceCard(value: 5, isHeld: false)),
           ),
         );
 
-        expect(find.text('A'), findsOneWidget);
+        expect(find.byType(DiceDot), findsOneWidget);
+        final diceDot = tester.widget<DiceDot>(find.byType(DiceDot).first);
+        expect(diceDot.value, 5);
+      });
+
+      testWidgets('value 6 displays 6 pips', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(body: DiceCard(value: 6, isHeld: false)),
+          ),
+        );
+
+        expect(find.byType(DiceDot), findsOneWidget);
+        final diceDot = tester.widget<DiceDot>(find.byType(DiceDot).first);
+        expect(diceDot.value, 6);
       });
     });
 
@@ -72,7 +85,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 0, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 1, isHeld: false)),
           ),
         );
 
@@ -88,7 +101,7 @@ void main() {
       testWidgets('isHeld=true has orange border', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 0, isHeld: true)),
+            home: Scaffold(body: DiceCard(value: 1, isHeld: true)),
           ),
         );
 
@@ -110,7 +123,7 @@ void main() {
               body: StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {
                   return DiceCard(
-                    value: 0,
+                    value: 1,
                     isHeld: holdState,
                     onTap: () {
                       setState(() {

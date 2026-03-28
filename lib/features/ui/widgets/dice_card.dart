@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/dice_faces.dart';
+import 'dice_dot.dart';
 
-/// A card-style dice widget for the Poker Dice game.
+/// A dice widget for the Poker Dice (Yatzy) game.
 ///
-/// Displays a dice face with card-style values (9, 10, J, Q, K, A)
+/// Displays a dice face with traditional pips (dots) for values 1-6
 /// and supports hold functionality with visual feedback.
 class DiceCard extends StatefulWidget {
-  /// The dice value (index 0-5 for card faces: 9, 10, J, Q, K, A).
+  /// The dice value (1-6 for traditional dice faces).
   /// Null means the dice is unrolled/blank.
   final int? value;
 
@@ -42,7 +42,6 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   static const double _cardHeight = 70.0;
   static const double _borderWidth = 2.0;
   static const Color _diceBackgroundColor = Colors.white;
-  static const Color _diceTextColor = Colors.black;
   static const Color _heldBorderColor = Color(0xFFFF6F00);
   static const Color _unrolledDiceBackgroundColor = Colors.grey;
 
@@ -122,10 +121,6 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  /// Gets the display text for the dice value.
-  String get _faceText =>
-      widget.value != null ? DICE_FACES[widget.value!].toString() : '';
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -177,18 +172,15 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
                   ]
                 : [],
           ),
-          child: Center(
-            child: Text(
-              _faceText,
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-                color: widget.value != null
-                    ? _diceTextColor
-                    : Colors.grey[500]!,
-              ),
-            ),
-          ),
+          child: widget.value != null
+              ? DiceDot(
+                  value: widget.value!,
+                  size: _cardWidth * 0.7,
+                  pipColor: Colors.black,
+                )
+              : const Center(
+                  child: Icon(Icons.remove, color: Colors.grey, size: 32.0),
+                ),
         ),
       ),
     );

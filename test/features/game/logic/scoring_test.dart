@@ -1,203 +1,199 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_dice/core/constants/dice_faces.dart';
+import 'package:poker_dice/core/constants/dice_faces.dart'
+    show BONUS_THRESHOLD, BONUS_POINTS;
 import 'package:poker_dice/features/game/logic/scoring.dart';
 
 void main() {
-  group('Upper Section - Pair Tests', () {
-    group('score9s', () {
-      test('returns 0 when no 9s present', () {
+  group('Upper Section - Sum of Matching Dice Tests', () {
+    group('scoreOnes', () {
+      test('returns 0 when no 1s present', () {
+        final dice = [2, 3, 4, 5, 6];
+        expect(Scoring.scoreOnes(dice), 0);
+      });
+
+      test('returns 1 for one 1', () {
         final dice = [1, 2, 3, 4, 5];
-        expect(Scoring.score9s(dice), 0);
+        expect(Scoring.scoreOnes(dice), 1);
       });
 
-      test('returns 1 for one 9', () {
-        final dice = [0, 1, 2, 3, 4];
-        expect(Scoring.score9s(dice), 1);
+      test('returns 2 for two 1s', () {
+        final dice = [1, 1, 2, 3, 4];
+        expect(Scoring.scoreOnes(dice), 2);
       });
 
-      test('returns 2 for two 9s', () {
-        final dice = [0, 0, 1, 2, 3];
-        expect(Scoring.score9s(dice), 2);
+      test('returns 3 for three 1s', () {
+        final dice = [1, 1, 1, 2, 3];
+        expect(Scoring.scoreOnes(dice), 3);
       });
 
-      test('returns 3 for three 9s', () {
-        final dice = [0, 0, 0, 1, 2];
-        expect(Scoring.score9s(dice), 3);
+      test('returns 4 for four 1s', () {
+        final dice = [1, 1, 1, 1, 2];
+        expect(Scoring.scoreOnes(dice), 4);
       });
 
-      test('returns 4 for four 9s', () {
-        final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.score9s(dice), 4);
-      });
-
-      test('returns 5 for five 9s', () {
-        final dice = [0, 0, 0, 0, 0];
-        expect(Scoring.score9s(dice), 5);
-      });
-
-      test('returns 0 for empty hand (all Aces)', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.score9s(dice), 0);
-      });
-    });
-
-    group('score10s', () {
-      test('returns 0 when no 10s present', () {
-        final dice = [0, 2, 3, 4, 5];
-        expect(Scoring.score10s(dice), 0);
-      });
-
-      test('returns 2 for one 10', () {
-        final dice = [1, 0, 2, 3, 4];
-        expect(Scoring.score10s(dice), 2);
-      });
-
-      test('returns 4 for two 10s', () {
-        final dice = [1, 1, 0, 2, 3];
-        expect(Scoring.score10s(dice), 4);
-      });
-
-      test('returns 6 for three 10s', () {
-        final dice = [1, 1, 1, 0, 2];
-        expect(Scoring.score10s(dice), 6);
-      });
-
-      test('returns 8 for four 10s', () {
-        final dice = [1, 1, 1, 1, 0];
-        expect(Scoring.score10s(dice), 8);
-      });
-
-      test('returns 10 for five 10s', () {
+      test('returns 5 for five 1s', () {
         final dice = [1, 1, 1, 1, 1];
-        expect(Scoring.score10s(dice), 10);
+        expect(Scoring.scoreOnes(dice), 5);
       });
     });
 
-    group('scoreJs', () {
-      test('returns 0 when no Jacks present', () {
-        final dice = [0, 1, 3, 4, 5];
-        expect(Scoring.scoreJs(dice), 0);
+    group('scoreTwos', () {
+      test('returns 0 when no 2s present', () {
+        final dice = [1, 3, 4, 5, 6];
+        expect(Scoring.scoreTwos(dice), 0);
       });
 
-      test('returns 3 for one Jack', () {
-        final dice = [2, 0, 1, 3, 4];
-        expect(Scoring.scoreJs(dice), 3);
+      test('returns 2 for one 2', () {
+        final dice = [2, 1, 3, 4, 5];
+        expect(Scoring.scoreTwos(dice), 2);
       });
 
-      test('returns 6 for two Jacks', () {
-        final dice = [2, 2, 0, 1, 3];
-        expect(Scoring.scoreJs(dice), 6);
+      test('returns 4 for two 2s', () {
+        final dice = [2, 2, 1, 3, 4];
+        expect(Scoring.scoreTwos(dice), 4);
       });
 
-      test('returns 9 for three Jacks', () {
-        final dice = [2, 2, 2, 0, 1];
-        expect(Scoring.scoreJs(dice), 9);
+      test('returns 6 for three 2s', () {
+        final dice = [2, 2, 2, 1, 3];
+        expect(Scoring.scoreTwos(dice), 6);
       });
 
-      test('returns 12 for four Jacks', () {
-        final dice = [2, 2, 2, 2, 0];
-        expect(Scoring.scoreJs(dice), 12);
+      test('returns 8 for four 2s', () {
+        final dice = [2, 2, 2, 2, 1];
+        expect(Scoring.scoreTwos(dice), 8);
       });
 
-      test('returns 15 for five Jacks', () {
+      test('returns 10 for five 2s', () {
         final dice = [2, 2, 2, 2, 2];
-        expect(Scoring.scoreJs(dice), 15);
+        expect(Scoring.scoreTwos(dice), 10);
       });
     });
 
-    group('scoreQs', () {
-      test('returns 0 when no Queens present', () {
-        final dice = [0, 1, 2, 4, 5];
-        expect(Scoring.scoreQs(dice), 0);
+    group('scoreThrees', () {
+      test('returns 0 when no 3s present', () {
+        final dice = [1, 2, 4, 5, 6];
+        expect(Scoring.scoreThrees(dice), 0);
       });
 
-      test('returns 4 for one Queen', () {
-        final dice = [3, 0, 1, 2, 4];
-        expect(Scoring.scoreQs(dice), 4);
+      test('returns 3 for one 3', () {
+        final dice = [3, 1, 2, 4, 5];
+        expect(Scoring.scoreThrees(dice), 3);
       });
 
-      test('returns 8 for two Queens', () {
-        final dice = [3, 3, 0, 1, 2];
-        expect(Scoring.scoreQs(dice), 8);
+      test('returns 6 for two 3s', () {
+        final dice = [3, 3, 1, 2, 4];
+        expect(Scoring.scoreThrees(dice), 6);
       });
 
-      test('returns 12 for three Queens', () {
-        final dice = [3, 3, 3, 0, 1];
-        expect(Scoring.scoreQs(dice), 12);
+      test('returns 9 for three 3s', () {
+        final dice = [3, 3, 3, 1, 2];
+        expect(Scoring.scoreThrees(dice), 9);
       });
 
-      test('returns 16 for four Queens', () {
-        final dice = [3, 3, 3, 3, 0];
-        expect(Scoring.scoreQs(dice), 16);
+      test('returns 12 for four 3s', () {
+        final dice = [3, 3, 3, 3, 1];
+        expect(Scoring.scoreThrees(dice), 12);
       });
 
-      test('returns 20 for five Queens', () {
+      test('returns 15 for five 3s', () {
         final dice = [3, 3, 3, 3, 3];
-        expect(Scoring.scoreQs(dice), 20);
+        expect(Scoring.scoreThrees(dice), 15);
       });
     });
 
-    group('scoreKs', () {
-      test('returns 0 when no Kings present', () {
-        final dice = [0, 1, 2, 3, 5];
-        expect(Scoring.scoreKs(dice), 0);
+    group('scoreFours', () {
+      test('returns 0 when no 4s present', () {
+        final dice = [1, 2, 3, 5, 6];
+        expect(Scoring.scoreFours(dice), 0);
       });
 
-      test('returns 5 for one King', () {
-        final dice = [4, 0, 1, 2, 3];
-        expect(Scoring.scoreKs(dice), 5);
+      test('returns 4 for one 4', () {
+        final dice = [4, 1, 2, 3, 5];
+        expect(Scoring.scoreFours(dice), 4);
       });
 
-      test('returns 10 for two Kings', () {
-        final dice = [4, 4, 0, 1, 2];
-        expect(Scoring.scoreKs(dice), 10);
+      test('returns 8 for two 4s', () {
+        final dice = [4, 4, 1, 2, 3];
+        expect(Scoring.scoreFours(dice), 8);
       });
 
-      test('returns 15 for three Kings', () {
-        final dice = [4, 4, 4, 0, 1];
-        expect(Scoring.scoreKs(dice), 15);
+      test('returns 12 for three 4s', () {
+        final dice = [4, 4, 4, 1, 2];
+        expect(Scoring.scoreFours(dice), 12);
       });
 
-      test('returns 20 for four Kings', () {
-        final dice = [4, 4, 4, 4, 0];
-        expect(Scoring.scoreKs(dice), 20);
+      test('returns 16 for four 4s', () {
+        final dice = [4, 4, 4, 4, 1];
+        expect(Scoring.scoreFours(dice), 16);
       });
 
-      test('returns 25 for five Kings', () {
+      test('returns 20 for five 4s', () {
         final dice = [4, 4, 4, 4, 4];
-        expect(Scoring.scoreKs(dice), 25);
+        expect(Scoring.scoreFours(dice), 20);
       });
     });
 
-    group('scoreAs', () {
-      test('returns 0 when no Aces present', () {
-        final dice = [0, 1, 2, 3, 4];
-        expect(Scoring.scoreAs(dice), 0);
+    group('scoreFives', () {
+      test('returns 0 when no 5s present', () {
+        final dice = [1, 2, 3, 4, 6];
+        expect(Scoring.scoreFives(dice), 0);
       });
 
-      test('returns 6 for one Ace', () {
-        final dice = [5, 0, 1, 2, 3];
-        expect(Scoring.scoreAs(dice), 6);
+      test('returns 5 for one 5', () {
+        final dice = [5, 1, 2, 3, 4];
+        expect(Scoring.scoreFives(dice), 5);
       });
 
-      test('returns 12 for two Aces', () {
-        final dice = [5, 5, 0, 1, 2];
-        expect(Scoring.scoreAs(dice), 12);
+      test('returns 10 for two 5s', () {
+        final dice = [5, 5, 1, 2, 3];
+        expect(Scoring.scoreFives(dice), 10);
       });
 
-      test('returns 18 for three Aces', () {
-        final dice = [5, 5, 5, 0, 1];
-        expect(Scoring.scoreAs(dice), 18);
+      test('returns 15 for three 5s', () {
+        final dice = [5, 5, 5, 1, 2];
+        expect(Scoring.scoreFives(dice), 15);
       });
 
-      test('returns 24 for four Aces', () {
-        final dice = [5, 5, 5, 5, 0];
-        expect(Scoring.scoreAs(dice), 24);
+      test('returns 20 for four 5s', () {
+        final dice = [5, 5, 5, 5, 1];
+        expect(Scoring.scoreFives(dice), 20);
       });
 
-      test('returns 30 for five Aces', () {
+      test('returns 25 for five 5s', () {
         final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreAs(dice), 30);
+        expect(Scoring.scoreFives(dice), 25);
+      });
+    });
+
+    group('scoreSixes', () {
+      test('returns 0 when no 6s present', () {
+        final dice = [1, 2, 3, 4, 5];
+        expect(Scoring.scoreSixes(dice), 0);
+      });
+
+      test('returns 6 for one 6', () {
+        final dice = [6, 1, 2, 3, 4];
+        expect(Scoring.scoreSixes(dice), 6);
+      });
+
+      test('returns 12 for two 6s', () {
+        final dice = [6, 6, 1, 2, 3];
+        expect(Scoring.scoreSixes(dice), 12);
+      });
+
+      test('returns 18 for three 6s', () {
+        final dice = [6, 6, 6, 1, 2];
+        expect(Scoring.scoreSixes(dice), 18);
+      });
+
+      test('returns 24 for four 6s', () {
+        final dice = [6, 6, 6, 6, 1];
+        expect(Scoring.scoreSixes(dice), 24);
+      });
+
+      test('returns 30 for five 6s', () {
+        final dice = [6, 6, 6, 6, 6];
+        expect(Scoring.scoreSixes(dice), 30);
       });
     });
   });
@@ -205,218 +201,178 @@ void main() {
   group('Lower Section Tests', () {
     group('scoreThreeOfAKind', () {
       test('returns 0 when no three of a kind present', () {
-        final dice = [0, 1, 2, 3, 4];
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreThreeOfAKind(dice), 0);
       });
 
       test('returns sum of all dice for three of a kind', () {
-        final dice = [0, 0, 0, 1, 2];
-        expect(Scoring.scoreThreeOfAKind(dice), 8);
+        final dice = [3, 3, 3, 1, 2];
+        expect(Scoring.scoreThreeOfAKind(dice), 12);
       });
 
       test('returns sum of all dice for four of a kind', () {
-        final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.scoreThreeOfAKind(dice), 6);
+        final dice = [2, 2, 2, 2, 1];
+        expect(Scoring.scoreThreeOfAKind(dice), 9);
       });
 
       test('returns sum of all dice for five of a kind (Yatzy)', () {
-        final dice = [0, 0, 0, 0, 0];
-        expect(Scoring.scoreThreeOfAKind(dice), 5);
-      });
-
-      test('returns sum of all dice for Aces three of a kind', () {
-        final dice = [5, 5, 5, 0, 1];
-        expect(Scoring.scoreThreeOfAKind(dice), 21);
-      });
-
-      test('returns sum of all dice for 9s three of a kind', () {
-        final dice = [0, 0, 0, 1, 2];
-        expect(Scoring.scoreThreeOfAKind(dice), 8);
+        final dice = [4, 4, 4, 4, 4];
+        expect(Scoring.scoreThreeOfAKind(dice), 20);
       });
     });
 
     group('scoreFourOfAKind', () {
       test('returns 0 when no four of a kind present', () {
-        final dice = [0, 1, 2, 3, 4];
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreFourOfAKind(dice), 0);
       });
 
       test('returns 0 for three of a kind only', () {
-        final dice = [0, 0, 0, 1, 2];
+        final dice = [3, 3, 3, 1, 2];
         expect(Scoring.scoreFourOfAKind(dice), 0);
       });
 
       test('returns sum of all dice for four of a kind', () {
-        final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.scoreFourOfAKind(dice), 6);
+        final dice = [2, 2, 2, 2, 1];
+        expect(Scoring.scoreFourOfAKind(dice), 9);
       });
 
       test('returns sum of all dice for five of a kind (Yatzy)', () {
-        final dice = [1, 1, 1, 1, 1];
-        expect(Scoring.scoreFourOfAKind(dice), 10);
-      });
-
-      test('returns sum of all dice for Kings four of a kind', () {
-        final dice = [4, 4, 4, 4, 0];
-        expect(Scoring.scoreFourOfAKind(dice), 21);
-      });
-
-      test('returns sum of all dice for 9s four of a kind', () {
-        final dice = [0, 0, 0, 0, 1];
-        expect(Scoring.scoreFourOfAKind(dice), 6);
+        final dice = [5, 5, 5, 5, 5];
+        expect(Scoring.scoreFourOfAKind(dice), 25);
       });
     });
 
     group('scoreSmallStraight', () {
       test('returns 0 when small straight not present', () {
-        final dice = [0, 0, 1, 2, 4];
+        final dice = [1, 1, 3, 4, 6];
         expect(Scoring.scoreSmallStraight(dice), 0);
       });
 
-      test('returns 0 when only 3 consecutive values present', () {
-        final dice = [0, 1, 2, 4, 5];
+      test('returns 0 when only 4 consecutive values present', () {
+        final dice = [1, 2, 3, 4, 6];
         expect(Scoring.scoreSmallStraight(dice), 0);
       });
 
-      test('returns 30 for 9-10-J-Q (indices 0-1-2-3)', () {
-        final dice = [0, 1, 2, 3, 4];
+      test('returns 30 for 1-2-3-4-5', () {
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreSmallStraight(dice), 30);
       });
 
-      test('returns 30 for 10-J-Q-K (indices 1-2-3-4)', () {
-        final dice = [1, 2, 3, 4, 0];
-        expect(Scoring.scoreSmallStraight(dice), 30);
-      });
-
-      test('returns 30 for J-Q-K-A (indices 2-3-4-5)', () {
-        final dice = [2, 3, 4, 5, 0];
+      test('returns 30 for 2-3-4-5-6', () {
+        final dice = [2, 3, 4, 5, 6];
         expect(Scoring.scoreSmallStraight(dice), 30);
       });
 
       test('returns 30 for small straight in any order', () {
-        final dice = [3, 1, 2, 0, 5];
-        expect(Scoring.scoreSmallStraight(dice), 30);
-      });
-
-      test('returns 30 for long straight (also contains small straight)', () {
-        final dice = [0, 1, 2, 3, 4];
+        final dice = [5, 3, 1, 2, 4];
         expect(Scoring.scoreSmallStraight(dice), 30);
       });
     });
 
     group('scoreLongStraight', () {
       test('returns 0 when long straight not present', () {
-        final dice = [0, 0, 1, 2, 3];
+        final dice = [1, 1, 2, 3, 4];
         expect(Scoring.scoreLongStraight(dice), 0);
       });
 
       test('returns 0 when duplicate values present', () {
-        final dice = [0, 1, 2, 3, 3];
+        final dice = [1, 2, 3, 4, 4];
         expect(Scoring.scoreLongStraight(dice), 0);
       });
 
-      test('returns 40 for small long straight (9-10-J-Q-K)', () {
-        final dice = [0, 1, 2, 3, 4];
+      test('returns 40 for 1-2-3-4-5-6', () {
+        final dice = [1, 2, 3, 4, 5, 6];
         expect(Scoring.scoreLongStraight(dice), 40);
       });
 
-      test('returns 40 for large long straight (10-J-Q-K-A)', () {
-        final dice = [1, 2, 3, 4, 5];
-        expect(Scoring.scoreLongStraight(dice), 40);
-      });
-
-      test('returns 40 for large long straight in any order', () {
-        final dice = [5, 3, 1, 4, 2];
+      test('returns 40 for long straight in any order', () {
+        final dice = [6, 4, 2, 5, 3, 1];
         expect(Scoring.scoreLongStraight(dice), 40);
       });
 
       test('returns 0 when missing middle value', () {
-        final dice = [0, 1, 2, 3, 5];
+        final dice = [1, 2, 3, 5, 6];
         expect(Scoring.scoreLongStraight(dice), 0);
       });
     });
 
     group('scoreChance', () {
       test('returns sum of all dice values', () {
-        final dice = [0, 1, 2, 3, 4];
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreChance(dice), 15);
       });
 
-      test('returns sum for all Aces', () {
-        final dice = [5, 5, 5, 5, 5];
+      test('returns sum for all 6s', () {
+        final dice = [6, 6, 6, 6, 6];
         expect(Scoring.scoreChance(dice), 30);
       });
 
       test('returns sum for mixed values', () {
-        final dice = [0, 2, 3, 4, 5];
+        final dice = [1, 3, 4, 5, 6];
         expect(Scoring.scoreChance(dice), 19);
       });
 
-      test('returns 5 for all 9s', () {
-        final dice = [0, 0, 0, 0, 0];
+      test('returns 5 for all 1s', () {
+        final dice = [1, 1, 1, 1, 1];
         expect(Scoring.scoreChance(dice), 5);
       });
 
       test('always returns sum regardless of combination', () {
-        final dice = [1, 1, 3, 3, 5];
-        expect(Scoring.scoreChance(dice), 18);
+        final dice = [2, 2, 4, 4, 5];
+        expect(Scoring.scoreChance(dice), 17);
       });
     });
 
     group('scoreFullHouse', () {
       test('returns 0 when full house not present', () {
-        final dice = [0, 1, 2, 3, 4];
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreFullHouse(dice), 0);
       });
 
       test('returns 0 for two pairs only', () {
-        final dice = [0, 0, 1, 1, 2];
+        final dice = [1, 1, 2, 2, 3];
         expect(Scoring.scoreFullHouse(dice), 0);
       });
 
       test('returns 25 for full house (3+2)', () {
-        final dice = [0, 0, 0, 1, 1];
+        final dice = [3, 3, 3, 5, 5];
         expect(Scoring.scoreFullHouse(dice), 25);
       });
 
-      test('returns 25 for Aces full house', () {
-        final dice = [5, 5, 5, 0, 0];
-        expect(Scoring.scoreFullHouse(dice), 25);
-      });
-
-      test('returns 25 for 9s full house', () {
-        final dice = [0, 0, 0, 1, 1];
+      test('returns 25 for 6s full house', () {
+        final dice = [6, 6, 6, 2, 2];
         expect(Scoring.scoreFullHouse(dice), 25);
       });
 
       test('returns 0 for four of a kind + one', () {
-        final dice = [0, 0, 0, 0, 1];
+        final dice = [3, 3, 3, 3, 5];
         expect(Scoring.scoreFullHouse(dice), 0);
       });
     });
 
     group('scoreYatzy', () {
       test('returns 0 when yatzy not present', () {
-        final dice = [0, 1, 2, 3, 4];
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreYatzy(dice), 0);
       });
 
       test('returns 0 for four of a kind only', () {
-        final dice = [0, 0, 0, 0, 1];
+        final dice = [3, 3, 3, 3, 5];
         expect(Scoring.scoreYatzy(dice), 0);
       });
 
-      test('returns 50 for all 5 dice same (9s)', () {
-        final dice = [0, 0, 0, 0, 0];
+      test('returns 50 for all 5 dice same (1s)', () {
+        final dice = [1, 1, 1, 1, 1];
         expect(Scoring.scoreYatzy(dice), 50);
       });
 
-      test('returns 50 for all 5 dice same (Aces)', () {
-        final dice = [5, 5, 5, 5, 5];
+      test('returns 50 for all 5 dice same (6s)', () {
+        final dice = [6, 6, 6, 6, 6];
         expect(Scoring.scoreYatzy(dice), 50);
       });
 
-      test('returns 50 for all 5 dice same (Kings)', () {
+      test('returns 50 for all 5 dice same (4s)', () {
         final dice = [4, 4, 4, 4, 4];
         expect(Scoring.scoreYatzy(dice), 50);
       });
@@ -424,23 +380,19 @@ void main() {
   });
 
   group('Bonus Calculation Tests', () {
-    test('check bonus threshold is 63', () {
-      expect(BONUS_THRESHOLD, 63);
+    test('bonus threshold is 20', () {
+      expect(BONUS_THRESHOLD, 20);
     });
 
-    test('returns bonus when upper section total >= 63', () {
-      final upperScores = [1, 2, 3, 4, 5, 6];
+    test('bonus points is 50', () {
+      expect(BONUS_POINTS, 50);
+    });
+
+    test('returns bonus when upper section total >= 20', () {
+      final upperScores = [3, 4, 5, 6, 7, 8];
       int total = upperScores.fold(0, (sum, score) => sum + score);
-      expect(total, 21);
-      expect(total >= BONUS_THRESHOLD, false);
-    });
-
-    test('upper section minimum scores for bonus', () {
-      // Minimum scoring: one of each rank
-      final minScores = [1, 2, 3, 4, 5, 6];
-      int total = minScores.fold(0, (sum, score) => sum + score);
-      expect(total, 21);
-      expect(total >= BONUS_THRESHOLD, false);
+      expect(total, 33);
+      expect(total >= BONUS_THRESHOLD, true);
     });
 
     test('upper section with low scores does not meet bonus', () {
@@ -450,19 +402,11 @@ void main() {
       expect(total >= BONUS_THRESHOLD, false);
     });
 
-    test('upper section with minimal pairs does not meet bonus', () {
+    test('upper section with one of each meets bonus threshold', () {
       // One of each: 1+2+3+4+5+6 = 21
       final minimalScores = [1, 2, 3, 4, 5, 6];
       int total = minimalScores.fold(0, (sum, score) => sum + score);
       expect(total, 21);
-      expect(total >= BONUS_THRESHOLD, false);
-    });
-
-    test('upper section with high scores meets bonus threshold', () {
-      // Two of each: 5+8+15+8+15+12 = 63
-      final highScores = [5, 8, 15, 8, 15, 12];
-      int total = highScores.fold(0, (sum, score) => sum + score);
-      expect(total, 63);
       expect(total >= BONUS_THRESHOLD, true);
     });
 
@@ -476,80 +420,56 @@ void main() {
   });
 
   group('Edge Case Tests', () {
-    group('Empty hand (all Aces)', () {
-      test('score9s returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.score9s(dice), 0);
+    group('All 1s', () {
+      test('scoreOnes returns 5', () {
+        final dice = [1, 1, 1, 1, 1];
+        expect(Scoring.scoreOnes(dice), 5);
       });
 
-      test('score10s returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.score10s(dice), 0);
-      });
-
-      test('scoreJs returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreJs(dice), 0);
-      });
-
-      test('scoreQs returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreQs(dice), 0);
-      });
-
-      test('scoreKs returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreKs(dice), 0);
-      });
-
-      test('scoreAs returns 30', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreAs(dice), 30);
+      test('scoreTwos returns 0', () {
+        final dice = [1, 1, 1, 1, 1];
+        expect(Scoring.scoreTwos(dice), 0);
       });
 
       test('scoreThreeOfAKind returns sum of all', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreThreeOfAKind(dice), 30);
-      });
-
-      test('scoreFourOfAKind returns sum of all', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreFourOfAKind(dice), 30);
-      });
-
-      test('scoreLongStraight returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreLongStraight(dice), 0);
-      });
-
-      test('scoreFullHouse returns 0', () {
-        final dice = [5, 5, 5, 5, 5];
-        expect(Scoring.scoreFullHouse(dice), 0);
+        final dice = [1, 1, 1, 1, 1];
+        expect(Scoring.scoreThreeOfAKind(dice), 5);
       });
 
       test('scoreYatzy returns 50', () {
-        final dice = [5, 5, 5, 5, 5];
+        final dice = [1, 1, 1, 1, 1];
+        expect(Scoring.scoreYatzy(dice), 50);
+      });
+    });
+
+    group('All 6s', () {
+      test('scoreSixes returns 30', () {
+        final dice = [6, 6, 6, 6, 6];
+        expect(Scoring.scoreSixes(dice), 30);
+      });
+
+      test('scoreThreeOfAKind returns sum of all', () {
+        final dice = [6, 6, 6, 6, 6];
+        expect(Scoring.scoreThreeOfAKind(dice), 30);
+      });
+
+      test('scoreYatzy returns 50', () {
+        final dice = [6, 6, 6, 6, 6];
         expect(Scoring.scoreYatzy(dice), 50);
       });
     });
 
     group('Invalid combinations', () {
       test('returns 0 for no matching dice (straight)', () {
-        final dice = [0, 1, 2, 3, 4];
-        expect(Scoring.score9s(dice), 1);
-        expect(Scoring.score10s(dice), 2);
-        expect(Scoring.scoreJs(dice), 3);
-        expect(Scoring.scoreQs(dice), 4);
-        expect(Scoring.scoreKs(dice), 5);
-        expect(Scoring.scoreAs(dice), 0);
+        final dice = [1, 2, 3, 4, 5];
         expect(Scoring.scoreThreeOfAKind(dice), 0);
         expect(Scoring.scoreFourOfAKind(dice), 0);
         expect(Scoring.scoreFullHouse(dice), 0);
       });
 
       test('returns 5 of a kind counts for all pair categories', () {
-        final dice = [2, 2, 2, 2, 2];
-        expect(Scoring.scoreJs(dice), 15);
+        final dice = [3, 3, 3, 3, 3];
+        expect(Scoring.scoreThrees(dice), 15);
         expect(Scoring.scoreThreeOfAKind(dice), 15);
         expect(Scoring.scoreFourOfAKind(dice), 15);
         expect(Scoring.scoreYatzy(dice), 50);

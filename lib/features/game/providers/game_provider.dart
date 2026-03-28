@@ -216,17 +216,17 @@ class GameNotifier extends Notifier<GameState> {
 
   /// Calculates potential scores for all categories based on current dice.
   ///
-  /// [diceValues] - List of dice values (0-5) to calculate scores for.
+  /// [diceValues] - List of dice values (1-6) to calculate scores for.
   ///
   /// Returns a list of 14 integers representing potential scores for each category.
   ///
   /// Category order:
-  /// - Index 0-5: Upper section (9s, 10s, Js, Qs, Ks, As)
+  /// - Index 0-5: Upper section (Ones, Twos, Threes, Fours, Fives, Sixes)
   /// - Index 6: Three of a Kind
   /// - Index 7: Four of a Kind
   /// - Index 8: Full House
-  /// - Index 9: Sm. Straight (30 points for 4 consecutive)
-  /// - Index 10: Lg. Straight (40 points for 5 consecutive)
+  /// - Index 9: Sm. Straight (30 points for 5 consecutive)
+  /// - Index 10: Lg. Straight (40 points for 6 consecutive)
   /// - Index 11: Yahtzee (50 points for 5 of a kind)
   /// - Index 12: Chance (sum of all dice)
   /// - Index 13: Bonus
@@ -236,12 +236,12 @@ class GameNotifier extends Notifier<GameState> {
     }
 
     return [
-      Scoring.score9s(diceValues),
-      Scoring.score10s(diceValues),
-      Scoring.scoreJs(diceValues),
-      Scoring.scoreQs(diceValues),
-      Scoring.scoreKs(diceValues),
-      Scoring.scoreAs(diceValues),
+      Scoring.scoreOnes(diceValues),
+      Scoring.scoreTwos(diceValues),
+      Scoring.scoreThrees(diceValues),
+      Scoring.scoreFours(diceValues),
+      Scoring.scoreFives(diceValues),
+      Scoring.scoreSixes(diceValues),
       Scoring.scoreThreeOfAKind(diceValues),
       Scoring.scoreFourOfAKind(diceValues),
       Scoring.scoreFullHouse(diceValues),

@@ -3,35 +3,21 @@ import 'package:poker_dice/features/game/models/dice.dart';
 
 void main() {
   group('Dice', () {
-    group('Dice value mapping tests', () {
-      test('value 0 returns face 9', () {
-        final dice = Dice(value: 0);
-        expect(dice.getFaceValue(), 9);
+    group('Dice value tests', () {
+      test('dice value is 1-6 after roll', () {
+        final dice = Dice();
+        final rolledDice = dice.roll();
+        expect(rolledDice.value, inInclusiveRange(1, 6));
       });
 
-      test('value 1 returns face 10', () {
+      test('dice stores correct value 1', () {
         final dice = Dice(value: 1);
-        expect(dice.getFaceValue(), 10);
+        expect(dice.value, 1);
       });
 
-      test('value 2 returns face J', () {
-        final dice = Dice(value: 2);
-        expect(dice.getFaceValue(), 'J');
-      });
-
-      test('value 3 returns face Q', () {
-        final dice = Dice(value: 3);
-        expect(dice.getFaceValue(), 'Q');
-      });
-
-      test('value 4 returns face K', () {
-        final dice = Dice(value: 4);
-        expect(dice.getFaceValue(), 'K');
-      });
-
-      test('value 5 returns face A', () {
-        final dice = Dice(value: 5);
-        expect(dice.getFaceValue(), 'A');
+      test('dice stores correct value 6', () {
+        final dice = Dice(value: 6);
+        expect(dice.value, 6);
       });
     });
 
@@ -64,10 +50,10 @@ void main() {
     });
 
     group('Dice roll randomness tests', () {
-      test('roll() returns value in range 0-5', () {
+      test('roll() returns value in range 1-6', () {
         final dice = Dice();
         final rolledDice = dice.roll();
-        expect(rolledDice.value, inInclusiveRange(0, 5));
+        expect(rolledDice.value, inInclusiveRange(1, 6));
       });
 
       test('multiple rolls produce varied results', () {
@@ -83,10 +69,10 @@ void main() {
       });
 
       test('roll() returns new Dice instance (immutability)', () {
-        final dice = Dice(value: 0, isHeld: true);
+        final dice = Dice(value: 3, isHeld: true);
         final rolledDice = dice.roll();
         expect(identical(dice, rolledDice), false);
-        expect(dice.value, 0);
+        expect(dice.value, 3);
         expect(dice.isHeld, true);
         expect(rolledDice.isHeld, true);
       });

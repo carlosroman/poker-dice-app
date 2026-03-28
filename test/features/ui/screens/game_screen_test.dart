@@ -29,9 +29,9 @@ Future<void> _tapDiceCard(WidgetTester tester, int index) async {
 Finder _findUnrolledDice(int index) {
   return find
       .byWidgetPredicate((widget) {
-        if (widget is Text) {
-          final text = widget.data;
-          return text != null && text.isEmpty;
+        // Unrolled dice show an Icon with Icons.remove
+        if (widget is Icon) {
+          return widget.icon == Icons.remove;
         }
         return false;
       })

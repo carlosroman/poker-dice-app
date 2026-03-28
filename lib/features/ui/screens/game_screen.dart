@@ -8,6 +8,7 @@ import '../../game/models/game_state.dart';
 import '../../game/providers/game_provider.dart';
 import '../../score/score_provider.dart';
 import '../widgets/dice_card.dart';
+import '../widgets/dice_dot.dart';
 
 const _animationDuration = Duration(milliseconds: 300);
 const _fadeDuration = Duration(milliseconds: 250);
@@ -443,15 +444,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _ResponsiveSizes sizes,
   ) {
     final majorCategories = LOWER_CATEGORIES;
-    final majorIcons = [
-      '3x',
-      '4x',
-      Icons.home,
-      Icons.credit_card,
-      Icons.credit_card,
-      'Y',
-      'C',
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,7 +466,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
           return _buildScoreRow(
             context,
-            icon: majorIcons[index - 6],
+            icon: _buildMajorIcon(index - 6, sizes),
             category: category,
             isScored: isScored,
             scoredValue: scoredValue,
@@ -493,7 +485,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// Builds a single score row with icon, score box, and potential score.
   Widget _buildScoreRow(
     BuildContext context, {
-    required Object icon,
+    required Widget icon,
     required String category,
     required bool isScored,
     required int scoredValue,
@@ -544,13 +536,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         : const Color(0xFFFFA726),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Center(
-                    child: _buildIconWidget(
-                      icon,
-                      isIcon: icon is IconData,
-                      sizes: sizes,
-                    ),
-                  ),
+                  child: Center(child: icon),
                 ),
                 SizedBox(width: sizes.spacingSmall + 2),
                 // Category name
@@ -1059,7 +1045,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               ),
               SizedBox(height: sizes.spacingSmall - 2),
               Text(
-                'Score pairs of each face value (9, 10, J, Q, K, A).',
+                'Score the sum of each die value (1-6).',
                 style: GoogleFonts.openSans(
                   color: Colors.grey[300],
                   fontSize: sizes.fontSizeSmall + 2,
@@ -1099,21 +1085,21 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ),
               ),
               Text(
-                '• Full House: Sum of all dice (3+2)',
+                '• Full House: 25 points (3+2)',
                 style: GoogleFonts.openSans(
                   color: Colors.grey[300],
                   fontSize: sizes.fontSizeSmall + 2,
                 ),
               ),
               Text(
-                '• Small Straight: 25 points (5 consecutive)',
+                '• Small Straight: 30 points (5 consecutive: 1-2-3-4-5 or 2-3-4-5-6)',
                 style: GoogleFonts.openSans(
                   color: Colors.grey[300],
                   fontSize: sizes.fontSizeSmall + 2,
                 ),
               ),
               Text(
-                '• Large Straight: 25 points (6 consecutive)',
+                '• Large Straight: 40 points (6 consecutive: 1-2-3-4-5-6)',
                 style: GoogleFonts.openSans(
                   color: Colors.grey[300],
                   fontSize: sizes.fontSizeSmall + 2,
@@ -1145,54 +1131,88 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
-  /// Returns the icon widget based on whether it's an icon data or text.
-  Widget _buildIconWidget(
-    Object icon, {
-    required bool isIcon,
-    required _ResponsiveSizes sizes,
-  }) {
-    if (isIcon) {
-      return Icon(icon as IconData, color: Colors.white, size: sizes.iconSize);
-    } else {
-      return Text(
-        icon.toString(),
-        style: GoogleFonts.openSans(
-          fontSize: sizes.iconSize,
+  /// Builds the icon for major section categories.
+  Widget _buildMajorIcon(int index, _ResponsiveSizes sizes) {
+    switch (index) {
+      case 0: // Three of a Kind
+        return Text(
+          '3x',
+          style: GoogleFonts.openSans(
+            fontSize: sizes.iconSize,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      case 1: // Four of a Kind
+        return Text(
+          '4x',
+          style: GoogleFonts.openSans(
+            fontSize: sizes.iconSize,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      case 2: // Full House
+        return Icon(Icons.home, color: Colors.white, size: sizes.iconSize);
+      case 3: // Sm. Straight
+        return Icon(
+          Icons.credit_card,
           color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      );
+          size: sizes.iconSize,
+        );
+      case 4: // Lg. Straight
+        return Icon(
+          Icons.credit_card,
+          color: Colors.white,
+          size: sizes.iconSize,
+        );
+      case 5: // Yahtzee
+        return Text(
+          'Y',
+          style: GoogleFonts.openSans(
+            fontSize: sizes.iconSize,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      case 6: // Chance
+        return Text(
+          'C',
+          style: GoogleFonts.openSans(
+            fontSize: sizes.iconSize,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      default:
+        return Text(
+          '?',
+          style: GoogleFonts.openSans(
+            fontSize: sizes.iconSize,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
     }
   }
 
   /// Extracts the die face value from category name.
+  /// Returns the numeric value (1-6) for upper section categories.
   String _getDieFaceValue(String categoryName) {
-    if (categoryName.contains('9')) return '9';
-    if (categoryName.contains('10')) return '10';
-    if (categoryName.contains('Jacks')) return 'J';
-    if (categoryName.contains('Queens')) return 'Q';
-    if (categoryName.contains('Kings')) return 'K';
-    if (categoryName.contains('Aces')) return 'A';
+    if (categoryName == 'Ones') return '1';
+    if (categoryName == 'Twos') return '2';
+    if (categoryName == 'Threes') return '3';
+    if (categoryName == 'Fours') return '4';
+    if (categoryName == 'Fives') return '5';
+    if (categoryName == 'Sixes') return '6';
     return categoryName;
   }
 
-  /// Returns the icon for a dice face value.
-  Object _getDiceFaceIcon(int index) {
-    switch (index) {
-      case 0:
-        return '9';
-      case 1:
-        return '10';
-      case 2:
-        return 'J';
-      case 3:
-        return 'Q';
-      case 4:
-        return 'K';
-      case 5:
-        return 'A';
-      default:
-        return '?';
-    }
+  /// Returns the icon for a dice face value (1-6).
+  /// Returns a DiceDot widget for proper pip display.
+  Widget _getDiceFaceIcon(int index) {
+    // index 0-5 maps to values 1-6
+    final diceValue = index + 1;
+    return DiceDot(value: diceValue, size: 24.0, pipColor: Colors.white);
   }
 }

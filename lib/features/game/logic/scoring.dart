@@ -1,4 +1,4 @@
-/// Scoring engine for Poker Dice game.
+/// Scoring engine for Poker Dice (Yatzy) game.
 ///
 /// This class provides methods to calculate scores for all
 /// upper and lower section categories according to game rules.
@@ -9,60 +9,59 @@ library;
 /// Provides static methods to evaluate dice combinations and
 /// calculate scores for all 12 scoring categories plus bonus.
 class Scoring {
-  /// Calculates score for As category.
+  /// Calculates score for Ones category.
   ///
-  /// Returns count of Aces (value index 5) multiplied by 6.
-  /// Returns 0 if no Aces are present.
-  static int scoreAs(List<int> diceValues) {
-    return countOccurrences(diceValues, 5) * 6;
+  /// Returns sum of all dice showing 1.
+  /// Returns 0 if no 1s are present.
+  static int scoreOnes(List<int> diceValues) {
+    return countOccurrences(diceValues, 1) * 1;
   }
 
-  /// Calculates score for Ks category.
+  /// Calculates score for Twos category.
   ///
-  /// Returns count of Kings (value index 4) multiplied by 5.
-  /// Returns 0 if no Kings are present.
-  static int scoreKs(List<int> diceValues) {
-    return countOccurrences(diceValues, 4) * 5;
+  /// Returns sum of all dice showing 2.
+  /// Returns 0 if no 2s are present.
+  static int scoreTwos(List<int> diceValues) {
+    return countOccurrences(diceValues, 2) * 2;
   }
 
-  /// Calculates score for Qs category.
+  /// Calculates score for Threes category.
   ///
-  /// Returns count of Queens (value index 3) multiplied by 4.
-  /// Returns 0 if no Queens are present.
-  static int scoreQs(List<int> diceValues) {
-    return countOccurrences(diceValues, 3) * 4;
+  /// Returns sum of all dice showing 3.
+  /// Returns 0 if no 3s are present.
+  static int scoreThrees(List<int> diceValues) {
+    return countOccurrences(diceValues, 3) * 3;
   }
 
-  /// Calculates score for Js category.
+  /// Calculates score for Fours category.
   ///
-  /// Returns count of Jacks (value index 2) multiplied by 3.
-  /// Returns 0 if no Jacks are present.
-  static int scoreJs(List<int> diceValues) {
-    return countOccurrences(diceValues, 2) * 3;
+  /// Returns sum of all dice showing 4.
+  /// Returns 0 if no 4s are present.
+  static int scoreFours(List<int> diceValues) {
+    return countOccurrences(diceValues, 4) * 4;
   }
 
-  /// Calculates score for 10s category.
+  /// Calculates score for Fives category.
   ///
-  /// Returns count of 10s (value index 1) multiplied by 2.
-  /// Returns 0 if no 10s are present.
-  static int score10s(List<int> diceValues) {
-    return countOccurrences(diceValues, 1) * 2;
+  /// Returns sum of all dice showing 5.
+  /// Returns 0 if no 5s are present.
+  static int scoreFives(List<int> diceValues) {
+    return countOccurrences(diceValues, 5) * 5;
   }
 
-  /// Calculates score for 9s category.
+  /// Calculates score for Sixes category.
   ///
-  /// Returns count of 9s (value index 0) multiplied by 1.
-  /// Returns 0 if no 9s are present.
-  static int score9s(List<int> diceValues) {
-    return countOccurrences(diceValues, 0) * 1;
+  /// Returns sum of all dice showing 6.
+  /// Returns 0 if no 6s are present.
+  static int scoreSixes(List<int> diceValues) {
+    return countOccurrences(diceValues, 6) * 6;
   }
 
   /// Calculates score for Chance category.
   ///
-  /// Returns sum of all dice values. 9 = 1 pt, 10 = 2pt, etc.
+  /// Returns sum of all dice values.
   static int scoreChance(List<int> diceValues) {
-    // + 1 as 0 = 9pt so must score as 1, 1 = 10 so must score as 2pt
-    return diceValues.fold(0, (sum, value) => sum + value + 1);
+    return diceValues.fold(0, (sum, value) => sum + value);
   }
 
   /// Calculates score for Three of a Kind category.
@@ -73,7 +72,7 @@ class Scoring {
     if (!hasThreeOfAKind(diceValues)) {
       return 0;
     }
-    return diceValues.fold(0, (sum, value) => sum + value + 1);
+    return diceValues.fold(0, (sum, value) => sum + value);
   }
 
   /// Calculates score for Four of a Kind category.
@@ -84,14 +83,12 @@ class Scoring {
     if (!hasFourOfAKind(diceValues)) {
       return 0;
     }
-    return diceValues.fold(0, (sum, value) => sum + value + 1);
+    return diceValues.fold(0, (sum, value) => sum + value);
   }
 
   /// Calculates score for Long Straight category.
   ///
-  /// Returns 40 points if dice form a long straight (5 consecutive values).
-  /// Small Long Straight: 9-10-J-Q-K (indices 0-4)
-  /// Large Long Straight: 10-J-Q-K-A (indices 1-5)
+  /// Returns 40 points if dice form a long straight (6 consecutive values: 1-2-3-4-5-6).
   /// Returns 0 if long straight is not present.
   static int scoreLongStraight(List<int> diceValues) {
     return hasLongStraight(diceValues) ? 40 : 0;
@@ -99,8 +96,8 @@ class Scoring {
 
   /// Calculates score for Small Straight category.
   ///
-  /// Returns 30 points if dice form a small straight (4 consecutive values).
-  /// Examples: 9-10-J-Q (0-1-2-3), 10-J-Q-K (1-2-3-4), J-Q-K-A (2-3-4-5)
+  /// Returns 30 points if dice form a small straight (5 consecutive values).
+  /// Examples: 1-2-3-4-5 or 2-3-4-5-6
   /// Returns 0 if small straight is not present.
   static int scoreSmallStraight(List<int> diceValues) {
     return hasSmallStraight(diceValues) ? 30 : 0;
@@ -122,76 +119,56 @@ class Scoring {
     return hasYatzy(diceValues) ? 50 : 0;
   }
 
-  /// Alias for scoreAs for test compatibility.
-  static int scorePairOfAces(List<int> diceValues) => scoreAs(diceValues);
+  /// Alias for scoreOnes for test compatibility.
+  static int scorePairOfAces(List<int> diceValues) => scoreOnes(diceValues);
 
-  /// Alias for scoreKs for test compatibility.
-  static int scorePairOfKings(List<int> diceValues) => scoreKs(diceValues);
+  /// Alias for scoreTwos for test compatibility.
+  static int scorePairOfKings(List<int> diceValues) => scoreTwos(diceValues);
 
-  /// Alias for scoreQs for test compatibility.
-  static int scorePairOfQueens(List<int> diceValues) => scoreQs(diceValues);
+  /// Alias for scoreThrees for test compatibility.
+  static int scorePairOfQueens(List<int> diceValues) => scoreThrees(diceValues);
 
-  /// Alias for scoreJs for test compatibility.
-  static int scorePairOfJacks(List<int> diceValues) => scoreJs(diceValues);
+  /// Alias for scoreFours for test compatibility.
+  static int scorePairOfJacks(List<int> diceValues) => scoreFours(diceValues);
 
-  /// Alias for score10s for test compatibility.
-  static int scorePairOf10s(List<int> diceValues) => score10s(diceValues);
+  /// Alias for scoreFives for test compatibility.
+  static int scorePairOf10s(List<int> diceValues) => scoreFives(diceValues);
 
-  /// Alias for score9s for test compatibility.
-  static int scorePairOf9s(List<int> diceValues) => score9s(diceValues);
+  /// Alias for scoreSixes for test compatibility.
+  static int scorePairOf9s(List<int> diceValues) => scoreSixes(diceValues);
 
-  /// Calculates score for Two Pair category.
+  /// Counts how many dice match a specific value.
   ///
-  /// Returns sum of the 4 dice forming the two pairs.
-  /// Returns 0 if two pairs are not present.
-  static int scoreTwoPair(List<int> diceValues) {
-    if (!hasTwoPair(diceValues)) {
-      return 0;
-    }
-    final counts = getDiceCounts(diceValues);
-    int sum = 0;
-    int pairCount = 0;
-    for (final entry in counts.entries) {
-      if (entry.value == 2) {
-        sum += entry.key * 2;
-        pairCount++;
-      }
-    }
-    return pairCount == 2 ? sum : 0;
-  }
-
-  /// Counts how many dice match a specific value index.
+  /// [diceValues] - List of dice values (1-6).
+  /// [value] - The value to count (1-6).
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
-  /// [valueIndex] - The index to count (0=9, 1=10, 2=J, 3=Q, 4=K, 5=A).
-  ///
-  /// Returns the number of dice with the specified value index.
-  static int countOccurrences(List<int> diceValues, int valueIndex) {
+  /// Returns the number of dice with the specified value.
+  static int countOccurrences(List<int> diceValues, int value) {
     int count = 0;
-    for (final value in diceValues) {
-      if (value == valueIndex) {
+    for (final diceValue in diceValues) {
+      if (diceValue == value) {
         count++;
       }
     }
     return count;
   }
 
-  /// Returns a map of value index to count of occurrences.
+  /// Returns a map of dice value to count of occurrences.
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
-  /// Returns a map where keys are value indices and values are counts.
+  /// Returns a map where keys are dice values and values are counts.
   static Map<int, int> getDiceCounts(List<int> diceValues) {
     final Map<int, int> counts = {};
-    for (final value in diceValues) {
-      counts[value] = (counts[value] ?? 0) + 1;
+    for (final diceValue in diceValues) {
+      counts[diceValue] = (counts[diceValue] ?? 0) + 1;
     }
     return counts;
   }
 
   /// Checks if the dice contain two different pairs.
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
   /// Returns true if there are exactly two different values that each appear twice.
   static bool hasTwoPair(List<int> diceValues) {
@@ -207,7 +184,7 @@ class Scoring {
 
   /// Checks if the dice contain at least three of the same value.
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
   /// Returns true if any value appears 3 or more times.
   static bool hasThreeOfAKind(List<int> diceValues) {
@@ -222,7 +199,7 @@ class Scoring {
 
   /// Checks if the dice contain at least four of the same value.
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
   /// Returns true if any value appears 4 or more times.
   static bool hasFourOfAKind(List<int> diceValues) {
@@ -235,69 +212,57 @@ class Scoring {
     return false;
   }
 
-  /// Checks if the dice contain a small straight (4 consecutive values).
+  /// Checks if the dice contain a small straight (5 consecutive values).
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
-  /// Returns true if dice contain any 4 consecutive values:
-  /// - 9-10-J-Q (indices 0-1-2-3)
-  /// - 10-J-Q-K (indices 1-2-3-4)
-  /// - J-Q-K-A (indices 2-3-4-5)
+  /// Returns true if dice contain either:
+  /// - 1-2-3-4-5
+  /// - 2-3-4-5-6
   static bool hasSmallStraight(List<int> diceValues) {
     final uniqueValues = diceValues.toSet();
-    // Check for 4 consecutive values starting at each possible index
+    // Check for 5 consecutive values
     const straights = [
-      {0, 1, 2, 3}, // 9-10-J-Q
-      {1, 2, 3, 4}, // 10-J-Q-K
-      {2, 3, 4, 5}, // J-Q-K-A
+      {1, 2, 3, 4, 5}, // Small straight 1
+      {2, 3, 4, 5, 6}, // Small straight 2
     ];
     for (final straight in straights) {
-      if (uniqueValues.intersection(straight).length == 4) {
+      if (uniqueValues.intersection(straight).length == 5) {
         return true;
       }
     }
     return false;
   }
 
-  /// Checks if the dice contain a long straight (5 consecutive values).
+  /// Checks if the dice contain a long straight (6 consecutive values: 1-2-3-4-5-6).
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
-  /// Returns true if dice form either:
-  /// - Small Long Straight: 9-10-J-Q-K (indices 0-4)
-  /// - Large Long Straight: 10-J-Q-K-A (indices 1-5)
+  /// Returns true if dice form 1-2-3-4-5-6.
   static bool hasLongStraight(List<int> diceValues) {
     final uniqueValues = diceValues.toSet();
-    if (uniqueValues.length != 5) {
+    if (uniqueValues.length != 6) {
       return false;
     }
-    const smallLongStraight = {0, 1, 2, 3, 4};
-    if (uniqueValues.intersection(smallLongStraight).length == 5) {
-      return true;
-    }
-    const largeLongStraight = {1, 2, 3, 4, 5};
-    if (uniqueValues.intersection(largeLongStraight).length == 5) {
-      return true;
-    }
-    return false;
+    const longStraight = {1, 2, 3, 4, 5, 6};
+    return uniqueValues.intersection(longStraight).length == 6;
   }
 
-  /// Checks if the dice contain a straight (5 consecutive values).
+  /// Checks if the dice contain a straight (5 or 6 consecutive values).
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
-  /// Returns true if dice form either:
-  /// - Small Straight: 9-10-J-Q-K (indices 0-4)
-  /// - Large Straight: 10-J-Q-K-A (indices 1-5)
+  /// Returns true if dice form either a small straight (5 consecutive)
+  /// or a long straight (6 consecutive).
   ///
-  /// Deprecated: Use [hasLongStraight] instead.
+  /// Deprecated: Use [hasSmallStraight] or [hasLongStraight] instead.
   static bool hasStraight(List<int> diceValues) {
-    return hasLongStraight(diceValues);
+    return hasSmallStraight(diceValues) || hasLongStraight(diceValues);
   }
 
   /// Checks if the dice contain a full house (three + pair).
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
   /// Returns true if there is one value appearing 3 times and another appearing 2 times.
   static bool hasFullHouse(List<int> diceValues) {
@@ -316,7 +281,7 @@ class Scoring {
 
   /// Checks if all 5 dice show the same value.
   ///
-  /// [diceValues] - List of value indices (0-5) representing dice faces.
+  /// [diceValues] - List of dice values (1-6).
   ///
   /// Returns true if all dice match (Yatzy).
   static bool hasYatzy(List<int> diceValues) {

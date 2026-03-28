@@ -1,14 +1,11 @@
 import 'dart:math';
 
-import '../../../core/constants/dice_faces.dart';
-
-/// Represents a single poker dice in the game.
+/// Represents a single traditional dice in the game.
 ///
 /// This immutable data class manages the state of a dice,
-/// including its current value and whether it is held between rolls.
+/// including its current value (1-6) and whether it is held between rolls.
 class Dice {
-  /// The dice value as an index (0-5) mapping to card faces:
-  /// 0=9, 1=10, 2=J, 3=Q, 4=K, 5=A
+  /// The dice value (1-6 for traditional dice faces).
   /// Null means the dice has not been rolled yet.
   final int? value;
 
@@ -21,7 +18,7 @@ class Dice {
   /// [isHeld] defaults to false.
   const Dice({this.value, this.isHeld = false});
 
-  /// Returns a new [Dice] instance with a random value (0-5).
+  /// Returns a new [Dice] instance with a random value (1-6).
   Dice roll() {
     return Dice(value: _randomValue(), isHeld: isHeld);
   }
@@ -31,16 +28,9 @@ class Dice {
     return Dice(value: value, isHeld: !isHeld);
   }
 
-  /// Returns the actual card face value based on the value index.
-  ///
-  /// Returns: 9, 10, 'J', 'Q', 'K', or 'A', or null if unrolled.
-  Object? getFaceValue() {
-    return value != null ? DICE_FACES[value!] : null;
-  }
-
-  /// Generates a random dice value between 0 and 5.
+  /// Generates a random dice value between 1 and 6.
   int _randomValue() {
-    return Random().nextInt(6);
+    return Random().nextInt(6) + 1;
   }
 
   /// Creates a copy of this [Dice] with the given fields replaced.
