@@ -1,4 +1,4 @@
-/// Scoring engine for Poker Dice (Yatzy) game.
+/// Scoring engine for Poker Dice (Yahtzee) game.
 ///
 /// This class provides methods to calculate scores for all
 /// upper and lower section categories according to game rules.
@@ -112,12 +112,12 @@ class Scoring {
     return hasFullHouse(diceValues) ? 25 : 0;
   }
 
-  /// Calculates score for Yatzy category.
+  /// Calculates score for Yahtzee category.
   ///
   /// Returns 50 points if all 5 dice show the same value.
-  /// Returns 0 if yatzy is not present.
-  static int scoreYatzy(List<int> diceValues) {
-    return hasYatzy(diceValues) ? 50 : 0;
+  /// Returns 0 if Yahtzee is not present.
+  static int scoreYahtzee(List<int> diceValues) {
+    return hasYahtzee(diceValues) ? 50 : 0;
   }
 
   /// Alias for scoreOnes for test compatibility.
@@ -296,8 +296,8 @@ class Scoring {
   ///
   /// [diceValues] - List of dice values (1-6).
   ///
-  /// Returns true if all dice match (Yatzy).
-  static bool hasYatzy(List<int> diceValues) {
+  /// Returns true if all dice match (Yahtzee).
+  static bool hasYahtzee(List<int> diceValues) {
     final Map<int, int> counts = getDiceCounts(diceValues);
     for (final count in counts.values) {
       if (count == 5) {

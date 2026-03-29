@@ -215,7 +215,7 @@ void main() {
         expect(Scoring.scoreThreeOfAKind(dice), 9);
       });
 
-      test('returns sum of all dice for five of a kind (Yatzy)', () {
+      test('returns sum of all dice for five of a kind (Yahtzee)', () {
         final dice = [4, 4, 4, 4, 4];
         expect(Scoring.scoreThreeOfAKind(dice), 20);
       });
@@ -237,7 +237,7 @@ void main() {
         expect(Scoring.scoreFourOfAKind(dice), 9);
       });
 
-      test('returns sum of all dice for five of a kind (Yatzy)', () {
+      test('returns sum of all dice for five of a kind (Yahtzee)', () {
         final dice = [5, 5, 5, 5, 5];
         expect(Scoring.scoreFourOfAKind(dice), 25);
       });
@@ -356,30 +356,30 @@ void main() {
       });
     });
 
-    group('scoreYatzy', () {
-      test('returns 0 when yatzy not present', () {
+    group('scoreYahtzee', () {
+      test('returns 0 when Yahtzee not present', () {
         final dice = [1, 2, 3, 4, 5];
-        expect(Scoring.scoreYatzy(dice), 0);
+        expect(Scoring.scoreYahtzee(dice), 0);
       });
 
       test('returns 0 for four of a kind only', () {
         final dice = [3, 3, 3, 3, 5];
-        expect(Scoring.scoreYatzy(dice), 0);
+        expect(Scoring.scoreYahtzee(dice), 0);
       });
 
       test('returns 50 for all 5 dice same (1s)', () {
         final dice = [1, 1, 1, 1, 1];
-        expect(Scoring.scoreYatzy(dice), 50);
+        expect(Scoring.scoreYahtzee(dice), 50);
       });
 
       test('returns 50 for all 5 dice same (6s)', () {
         final dice = [6, 6, 6, 6, 6];
-        expect(Scoring.scoreYatzy(dice), 50);
+        expect(Scoring.scoreYahtzee(dice), 50);
       });
 
       test('returns 50 for all 5 dice same (4s)', () {
         final dice = [4, 4, 4, 4, 4];
-        expect(Scoring.scoreYatzy(dice), 50);
+        expect(Scoring.scoreYahtzee(dice), 50);
       });
     });
   });
@@ -441,9 +441,9 @@ void main() {
         expect(Scoring.scoreThreeOfAKind(dice), 5);
       });
 
-      test('scoreYatzy returns 50', () {
+      test('scoreYahtzee returns 50', () {
         final dice = [1, 1, 1, 1, 1];
-        expect(Scoring.scoreYatzy(dice), 50);
+        expect(Scoring.scoreYahtzee(dice), 50);
       });
     });
 
@@ -458,9 +458,9 @@ void main() {
         expect(Scoring.scoreThreeOfAKind(dice), 30);
       });
 
-      test('scoreYatzy returns 50', () {
+      test('scoreYahtzee returns 50', () {
         final dice = [6, 6, 6, 6, 6];
-        expect(Scoring.scoreYatzy(dice), 50);
+        expect(Scoring.scoreYahtzee(dice), 50);
       });
     });
 
@@ -477,7 +477,7 @@ void main() {
         expect(Scoring.scoreThrees(dice), 15);
         expect(Scoring.scoreThreeOfAKind(dice), 15);
         expect(Scoring.scoreFourOfAKind(dice), 15);
-        expect(Scoring.scoreYatzy(dice), 50);
+        expect(Scoring.scoreYahtzee(dice), 50);
       });
     });
   });

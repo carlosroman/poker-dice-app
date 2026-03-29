@@ -1,4 +1,4 @@
-/// Game constants for the Poker Dice (Yatzy) game.
+/// Game constants for the Poker Dice (Yahtzee) game.
 ///
 /// This file defines all core game values including dice faces,
 /// game rules, and scoring categories.

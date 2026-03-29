@@ -247,7 +247,7 @@ class GameNotifier extends Notifier<GameState> {
       Scoring.scoreFullHouse(diceValues),
       Scoring.scoreSmallStraight(diceValues),
       Scoring.scoreLongStraight(diceValues),
-      Scoring.scoreYatzy(diceValues),
+      Scoring.scoreYahtzee(diceValues),
       Scoring.scoreChance(diceValues),
       0, // Bonus
     ];
