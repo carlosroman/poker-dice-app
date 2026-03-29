@@ -385,18 +385,18 @@ void main() {
   });
 
   group('Bonus Calculation Tests', () {
-    test('bonus threshold is 20', () {
-      expect(BONUS_THRESHOLD, 20);
+    test('bonus threshold is 63', () {
+      expect(BONUS_THRESHOLD, 63);
     });
 
-    test('bonus points is 50', () {
-      expect(BONUS_POINTS, 50);
+    test('bonus points is 35', () {
+      expect(BONUS_POINTS, 35);
     });
 
-    test('returns bonus when upper section total >= 20', () {
-      final upperScores = [3, 4, 5, 6, 7, 8];
+    test('returns bonus when upper section total >= 63', () {
+      final upperScores = [4, 6, 9, 12, 15, 18];
       int total = upperScores.fold(0, (sum, score) => sum + score);
-      expect(total, 33);
+      expect(total, 64);
       expect(total >= BONUS_THRESHOLD, true);
     });
 
@@ -408,10 +408,10 @@ void main() {
     });
 
     test('upper section with one of each meets bonus threshold', () {
-      // One of each: 1+2+3+4+5+6 = 21
-      final minimalScores = [1, 2, 3, 4, 5, 6];
+      // One of each: (1*3)+(2*3)+(3*3)+(4*3)+(5*3)+(6*3) = 63
+      final minimalScores = [3, 6, 9, 12, 15, 18];
       int total = minimalScores.fold(0, (sum, score) => sum + score);
-      expect(total, 21);
+      expect(total, 63);
       expect(total >= BONUS_THRESHOLD, true);
     });
 
