@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dice_dot.dart';
 
-/// A dice widget for the Poker Dice (Yahtzee) game.
+/// A dice widget for the Poker Dice (Yatzy) game.
 ///
 /// Displays a dice face with traditional pips (dots) for values 1-6
 /// and supports hold functionality with visual feedback.

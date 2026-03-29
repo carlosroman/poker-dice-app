@@ -1106,7 +1106,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ),
               ),
               Text(
-                '• Yahtzee: 50 points (5 of a kind)',
+                '• Yatzy: 50 points (5 of a kind)',
                 style: GoogleFonts.openSans(
                   color: Colors.grey[300],
                   fontSize: sizes.fontSizeSmall + 2,
@@ -1166,7 +1166,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           color: Colors.white,
           size: sizes.iconSize,
         );
-      case 5: // Yahtzee
+      case 5: // Yatzy
         return Text(
           'Y',
           style: GoogleFonts.openSans(

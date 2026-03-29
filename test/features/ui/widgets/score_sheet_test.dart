@@ -26,7 +26,7 @@ void main() {
         ScoreCategory(name: 'Full House', minScore: 0, maxScore: 30),
         ScoreCategory(name: 'Sm. Straight', minScore: 0, maxScore: 30),
         ScoreCategory(name: 'Lg. Straight', minScore: 0, maxScore: 30),
-        ScoreCategory(name: 'Yahtzee', minScore: 0, maxScore: 30),
+        ScoreCategory(name: 'Yatzy', minScore: 0, maxScore: 30),
         ScoreCategory(name: 'Chance', minScore: 0, maxScore: 30),
         ScoreCategory(name: 'Bonus', minScore: 0, maxScore: 50),
       ];
@@ -72,7 +72,7 @@ void main() {
         expect(find.text('Full House'), findsOneWidget);
         expect(find.text('Sm. Straight'), findsOneWidget);
         expect(find.text('Lg. Straight'), findsOneWidget);
-        expect(find.text('Yahtzee'), findsOneWidget);
+        expect(find.text('Yatzy'), findsOneWidget);
         expect(find.text('Chance'), findsOneWidget);
       });
 
@@ -115,7 +115,7 @@ void main() {
         expect(find.text('Full House'), findsOneWidget);
         expect(find.text('Sm. Straight'), findsOneWidget);
         expect(find.text('Lg. Straight'), findsOneWidget);
-        expect(find.text('Yahtzee'), findsOneWidget);
+        expect(find.text('Yatzy'), findsOneWidget);
         expect(find.text('Chance'), findsOneWidget);
       });
     });

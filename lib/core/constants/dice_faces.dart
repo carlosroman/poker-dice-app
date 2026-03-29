@@ -1,4 +1,4 @@
-/// Game constants for the Poker Dice (Yahtzee) game.
+/// Game constants for the Poker Dice (Yatzy) game.
 ///
 /// This file defines all core game values including dice faces,
 /// game rules, and scoring categories.
@@ -61,7 +61,7 @@ const List<String> UPPER_CATEGORIES = [
 /// - Full House: 25 points
 /// - Sm. Straight: 30 points (4 consecutive: 1-2-3-4, 2-3-4-5, or 3-4-5-6)
 /// - Lg. Straight: 40 points (5 consecutive: 1-2-3-4-5 or 2-3-4-5-6)
-/// - Yahtzee: 50 points (5 same)
+/// - Yatzy: 50 points (5 same)
 /// - Chance: sum of all dice
 const List<String> LOWER_CATEGORIES = [
   'Three of a Kind',
@@ -69,7 +69,7 @@ const List<String> LOWER_CATEGORIES = [
   'Full House',
   'Sm. Straight',
   'Lg. Straight',
-  'Yahtzee',
+  'Yatzy',
   'Chance',
 ];
 

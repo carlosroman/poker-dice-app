@@ -1,12 +1,12 @@
-# Yahtzee Poker Dice Game - Implementation Plan
+# Yatzy Poker Dice Game - Implementation Plan
 
-A comprehensive multi-phase plan for implementing a Flutter-based Yahtzee (poker dice) game.
+A comprehensive multi-phase plan for implementing a Flutter-based Yatzy (poker dice) game.
 
 ---
 
 ## Project Overview
 
-**Game Type**: Yahtzee/Poker Dice (single-player)  
+**Game Type**: Yatzy/Poker Dice (single-player)  
 **Platforms**: Android, Web  
 **State Management**: Riverpod  
 **Dice Style**: Card-style (9, 10, J, Q, K, A)  
@@ -77,7 +77,7 @@ A comprehensive multi-phase plan for implementing a Flutter-based Yahtzee (poker
      - "Four of a Kind" - At least 4 same (sum of all)
      - "Straight" - 9-10-J-Q-K-A (25 points)
      - "Full House" - Three + Pair (sum of all)
-     - "Yahtzee" - All 5 same (50 points)
+     - "Yatzy" - All 5 same (50 points)
    - **Bonus**: +20 if upper section total ≥ 30
    - **Game Over**: When all 13 categories filled
 
@@ -185,7 +185,7 @@ A comprehensive multi-phase plan for implementing a Flutter-based Yahtzee (poker
          3. House icon - Full house
          4. "small" card icon - Small straight
          5. "large" card icon - Large straight
-         6. "Yahtzee" - Five of a kind
+         6. "Yatzy" - Five of a kind
          7. "?" - Chance
        - Each category: icon (yellow box) | current score (blue box) | potential score (white text)
    - **Dice Display Section**:
