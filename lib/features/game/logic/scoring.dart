@@ -86,18 +86,19 @@ class Scoring {
     return diceValues.fold(0, (sum, value) => sum + value);
   }
 
-  /// Calculates score for Long Straight category.
+  /// Calculates score for Large Straight category.
   ///
-  /// Returns 40 points if dice form a long straight (6 consecutive values: 1-2-3-4-5-6).
-  /// Returns 0 if long straight is not present.
+  /// Returns 40 points if dice form a large straight (5 consecutive values).
+  /// Examples: 1-2-3-4-5 or 2-3-4-5-6
+  /// Returns 0 if large straight is not present.
   static int scoreLongStraight(List<int> diceValues) {
     return hasLongStraight(diceValues) ? 40 : 0;
   }
 
   /// Calculates score for Small Straight category.
   ///
-  /// Returns 30 points if dice form a small straight (5 consecutive values).
-  /// Examples: 1-2-3-4-5 or 2-3-4-5-6
+  /// Returns 30 points if dice form a small straight (4 consecutive values).
+  /// Examples: 1-2-3-4, 2-3-4-5, or 3-4-5-6
   /// Returns 0 if small straight is not present.
   static int scoreSmallStraight(List<int> diceValues) {
     return hasSmallStraight(diceValues) ? 30 : 0;
@@ -212,19 +213,45 @@ class Scoring {
     return false;
   }
 
-  /// Checks if the dice contain a small straight (5 consecutive values).
+  /// Checks if the dice contain a small straight (4 consecutive values).
   ///
   /// [diceValues] - List of dice values (1-6).
   ///
-  /// Returns true if dice contain either:
-  /// - 1-2-3-4-5
-  /// - 2-3-4-5-6
+  /// Returns true if dice contain any of:
+  /// - 1-2-3-4
+  /// - 2-3-4-5
+  /// - 3-4-5-6
   static bool hasSmallStraight(List<int> diceValues) {
     final uniqueValues = diceValues.toSet();
-    // Check for 5 consecutive values
+    // Check for 4 consecutive values
     const straights = [
-      {1, 2, 3, 4, 5}, // Small straight 1
-      {2, 3, 4, 5, 6}, // Small straight 2
+      {1, 2, 3, 4}, // 1-2-3-4
+      {2, 3, 4, 5}, // 2-3-4-5
+      {3, 4, 5, 6}, // 3-4-5-6
+    ];
+    for (final straight in straights) {
+      if (uniqueValues.intersection(straight).length == 4) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Checks if the dice contain a large straight (5 consecutive values).
+  ///
+  /// [diceValues] - List of dice values (1-6).
+  ///
+  /// Returns true if dice form either:
+  /// - 1-2-3-4-5
+  /// - 2-3-4-5-6
+  static bool hasLongStraight(List<int> diceValues) {
+    final uniqueValues = diceValues.toSet();
+    if (uniqueValues.length < 5) {
+      return false;
+    }
+    const straights = [
+      {1, 2, 3, 4, 5}, // 1-2-3-4-5
+      {2, 3, 4, 5, 6}, // 2-3-4-5-6
     ];
     for (final straight in straights) {
       if (uniqueValues.intersection(straight).length == 5) {
@@ -232,20 +259,6 @@ class Scoring {
       }
     }
     return false;
-  }
-
-  /// Checks if the dice contain a long straight (6 consecutive values: 1-2-3-4-5-6).
-  ///
-  /// [diceValues] - List of dice values (1-6).
-  ///
-  /// Returns true if dice form 1-2-3-4-5-6.
-  static bool hasLongStraight(List<int> diceValues) {
-    final uniqueValues = diceValues.toSet();
-    if (uniqueValues.length != 6) {
-      return false;
-    }
-    const longStraight = {1, 2, 3, 4, 5, 6};
-    return uniqueValues.intersection(longStraight).length == 6;
   }
 
   /// Checks if the dice contain a straight (5 or 6 consecutive values).

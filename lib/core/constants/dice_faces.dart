@@ -59,8 +59,8 @@ const List<String> UPPER_CATEGORIES = [
 /// - Three of a Kind: sum of all dice
 /// - Four of a Kind: sum of all dice
 /// - Full House: 25 points
-/// - Sm. Straight: 30 points (5 consecutive: 1-2-3-4-5 or 2-3-4-5-6)
-/// - Lg. Straight: 40 points (6 consecutive: 1-2-3-4-5-6)
+/// - Sm. Straight: 30 points (4 consecutive: 1-2-3-4, 2-3-4-5, or 3-4-5-6)
+/// - Lg. Straight: 40 points (5 consecutive: 1-2-3-4-5 or 2-3-4-5-6)
 /// - Yahtzee: 50 points (5 same)
 /// - Chance: sum of all dice
 const List<String> LOWER_CATEGORIES = [

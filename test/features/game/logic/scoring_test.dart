@@ -249,9 +249,9 @@ void main() {
         expect(Scoring.scoreSmallStraight(dice), 0);
       });
 
-      test('returns 0 when only 4 consecutive values present', () {
+      test('returns 30 when 4 consecutive values present (small straight)', () {
         final dice = [1, 2, 3, 4, 6];
-        expect(Scoring.scoreSmallStraight(dice), 0);
+        expect(Scoring.scoreSmallStraight(dice), 30);
       });
 
       test('returns 30 for 1-2-3-4-5', () {
@@ -281,13 +281,18 @@ void main() {
         expect(Scoring.scoreLongStraight(dice), 0);
       });
 
-      test('returns 40 for 1-2-3-4-5-6', () {
-        final dice = [1, 2, 3, 4, 5, 6];
+      test('returns 40 for 1-2-3-4-5', () {
+        final dice = [1, 2, 3, 4, 5];
+        expect(Scoring.scoreLongStraight(dice), 40);
+      });
+
+      test('returns 40 for 2-3-4-5-6', () {
+        final dice = [2, 3, 4, 5, 6];
         expect(Scoring.scoreLongStraight(dice), 40);
       });
 
       test('returns 40 for long straight in any order', () {
-        final dice = [6, 4, 2, 5, 3, 1];
+        final dice = [5, 3, 1, 2, 4];
         expect(Scoring.scoreLongStraight(dice), 40);
       });
 
