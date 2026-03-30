@@ -101,13 +101,6 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(DiceCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isHeld != widget.isHeld) {
-      // Reset roll animation when un-holding
-      if (oldWidget.isHeld && !widget.isHeld) {
-        _rollController.reset(); // Reset to initial state (no transform)
-      }
-      _animationController.forward(from: 0.0);
-    }
     // Trigger roll animation when value changes (and dice is not held)
     if (oldWidget.value != widget.value && !widget.isHeld) {
       _triggerRollAnimation();
@@ -148,6 +141,7 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
         );
       },
       child: GestureDetector(
+        key: ValueKey('dice-${widget.value}-held-${widget.isHeld}'),
         onTap: widget.onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
