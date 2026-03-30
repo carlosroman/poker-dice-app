@@ -111,7 +111,11 @@ void main() {
 
         final decoration = decoratedBox.decoration as BoxDecoration;
         final border = decoration.border as Border;
-        expect(border.top.color, equals(const Color(0xFFFF6F00)));
+        // Orange border with reduced opacity for subtle held effect
+        expect(
+          border.top.color,
+          equals(const Color(0xFFFF6F00).withOpacity(0.6)),
+        );
       });
 
       testWidgets('tap toggles hold state', (WidgetTester tester) async {

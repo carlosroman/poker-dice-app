@@ -38,12 +38,17 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   late Animation<double> _rollXAnimation;
   late Animation<double> _rollRotationAnimation;
 
+  // Held state animation
+  late AnimationController _heldController;
+  late Animation<double> _heldOpacityAnimation;
+
   static const double _cardWidth = 70.0;
   static const double _cardHeight = 70.0;
   static const double _borderWidth = 2.0;
   static const Color _diceBackgroundColor = Colors.white;
   static const Color _heldBorderColor = Color(0xFFFF6F00);
   static const Color _unrolledDiceBackgroundColor = Colors.grey;
+  static const Color _heldOverlayColor = Color(0xFFBDBDBD);
 
   @override
   void initState() {
@@ -96,6 +101,21 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
         );
 
     _animationController.forward();
+
+    // Initialize held state animation
+    _heldController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _heldOpacityAnimation = Tween<double>(begin: 1.0, end: 0.75).animate(
+      CurvedAnimation(parent: _heldController, curve: Curves.easeInOut),
+    );
+
+    // Start held animation if initially held
+    if (widget.isHeld) {
+      _heldController.value = 1.0;
+    }
   }
 
   @override
@@ -104,6 +124,14 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
     // Trigger roll animation when value changes (and dice is not held)
     if (oldWidget.value != widget.value && !widget.isHeld) {
       _triggerRollAnimation();
+    }
+    // Trigger held animation when held state changes
+    if (oldWidget.isHeld != widget.isHeld) {
+      if (widget.isHeld) {
+        _heldController.forward();
+      } else {
+        _heldController.reverse();
+      }
     }
   }
 
@@ -115,6 +143,7 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   void dispose() {
     _animationController.dispose();
     _rollController.dispose();
+    _heldController.dispose();
     super.dispose();
   }
 
@@ -140,46 +169,79 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
           ),
         );
       },
-      child: GestureDetector(
-        key: ValueKey('dice-${widget.value}-held-${widget.isHeld}'),
-        onTap: widget.onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          width: _cardWidth,
-          height: _cardHeight,
-          decoration: BoxDecoration(
-            color: widget.value != null
-                ? _diceBackgroundColor
-                : _unrolledDiceBackgroundColor,
-            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            border: Border.all(
-              color: widget.isHeld
-                  ? _heldBorderColor
-                  : widget.value != null
-                  ? const Color(0xFFE0E0E0)
-                  : Colors.grey[400]!,
-              width: _borderWidth,
-            ),
-            boxShadow: widget.value != null
-                ? const [
-                    BoxShadow(
-                      color: Color(0x1A000000),
-                      blurRadius: 4.0,
-                      offset: Offset(0, 2),
-                    ),
-                  ]
-                : [],
-          ),
-          child: widget.value != null
-              ? DiceDot(
-                  value: widget.value!,
-                  size: _cardWidth * 0.7,
-                  pipColor: Colors.black,
-                )
-              : const Center(
-                  child: Icon(Icons.remove, color: Colors.grey, size: 32.0),
+      child: AnimatedBuilder(
+        animation: _heldController,
+        builder: (context, child) {
+          return AnimatedOpacity(
+            opacity: widget.isHeld ? _heldOpacityAnimation.value : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: GestureDetector(
+              key: ValueKey('dice-${widget.value}-held-${widget.isHeld}'),
+              onTap: widget.onTap,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                width: _cardWidth,
+                height: _cardHeight,
+                decoration: BoxDecoration(
+                  color: widget.value != null
+                      ? _diceBackgroundColor
+                      : _unrolledDiceBackgroundColor,
+                  borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                  border: Border.all(
+                    color: widget.isHeld
+                        ? _heldBorderColor.withOpacity(0.6)
+                        : widget.value != null
+                        ? const Color(0xFFE0E0E0)
+                        : Colors.grey[400]!,
+                    width: _borderWidth,
+                  ),
+                  boxShadow: widget.value != null
+                      ? const [
+                          BoxShadow(
+                            color: Color(0x1A000000),
+                            blurRadius: 4.0,
+                            offset: Offset(0, 2),
+                          ),
+                        ]
+                      : [],
                 ),
-        ),
+                child: Stack(
+                  children: [
+                    widget.value != null
+                        ? DiceDot(
+                            value: widget.value!,
+                            size: _cardWidth * 0.7,
+                            pipColor: Colors.black,
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.remove,
+                              color: Colors.grey,
+                              size: 32.0,
+                            ),
+                          ),
+                    // Grey overlay when held
+                    if (widget.isHeld)
+                      AnimatedOpacity(
+                        opacity: _heldOpacityAnimation.value,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          width: _cardWidth,
+                          height: _cardHeight,
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(12.0),
+                            ),
+                            color: _heldOverlayColor.withOpacity(0.3),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
