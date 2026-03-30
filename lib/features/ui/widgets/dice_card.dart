@@ -121,8 +121,8 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(DiceCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Trigger roll animation when value changes (and dice is not held)
-    if (oldWidget.value != widget.value && !widget.isHeld) {
+    // Trigger roll animation when value changes (and dice was not held before)
+    if (oldWidget.value != widget.value && !oldWidget.isHeld) {
       _triggerRollAnimation();
     }
     // Trigger held animation when held state changes
