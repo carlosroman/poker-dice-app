@@ -67,6 +67,7 @@ class DiceDot extends StatelessWidget {
       );
     } else {
       // No background - just pips (for score sheet icons)
+      // Wrap in SizedBox to ensure proper sizing
       return SizedBox(width: size, height: size, child: pipsWidget);
     }
   }

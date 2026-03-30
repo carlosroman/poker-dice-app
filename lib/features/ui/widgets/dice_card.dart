@@ -206,12 +206,14 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
                       : [],
                 ),
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
                     widget.value != null
                         ? DiceDot(
                             value: widget.value!,
-                            size: _cardWidth * 0.7,
+                            size: _cardWidth * 0.85,
                             pipColor: Colors.black,
+                            showBackground: false,
                           )
                         : const Center(
                             child: Icon(
@@ -222,17 +224,17 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
                           ),
                     // Grey overlay when held
                     if (widget.isHeld)
-                      AnimatedOpacity(
-                        opacity: _heldOpacityAnimation.value,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(
-                          width: _cardWidth,
-                          height: _cardHeight,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(12.0),
+                      Positioned.fill(
+                        child: AnimatedOpacity(
+                          opacity: _heldOpacityAnimation.value,
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(12.0),
+                              ),
+                              color: _heldOverlayColor.withOpacity(0.3),
                             ),
-                            color: _heldOverlayColor.withOpacity(0.3),
                           ),
                         ),
                       ),
