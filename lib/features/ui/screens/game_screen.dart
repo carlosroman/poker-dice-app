@@ -702,6 +702,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 child: DiceCard(
                   value: dice.value,
                   isHeld: dice.isHeld,
+                  rollId: dice.rollId,
                   onTap: () {
                     debugPrint('DiceCard tapped at index $index');
                     ref.read(gameProvider.notifier).toggleHold(index);

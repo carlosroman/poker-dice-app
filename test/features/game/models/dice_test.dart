@@ -77,5 +77,87 @@ void main() {
         expect(rolledDice.isHeld, true);
       });
     });
+
+    group('Dice rollId tests', () {
+      test('initial rollId is 0', () {
+        final dice = Dice();
+        expect(dice.rollId, 0);
+      });
+
+      test('rollId increments on each roll', () {
+        final dice = Dice();
+        final rolled1 = dice.roll();
+        final rolled2 = rolled1.roll();
+        final rolled3 = rolled2.roll();
+
+        expect(rolled1.rollId, 1);
+        expect(rolled2.rollId, 2);
+        expect(rolled3.rollId, 3);
+      });
+
+      test('toggleHold() preserves rollId', () {
+        final dice = Dice(value: 3, rollId: 5);
+        final toggledDice = dice.toggleHold();
+        expect(toggledDice.rollId, 5);
+      });
+
+      test('rollId allows detecting same-value rolls', () {
+        final dice = Dice(value: 3, rollId: 1);
+        // Simulate a roll that produces the same value
+        final rolledDice = dice.copyWith(value: 3, rollId: 2);
+        expect(rolledDice.value, dice.value);
+        expect(rolledDice.rollId, isNot(equals(dice.rollId)));
+      });
+
+      test('copyWith() preserves rollId when not specified', () {
+        final dice = Dice(value: 3, isHeld: true, rollId: 5);
+        final copiedDice = dice.copyWith(isHeld: false);
+        expect(copiedDice.rollId, 5);
+        expect(copiedDice.isHeld, false);
+        expect(copiedDice.value, 3);
+      });
+
+      test('copyWith() can override rollId', () {
+        final dice = Dice(value: 3, rollId: 5);
+        final copiedDice = dice.copyWith(rollId: 10);
+        expect(copiedDice.rollId, 10);
+      });
+
+      test('rollId is included in equality', () {
+        final dice1 = Dice(value: 3, isHeld: false, rollId: 1);
+        final dice2 = Dice(value: 3, isHeld: false, rollId: 2);
+        expect(dice1, isNot(equals(dice2)));
+      });
+
+      test('rollId is included in hashCode', () {
+        final dice1 = Dice(value: 3, isHeld: false, rollId: 1);
+        final dice2 = Dice(value: 3, isHeld: false, rollId: 2);
+        expect(dice1.hashCode, isNot(equals(dice2.hashCode)));
+      });
+
+      test('toJson() includes rollId', () {
+        final dice = Dice(value: 3, isHeld: true, rollId: 5);
+        final json = dice.toJson();
+        expect(json['rollId'], 5);
+      });
+
+      test('fromJson() restores rollId', () {
+        final json = {'value': 3, 'isHeld': true, 'rollId': 5};
+        final dice = Dice.fromJson(json);
+        expect(dice.rollId, 5);
+      });
+
+      test('fromJson() defaults rollId to 0 when missing', () {
+        final json = {'value': 3, 'isHeld': true};
+        final dice = Dice.fromJson(json);
+        expect(dice.rollId, 0);
+      });
+
+      test('toString() includes rollId', () {
+        final dice = Dice(value: 3, isHeld: true, rollId: 5);
+        final str = dice.toString();
+        expect(str, contains('rollId: 5'));
+      });
+    });
   });
 }

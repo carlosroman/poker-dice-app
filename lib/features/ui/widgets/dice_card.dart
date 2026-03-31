@@ -13,6 +13,9 @@ class DiceCard extends StatefulWidget {
   /// Whether the dice is held.
   final bool isHeld;
 
+  /// Unique roll identifier to detect roll events.
+  final int rollId;
+
   /// Callback for tap to toggle hold.
   final VoidCallback? onTap;
 
@@ -21,6 +24,7 @@ class DiceCard extends StatefulWidget {
     super.key,
     required this.value,
     required this.isHeld,
+    required this.rollId,
     this.onTap,
   });
 
@@ -123,6 +127,10 @@ class _DiceCardState extends State<DiceCard> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     // Trigger roll animation when value changes (and dice was not held before)
     if (oldWidget.value != widget.value && !oldWidget.isHeld) {
+      _triggerRollAnimation();
+    }
+    // Trigger roll animation when rollId changes (same value, but rolled again)
+    if (oldWidget.rollId != widget.rollId && !oldWidget.isHeld) {
       _triggerRollAnimation();
     }
     // Trigger held animation when held state changes

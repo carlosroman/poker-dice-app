@@ -9,7 +9,7 @@ void main() {
       testWidgets('value 1 displays 1 pip', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 1, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 1, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -21,7 +21,7 @@ void main() {
       testWidgets('value 2 displays 2 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 2, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 2, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -33,7 +33,7 @@ void main() {
       testWidgets('value 3 displays 3 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 3, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 3, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -45,7 +45,7 @@ void main() {
       testWidgets('value 4 displays 4 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 4, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 4, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -57,7 +57,7 @@ void main() {
       testWidgets('value 5 displays 5 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 5, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 5, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -69,7 +69,7 @@ void main() {
       testWidgets('value 6 displays 6 pips', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 6, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 6, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -85,7 +85,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 1, isHeld: false)),
+            home: Scaffold(body: DiceCard(value: 1, isHeld: false, rollId: 0)),
           ),
         );
 
@@ -101,7 +101,7 @@ void main() {
       testWidgets('isHeld=true has orange border', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(body: DiceCard(value: 1, isHeld: true)),
+            home: Scaffold(body: DiceCard(value: 1, isHeld: true, rollId: 0)),
           ),
         );
 
@@ -129,6 +129,7 @@ void main() {
                   return DiceCard(
                     value: 1,
                     isHeld: holdState,
+                    rollId: 0,
                     onTap: () {
                       setState(() {
                         holdState = !holdState;
