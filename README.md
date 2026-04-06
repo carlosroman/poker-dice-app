@@ -24,7 +24,6 @@ Yatzy is a dice‑rolling game where players aim to score the highest total by a
 - **Bonus**: +35 if upper section total >= 63
 
 ### Lower Section
-- **Two Pair**: Sum of the 4 dice forming two different pairs
 - **Three of a Kind**: Sum of all dice (if 3+ match)
 - **Four of a Kind**: Sum of all dice (if 4+ match)
 - **Full House**: 25 points (3 of one + 2 of another)
