@@ -1,6 +1,6 @@
 # Yatzy Dice Game
 
-A Flutter‑based implementation of **Yatzy** (not to be confused with Yahtzee), playable on Android devices and the Web.
+A Flutter‑based implementation of **Yatzy**, playable on Android devices and the Web.
 
 ## Overview
 Yatzy is a dice‑rolling game where players aim to score the highest total by achieving specific combinations (e.g. Two Pair, Full House, Straight, etc.). This app provides a single‑player experience with smooth roll animations, a clear score sheet, and persistent high‑score tracking.
@@ -11,7 +11,33 @@ Yatzy is a dice‑rolling game where players aim to score the highest total by a
 - 🏆 Persistent high‑score storage
 - 📱 Responsive UI for both mobile (Android) and desktop browsers
 - 🌙 Light / dark theme support
-- 🎨 Choice of dice set ('1,2,3,4,5,6' or '9,10,J,Q,K,A')
+
+## Scoring Rules
+
+### Upper Section
+- **Aces**: Sum of all dice showing 1 (1 point each)
+- **Twos**: Sum of all dice showing 2 (2 points each)
+- **Threes**: Sum of all dice showing 3 (3 points each)
+- **Fours**: Sum of all dice showing 4 (4 points each)
+- **Fives**: Sum of all dice showing 5 (5 points each)
+- **Sixes**: Sum of all dice showing 6 (6 points each)
+- **Bonus**: +35 if upper section total >= 63
+
+### Lower Section
+- **Two Pair**: Sum of the 4 dice forming two different pairs
+- **Three of a Kind**: Sum of all dice (if 3+ match)
+- **Four of a Kind**: Sum of all dice (if 4+ match)
+- **Full House**: 25 points (3 of one + 2 of another)
+- **Small Straight**: 30 points (4 consecutive values)
+- **Large Straight**: 40 points (5 consecutive values)
+- **Yatzy**: 50 points (all 5 dice match, can be scored multiple times if scored at least once)
+- **Chance**: Sum of all dice values
+
+### Game Flow
+- Roll 5 dice up to 3 times per turn
+- Hold any dice between rolls
+- Select one scoring category per turn
+- Game ends when all 13 categories are filled
 
 ## Platforms
 - **Android** – Tested on API 21+ devices
@@ -37,4 +63,4 @@ flutter build web
 ```
 
 ## License
-MIT © 2026 Your Name
+MIT © 2026 Carlos Roman
