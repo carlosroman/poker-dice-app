@@ -4,6 +4,8 @@
 
 This document outlines the implementation plan for a **Yatzy dice game** built with Flutter. The game is single-player (extensible to 2-4 players later) and targets Android and Web platforms.
 
+**UI Design:** Based on `Yatzy_layout.png` - compact two-column layout with blue gradient background, yellow/orange accents.
+
 ---
 
 ## Scoring Rules (Final)
@@ -47,9 +49,29 @@ This document outlines the implementation plan for a **Yatzy dice game** built w
 - 5 consecutive (large straight) can be scored as small straight OR large straight (user chooses)
 
 **Category Selection:**
-- User can select ANY empty category after rolling
+- User clicks any row to select category, then clicks PLAY button to score
 - User can score 0 in any category if they choose
 - If Yatzy rolled but Yatzy already scored, user gets +50 bonus in any category they select
+- Each row shows: [icon] | [potential score] | [current score in light blue box]
+
+**Category Icons:**
+
+*Upper Section (Upper Column):*
+- Aces: Die face with 1 dot
+- Twos: Die face with 2 dots
+- Threes: Die face with 3 dots
+- Fours: Die face with 4 dots
+- Fives: Die face with 5 dots
+- Sixes: Die face with 6 dots
+
+*Lower Section (Lower Column):*
+- ThreeOfKind: "3x" icon
+- FourOfKind: "4x" icon
+- FullHouse: House icon
+- SmallStraight: Cards with "small" label
+- LargeStraight: Cards with "large" label
+- Yatzy: "Yatzy" text
+- Chance: "?" icon
 
 **Game End:**
 - Game ends when all 13 categories are filled
@@ -156,63 +178,80 @@ This document outlines the implementation plan for a **Yatzy dice game** built w
 
 ### Phase 2: UI Foundation & Theme
 
-**Goal:** Build basic UI structure with theming
+**Goal:** Build UI matching `Yatzy_layout.png` design
 
 #### Step 2.1: Theme Configuration
 - File: `lib/src/ui/theme/app_theme.dart`
-- Light/dark theme definitions
-- Color scheme, typography, spacing
+- Color scheme: Blue gradient (#1E88E5 to #1565C0), yellow/orange accents (#FFB74D, #FF9800)
+- White bold text for scores, light blue score boxes (#4FC3F7)
+- Typography, spacing for compact mobile layout
 - Tests: `test/ui/theme/app_theme_test.dart`
 - Commit work once done and passes QA.
 
 #### Step 2.2: DieWidget Component
 - File: `lib/src/ui/components/die_widget.dart`
-- Renders die face (1-6 dots) with 3D-style
-- Visual indicator for held state
+- White rounded square die face with black dots (1-6)
+- Orange border (#FF9800) when held (no separate checkbox)
+- Subtle shadow effect
 - Tests: `test/ui/components/die_widget_test.dart`
 - Commit work once done and passes QA.
 
-#### Step 2.3: HoldCheckbox Component
-- File: `lib/src/ui/components/hold_checkbox.dart`
-- Toggle for holding dice
-- Tests: `test/ui/components/hold_checkbox_test.dart`
+#### Step 2.3: ScoreRow Component
+- File: `lib/src/ui/components/score_row.dart`
+- Layout: [Die/Category Icon] | [Potential Score] | [Current Score Box]
+- Icon: Yellow square with die face (1-6) or symbol (3x, 4x, house, cards, Yatzy, ?)
+- Potential Score: White text showing calculated score for current dice
+- Current Score: Light blue box with white text (empty if not scored)
+- Clickable to select category for scoring
+- Yatzy bonus indicator (+50) when applicable
+- Tests: `test/ui/components/score_row_test.dart`
 - Commit work once done and passes QA.
 
-#### Step 2.4: ScoreCategoryRow Component
-- File: `lib/src/ui/components/score_category_row.dart`
-- Displays category name and score
-- Selectable state (enabled/disabled)
-- Yatzy bonus indicator (+50)
-- Tests: `test/ui/components/score_category_row_test.dart`
+#### Step 2.4: BonusProgress Component
+- File: `lib/src/ui/components/bonus_progress.dart`
+- Displays "X/63" progress toward bonus (e.g., "37/63")
+- Shows "+35" bonus indicator when upper total ≥ 63
+- Compact circular or pill-shaped design
+- Tests: `test/ui/components/bonus_progress_test.dart`
 - Commit work once done and passes QA.
 
 #### Step 2.5: RollButton Component
 - File: `lib/src/ui/components/roll_button.dart`
-- Primary action button
-- Disabled state when max rolls reached
+- Dark blue button showing "ROLL" and roll count: "ROLL 0", "ROLL 1", "ROLL 2"
+- Disabled and dimmed when rollCount = 3 (max rolls reached)
 - Tests: `test/ui/components/roll_button_test.dart`
 - Commit work once done and passes QA.
 
-#### Step 2.6: ScoreSheet Widget
+#### Step 2.6: PlayButton Component
+- File: `lib/src/ui/components/play_button.dart`
+- White button with orange "PLAY" text
+- Enabled when user has rolled and has empty categories
+- Disabled when game over or no valid selections
+- Tests: `test/ui/components/play_button_test.dart`
+- Commit work once done and passes QA.
+
+#### Step 2.7: ScoreSheet Widget
 - File: `lib/src/ui/components/score_sheet.dart`
-- Table with upper/lower sections
-- Shows totals and bonus
+- Two-column layout with headers "Upper" (left) and "Lower" (right)
+- **Upper Column (Upper Section):** Rows for Aces-Sixes with die icons
+- **Lower Column (Lower Section):** Rows for ThreeKind, FourKind, FullHouse, Straights, Yatzy, Chance with icons
+- BonusProgress row at bottom of Upper column
 - Tests: `test/ui/components/score_sheet_test.dart`
 - Commit work once done and passes QA.
 
-#### Step 2.7: GamePage Layout
+#### Step 2.8: GamePage Layout
 - File: `lib/src/ui/pages/game_page.dart`
-- Scaffold with app bar
-- Dice display area
-- Score sheet section
-- Roll button area
+- **Header:** Score (top center), back button (left), menu button (right)
+- **Score Sheet (middle):** Two columns - Upper and Lower section
+- **Dice Row:** 5 dice horizontally aligned, tap to toggle hold (orange border)
+- **Button Row:** ROLL button (left, dark) + PLAY button (right, white/orange)
 - Tests: `test/ui/pages/game_page_test.dart`
 - Commit work once done and passes QA.
 
-#### Step 2.8: GameOverPage Layout
+#### Step 2.9: GameOverPage Layout
 - File: `lib/src/ui/pages/game_over_page.dart`
-- Final score display
-- Category breakdown
+- Large final score display (centered)
+- Category breakdown (all 13 categories with scores)
 - "New Game" button
 - Tests: `test/ui/pages/game_over_page_test.dart`
 - Commit work once done and passes QA.
@@ -367,9 +406,10 @@ lib/
         │   └── app_theme.dart
         ├── components/
         │   ├── die_widget.dart
-        │   ├── hold_checkbox.dart
-        │   ├── score_category_row.dart
+        │   ├── score_row.dart
+        │   ├── bonus_progress.dart
         │   ├── roll_button.dart
+        │   ├── play_button.dart
         │   └── score_sheet.dart
         └── pages/
             ├── game_page.dart
@@ -393,9 +433,10 @@ test/
 └── ui/
     ├── components/
     │   ├── die_widget_test.dart
-    │   ├── hold_checkbox_test.dart
-    │   ├── score_category_row_test.dart
+    │   ├── score_row_test.dart
+    │   ├── bonus_progress_test.dart
     │   ├── roll_button_test.dart
+    │   ├── play_button_test.dart
     │   └── score_sheet_test.dart
     └── pages/
         ├── game_page_test.dart
@@ -485,14 +526,15 @@ Types: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`
 - [ ] Step 1.6: GameState class + tests
 
 ### Phase 2: UI Foundation & Theme
-- [ ] Step 2.1: Theme configuration
-- [ ] Step 2.2: DieWidget + tests
-- [ ] Step 2.3: HoldCheckbox + tests
-- [ ] Step 2.4: ScoreCategoryRow + tests
-- [ ] Step 2.5: RollButton + tests
-- [ ] Step 2.6: ScoreSheet widget + tests
-- [ ] Step 2.7: GamePage layout + tests
-- [ ] Step 2.8: GameOverPage layout + tests
+- [ ] Step 2.1: Theme configuration (blue gradient, orange/yellow accents)
+- [ ] Step 2.2: DieWidget (white die, orange border when held)
+- [ ] Step 2.3: ScoreRow (icon | potential | current score)
+- [ ] Step 2.4: BonusProgress (X/63 progress indicator)
+- [ ] Step 2.5: RollButton (shows roll count)
+- [ ] Step 2.6: PlayButton (white/orange)
+- [ ] Step 2.7: ScoreSheet (two-column: Upper/Lower)
+- [ ] Step 2.8: GamePage layout (header, score sheet, dice, buttons)
+- [ ] Step 2.9: GameOverPage layout
 
 ### Phase 3: Game Flow & User Interactions
 - [ ] Step 3.1: GameBloc + tests
@@ -522,5 +564,8 @@ Types: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`
 - **Implementation approach:** Incremental (build and test each component as we go)
 - **Player count:** Single player now, extend to 2-4 players later
 - **Dice faces:** Standard 1-6 dots (card symbols for Poker Dice later)
-- **Animations:** 3D dice roll effect (or simple scale/fade if 3D too complex)
-- **State management:** Bloc pattern (can change to Riverpod if preferred)
+- **Animations:** Scale/fade dice roll effect (3D if time permits)
+- **State management:** Bloc pattern
+- **UI Layout:** Two-column design (Upper, Lower section)
+- **Category selection:** Direct row click + PLAY button (no menu)
+- **Bonus display:** Show "X/63" progress toward bonus
