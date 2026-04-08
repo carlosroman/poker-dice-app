@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:poker_dice/src/bloc/game_bloc.dart';
 import 'package:poker_dice/src/domain/game_state.dart';
 import 'package:poker_dice/src/domain/models/score_category.dart';
-import 'package:poker_dice/src/ui/components/die_widget.dart';
+import 'package:poker_dice/src/ui/animation/dice_animation.dart';
+import 'package:poker_dice/src/ui/animation/selection_animation.dart';
 import 'package:poker_dice/src/ui/components/roll_button.dart';
 import 'package:poker_dice/src/ui/components/score_row.dart';
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
@@ -195,11 +197,42 @@ class _GameHeader extends StatelessWidget {
 }
 
 /// Score sheet widget displaying all scoring categories.
-class _ScoreSheet extends StatelessWidget {
+class _ScoreSheet extends StatefulWidget {
   final GameState gameState;
   final Function(ScoreCategory) onCategoryTapped;
 
   const _ScoreSheet({required this.gameState, required this.onCategoryTapped});
+
+  @override
+  State<_ScoreSheet> createState() => _ScoreSheetState();
+}
+
+class _ScoreSheetState extends State<_ScoreSheet> {
+  ScoreCategory? _lastSelectedCategory;
+
+  @override
+  void didUpdateWidget(_ScoreSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Track when a new category is selected
+    final currentSelected =
+        widget.gameState.currentRound.dice
+            .asMap()
+            .entries
+            .where((entry) => entry.value.held)
+            .isNotEmpty
+        ? _findSelectedCategory(oldWidget.gameState)
+        : null;
+    if (currentSelected != _lastSelectedCategory) {
+      setState(() {
+        _lastSelectedCategory = currentSelected;
+      });
+    }
+  }
+
+  ScoreCategory? _findSelectedCategory(GameState state) {
+    // Find a category that might be selected based on game state changes
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,13 +245,13 @@ class _ScoreSheet extends StatelessWidget {
             children: [
               ..._buildCategoryRows(
                 ScoreCategory.values.where((c) => c.isUpper).toList(),
-                gameState,
-                onCategoryTapped,
+                widget.gameState,
+                widget.onCategoryTapped,
               ),
               const SizedBox(height: AppSpacing.sm),
               _UpperTotalRow(
-                upperTotal: gameState.scoreSheet.getUpperTotal(),
-                hasBonus: gameState.scoreSheet.getBonus() > 0,
+                upperTotal: widget.gameState.scoreSheet.getUpperTotal(),
+                hasBonus: widget.gameState.scoreSheet.getBonus() > 0,
               ),
               const SizedBox(height: AppSpacing.md),
             ],
@@ -234,8 +267,8 @@ class _ScoreSheet extends StatelessWidget {
             children: [
               ..._buildCategoryRows(
                 ScoreCategory.values.where((c) => c.isLower).toList(),
-                gameState,
-                onCategoryTapped,
+                widget.gameState,
+                widget.onCategoryTapped,
               ),
             ],
           ),
@@ -258,16 +291,19 @@ class _ScoreSheet extends StatelessWidget {
           ? null
           : gameState.getPotentialScore(category);
 
-      return ScoreRow(
+      return AnimatedCategorySelection(
         key: ValueKey('score_row_${category.name}'),
-        category: category,
-        potentialScore: potentialScore,
-        currentScore: currentScore,
-        isScored: isScored,
-        yatzyBonus:
-            category == ScoreCategory.yatzy &&
-            gameState.scoreSheet.yatzyCount > 0,
+        isSelected: false,
         onTap: isScored ? null : () => onCategoryTapped(category),
+        child: ScoreRow(
+          category: category,
+          potentialScore: potentialScore,
+          currentScore: currentScore,
+          isScored: isScored,
+          yatzyBonus:
+              category == ScoreCategory.yatzy &&
+              gameState.scoreSheet.yatzyCount > 0,
+        ),
       );
     }).toList();
   }
@@ -311,8 +347,7 @@ class _UpperTotalRow extends StatelessWidget {
   }
 }
 
-/// Widget displaying the 5 dice in a row.
-class _DiceRow extends StatelessWidget {
+class _DiceRow extends StatefulWidget {
   final List<int> diceValues;
   final List<int> heldIndices;
   final Function(int) onDieTapped;
@@ -324,18 +359,37 @@ class _DiceRow extends StatelessWidget {
   });
 
   @override
+  State<_DiceRow> createState() => _DiceRowState();
+}
+
+class _DiceRowState extends State<_DiceRow> {
+  int _lastRollCount = 0;
+
+  @override
+  void didUpdateWidget(_DiceRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Trigger animation when dice values change (indicating a roll)
+    if (!listEquals(widget.diceValues, oldWidget.diceValues)) {
+      setState(() {
+        _lastRollCount++;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: diceValues.asMap().entries.map((entry) {
+      children: widget.diceValues.asMap().entries.map((entry) {
         final index = entry.key;
         final value = entry.value;
-        final isHeld = heldIndices.contains(index);
-        return DieWidget(
+        final isHeld = widget.heldIndices.contains(index);
+        return AnimatedDieWidget(
           key: ValueKey('die-$index'),
           value: value,
           isHeld: isHeld,
-          onTap: () => onDieTapped(index),
+          onTap: () => widget.onDieTapped(index),
+          triggerAnimation: _lastRollCount > 0,
         );
       }).toList(),
     );
