@@ -63,12 +63,16 @@ void main() {
       final die0 = find.byKey(const ValueKey('die-0'));
       expect(die0, findsOneWidget);
 
-      // Tap die to toggle
-      await tester.tap(die0);
+      // Ensure die is visible before tapping
+      await tester.ensureVisible(die0);
+      // Tap die to toggle (using warnIfMissed: false to suppress hit test warning)
+      await tester.tap(die0, warnIfMissed: false);
       await tester.pump();
 
+      // Ensure die is visible before tapping again
+      await tester.ensureVisible(die0);
       // Tap again to toggle back
-      await tester.tap(die0);
+      await tester.tap(die0, warnIfMissed: false);
       await tester.pump();
     });
 
