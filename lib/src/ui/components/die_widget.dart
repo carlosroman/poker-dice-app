@@ -79,7 +79,7 @@ class _BlankDieFace extends StatelessWidget {
   }
 }
 
-/// Internal widget that renders the dots on a die face.
+/// Internal widget that renders the dots on a die face using CustomPainter.
 class _DieDots extends StatelessWidget {
   final int value;
 
@@ -87,85 +87,80 @@ class _DieDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dot positions for each die value
-    final positions = _getDotPositions(value);
-
-    return Stack(
-      children: positions
-          .map(
-            (offset) => Positioned(
-              left: offset.dx,
-              top: offset.dy,
-              child: const _DieDot(),
-            ),
-          )
-          .toList(),
+    return CustomPaint(
+      size: const Size(60, 60),
+      painter: _DieDotPainter(dots: value),
     );
-  }
-
-  /// Returns the positions of dots for a given die value.
-  ///
-  /// Positions are adjusted by subtracting 5 pixels (half the dot size)
-  /// to properly center the 10x10 dots in the 60x60 container.
-  List<Offset> _getDotPositions(int value) {
-    const center = 25.0; // 30 - 5 (half container - half dot)
-    const corner = 10.0; // 15 - 5
-    const mid = 40.0; // 45 - 5
-
-    switch (value) {
-      case 1:
-        return [Offset(center, center)];
-      case 2:
-        return [Offset(corner, corner), Offset(mid, mid)];
-      case 3:
-        return [
-          Offset(corner, corner),
-          Offset(center, center),
-          Offset(mid, mid),
-        ];
-      case 4:
-        return [
-          Offset(corner, corner),
-          Offset(mid, corner),
-          Offset(corner, mid),
-          Offset(mid, mid),
-        ];
-      case 5:
-        return [
-          Offset(corner, corner),
-          Offset(mid, corner),
-          Offset(center, center),
-          Offset(corner, mid),
-          Offset(mid, mid),
-        ];
-      case 6:
-        return [
-          Offset(corner, corner),
-          Offset(mid, corner),
-          Offset(corner, mid),
-          Offset(mid, mid),
-          Offset(corner, center),
-          Offset(mid, center),
-        ];
-      default:
-        return [];
-    }
   }
 }
 
-/// A small black dot representing a pips on a die face.
-class _DieDot extends StatelessWidget {
-  const _DieDot();
+/// Custom painter for die dots.
+///
+/// This painter draws dots on a die face using Canvas API, ensuring
+/// proper centering of dots from their center point (like the Upper section).
+class _DieDotPainter extends CustomPainter {
+  final int dots;
+
+  _DieDotPainter({required this.dots});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 10,
-      height: 10,
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        shape: BoxShape.circle,
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    final dotRadius = 5.0; // Half of 10x10 dot size
+    final center = Offset(size.width / 2, size.height / 2);
+    final offset = size.width * 0.25; // 15px for 60px container
+
+    // Define dot positions for each value
+    final positions = <Offset>[];
+
+    switch (dots) {
+      case 1:
+        positions.add(center);
+        break;
+      case 2:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 3:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(center);
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 4:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(Offset(center.dx + offset, center.dy - offset));
+        positions.add(Offset(center.dx - offset, center.dy + offset));
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 5:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(Offset(center.dx + offset, center.dy - offset));
+        positions.add(center);
+        positions.add(Offset(center.dx - offset, center.dy + offset));
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 6:
+        final colOffset = offset * 0.8;
+        final rowOffset = offset * 1.2;
+        positions.add(Offset(center.dx - colOffset, center.dy - rowOffset));
+        positions.add(Offset(center.dx + colOffset, center.dy - rowOffset));
+        positions.add(Offset(center.dx - colOffset, center.dy));
+        positions.add(Offset(center.dx + colOffset, center.dy));
+        positions.add(Offset(center.dx - colOffset, center.dy + rowOffset));
+        positions.add(Offset(center.dx + colOffset, center.dy + rowOffset));
+        break;
+    }
+
+    // Draw all dots
+    for (final pos in positions) {
+      canvas.drawCircle(pos, dotRadius, paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant _DieDotPainter oldDelegate) =>
+      oldDelegate.dots != dots;
 }

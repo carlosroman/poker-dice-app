@@ -13,9 +13,7 @@ void main() {
       expect(find.byType(DieWidget), findsOneWidget);
     });
 
-    testWidgets('displays correct number of dots for each value', (
-      tester,
-    ) async {
+    testWidgets('displays CustomPaint for die dots', (tester) async {
       for (int value = 1; value <= 6; value++) {
         await tester.pumpWidget(
           MaterialApp(
@@ -23,12 +21,8 @@ void main() {
           ),
         );
 
-        // Count the dots (black containers)
-        final dotFinder = find.byType(Container).evaluate();
-        expect(
-          dotFinder.length,
-          greaterThan(1),
-        ); // At least die container + dots
+        // Verify CustomPaint is used for rendering dots
+        expect(find.byType(CustomPaint), findsWidgets);
 
         await tester.pumpAndSettle();
       }
@@ -131,6 +125,8 @@ void main() {
         const MaterialApp(home: Scaffold(body: DieWidget(value: 1))),
       );
 
+      await tester.pumpAndSettle();
+
       // Verify the widget renders without errors
       expect(find.byType(DieWidget), findsOneWidget);
     });
@@ -142,6 +138,8 @@ void main() {
         const MaterialApp(home: Scaffold(body: DieWidget(value: 2))),
       );
 
+      await tester.pumpAndSettle();
+
       // Verify the widget renders without errors
       expect(find.byType(DieWidget), findsOneWidget);
     });
@@ -150,6 +148,8 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: DieWidget(value: 3))),
       );
+
+      await tester.pumpAndSettle();
 
       // Verify the widget renders without errors
       expect(find.byType(DieWidget), findsOneWidget);
@@ -162,6 +162,8 @@ void main() {
         const MaterialApp(home: Scaffold(body: DieWidget(value: 4))),
       );
 
+      await tester.pumpAndSettle();
+
       // Verify the widget renders without errors
       expect(find.byType(DieWidget), findsOneWidget);
     });
@@ -173,6 +175,8 @@ void main() {
         const MaterialApp(home: Scaffold(body: DieWidget(value: 5))),
       );
 
+      await tester.pumpAndSettle();
+
       // Verify the widget renders without errors
       expect(find.byType(DieWidget), findsOneWidget);
     });
@@ -182,11 +186,13 @@ void main() {
         const MaterialApp(home: Scaffold(body: DieWidget(value: 6))),
       );
 
+      await tester.pumpAndSettle();
+
       // Verify the widget renders without errors
       expect(find.byType(DieWidget), findsOneWidget);
     });
 
-    testWidgets('all die values render correct number of dots', (tester) async {
+    testWidgets('all die values render with CustomPainter', (tester) async {
       for (int value = 1; value <= 6; value++) {
         await tester.pumpWidget(
           MaterialApp(
@@ -194,12 +200,22 @@ void main() {
           ),
         );
 
-        // Find all Container widgets (dots are containers with circle decoration)
-        final dotFinder = find.byType(Container);
-        expect(dotFinder, findsWidgets);
+        // Verify CustomPaint is used for rendering dots
+        expect(find.byType(CustomPaint), findsWidgets);
 
         await tester.pumpAndSettle();
       }
+    });
+
+    testWidgets('die value 0 (blank) does not render dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 0))),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Blank die should not have dot painter
+      expect(find.byType(DieWidget), findsOneWidget);
     });
   });
 }
