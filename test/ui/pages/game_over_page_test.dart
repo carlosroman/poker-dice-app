@@ -101,24 +101,24 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('displays Minor Section header', (tester) async {
+    testWidgets('displays Upper Section header', (tester) async {
       final scoreSheet = const ScoreSheet();
 
       await tester.pumpWidget(
         MaterialApp(home: GameOverPage(scoreSheet: scoreSheet)),
       );
 
-      expect(find.text('Minor Section'), findsOneWidget);
+      expect(find.text('Upper Section'), findsOneWidget);
     });
 
-    testWidgets('displays Major Section header', (tester) async {
+    testWidgets('displays Lower Section header', (tester) async {
       final scoreSheet = const ScoreSheet();
 
       await tester.pumpWidget(
         MaterialApp(home: GameOverPage(scoreSheet: scoreSheet)),
       );
 
-      expect(find.text('Major Section'), findsOneWidget);
+      expect(find.text('Lower Section'), findsOneWidget);
     });
 
     testWidgets('displays all category names', (tester) async {
@@ -134,7 +134,7 @@ void main() {
       }
     });
 
-    testWidgets('displays Minor Total', (tester) async {
+    testWidgets('displays Upper Total', (tester) async {
       final scores = <ScoreCategory, int?>{
         ScoreCategory.aces: 5,
         ScoreCategory.twos: 10,
@@ -149,7 +149,7 @@ void main() {
         MaterialApp(home: GameOverPage(scoreSheet: scoreSheet)),
       );
 
-      expect(find.text('Minor Total'), findsOneWidget);
+      expect(find.text('Upper Total'), findsOneWidget);
       expect(find.text('105'), findsOneWidget); // 5+10+15+20+25+30
     });
 
@@ -172,7 +172,7 @@ void main() {
       expect(find.text('35'), findsOneWidget);
     });
 
-    testWidgets('displays Major Total', (tester) async {
+    testWidgets('displays Lower Total', (tester) async {
       final scores = <ScoreCategory, int?>{
         ScoreCategory.threeOfKind: 20,
         ScoreCategory.fourOfKind: 25,
@@ -188,7 +188,7 @@ void main() {
         MaterialApp(home: GameOverPage(scoreSheet: scoreSheet)),
       );
 
-      expect(find.text('Major Total'), findsOneWidget);
+      expect(find.text('Lower Total'), findsOneWidget);
       expect(find.text('220'), findsWidgets); // Multiple matches expected
     });
   });

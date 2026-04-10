@@ -1,10 +1,10 @@
-/// Represents the section of the scorecard (Minor or Major).
+/// Represents the section of the scorecard (Upper or Lower).
 enum ScoreSection {
-  /// Minor section: Individual die values (1-6)
-  minor,
+  /// Upper section: Individual die values (1-6)
+  upper,
 
-  /// Major section: Combination categories
-  major,
+  /// Lower section: Combination categories
+  lower,
 }
 
 /// Represents a scoring category in the poker dice game.
@@ -55,17 +55,17 @@ enum ScoreCategory {
   String get displayName {
     switch (this) {
       case ScoreCategory.aces:
-        return '1';
+        return 'Aces';
       case ScoreCategory.twos:
-        return '2';
+        return 'Twos';
       case ScoreCategory.threes:
-        return '3';
+        return 'Threes';
       case ScoreCategory.fours:
-        return '4';
+        return 'Fours';
       case ScoreCategory.fives:
-        return '5';
+        return 'Fives';
       case ScoreCategory.sixes:
-        return '6';
+        return 'Sixes';
       case ScoreCategory.threeOfKind:
         return '3x';
       case ScoreCategory.fourOfKind:
@@ -92,7 +92,7 @@ enum ScoreCategory {
       case ScoreCategory.fours:
       case ScoreCategory.fives:
       case ScoreCategory.sixes:
-        return ScoreSection.minor;
+        return ScoreSection.upper;
       case ScoreCategory.threeOfKind:
       case ScoreCategory.fourOfKind:
       case ScoreCategory.fullHouse:
@@ -100,13 +100,13 @@ enum ScoreCategory {
       case ScoreCategory.largeStraight:
       case ScoreCategory.yatzy:
       case ScoreCategory.chance:
-        return ScoreSection.major;
+        return ScoreSection.lower;
     }
   }
 
-  /// Returns true if this category belongs to the Minor section.
-  bool get isMinor => section == ScoreSection.minor;
+  /// Returns true if this category belongs to the Upper section.
+  bool get isUpper => section == ScoreSection.upper;
 
-  /// Returns true if this category belongs to the Major section.
-  bool get isMajor => section == ScoreSection.major;
+  /// Returns true if this category belongs to the Lower section.
+  bool get isLower => section == ScoreSection.lower;
 }

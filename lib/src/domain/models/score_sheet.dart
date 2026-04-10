@@ -22,8 +22,8 @@ class ScoreSheet {
   /// [yatzyCount] optional Yatzy count.
   const ScoreSheet({this.scores = const {}, this.yatzyCount = 0});
 
-  /// Returns the list of minor section categories.
-  static List<ScoreCategory> get minorCategories => [
+  /// Returns the list of upper section categories.
+  static List<ScoreCategory> get upperCategories => [
     ScoreCategory.aces,
     ScoreCategory.twos,
     ScoreCategory.threes,
@@ -32,8 +32,8 @@ class ScoreSheet {
     ScoreCategory.sixes,
   ];
 
-  /// Returns the list of major section categories.
-  static List<ScoreCategory> get majorCategories => [
+  /// Returns the list of lower section categories.
+  static List<ScoreCategory> get lowerCategories => [
     ScoreCategory.threeOfKind,
     ScoreCategory.fourOfKind,
     ScoreCategory.fullHouse,
@@ -45,8 +45,8 @@ class ScoreSheet {
 
   /// Returns the list of all categories.
   static List<ScoreCategory> get allCategories => [
-    ...minorCategories,
-    ...majorCategories,
+    ...upperCategories,
+    ...lowerCategories,
   ];
 
   /// Creates a new ScoreSheet with the score for [category] calculated and stored.
@@ -70,7 +70,7 @@ class ScoreSheet {
   }
 
   int _calculateCategoryScore(ScoreCategory category, List<int> dice) {
-    if (category.isMinor) {
+    if (category.isUpper) {
       return Scorer.calculateUpperScore(category, dice);
     }
     if (category == ScoreCategory.yatzy) {
@@ -81,34 +81,34 @@ class ScoreSheet {
 
   /// Returns the total score including bonus.
   int getTotal() {
-    return getMinorTotal() + getMajorTotal() + getBonus();
+    return getUpperTotal() + getLowerTotal() + getBonus();
   }
 
-  /// Returns the sum of all minor section scores (excluding bonus).
+  /// Returns the sum of all upper section scores (excluding bonus).
   ///
   /// Returns 0 for categories that haven't been scored yet.
-  int getMinorTotal() {
-    return minorCategories.fold(0, (sum, category) {
+  int getUpperTotal() {
+    return upperCategories.fold(0, (sum, category) {
       final score = scores[category] ?? 0;
       return sum + score;
     });
   }
 
-  /// Returns the sum of all major section scores.
+  /// Returns the sum of all lower section scores.
   ///
   /// Returns 0 for categories that haven't been scored yet.
-  int getMajorTotal() {
-    return majorCategories.fold(0, (sum, category) {
+  int getLowerTotal() {
+    return lowerCategories.fold(0, (sum, category) {
       final score = scores[category] ?? 0;
       return sum + score;
     });
   }
 
-  /// Returns the bonus points if minor section total is 63 or more.
+  /// Returns the bonus points if upper section total is 63 or more.
   ///
-  /// Returns 35 if minor section >= 63, otherwise 0.
+  /// Returns 35 if upper section >= 63, otherwise 0.
   int getBonus() {
-    return getMinorTotal() >= bonusThreshold ? bonusPoints : 0;
+    return getUpperTotal() >= bonusThreshold ? bonusPoints : 0;
   }
 
   /// Returns true if [category] has been scored.

@@ -19,8 +19,8 @@ class GamePage extends StatelessWidget {
   /// The current score sheet.
   final domain.ScoreSheet scoreSheet;
 
-  /// The current minor section total.
-  final int minorTotal;
+  /// The current upper section total.
+  final int upperTotal;
 
   /// Callback when a category is tapped for scoring.
   final Function(ScoreCategory)? onCategoryTapped;
@@ -42,7 +42,7 @@ class GamePage extends StatelessWidget {
     super.key,
     required this.gameRound,
     required this.scoreSheet,
-    required this.minorTotal,
+    required this.upperTotal,
     this.onCategoryTapped,
     this.onRollTapped,
     this.onPlayTapped,
@@ -88,7 +88,7 @@ class GamePage extends StatelessWidget {
                     scoredCategories: scoreSheet.scores.keys
                         .where((k) => scoreSheet.scores[k] != null)
                         .toSet(),
-                    minorTotal: minorTotal,
+                    upperTotal: upperTotal,
                     onCategoryTapped: onCategoryTapped,
                   ),
                 ),

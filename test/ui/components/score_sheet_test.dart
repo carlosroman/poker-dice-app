@@ -6,7 +6,9 @@ import 'package:poker_dice/src/ui/components/score_row.dart';
 
 void main() {
   group('ScoreSheet', () {
-    testWidgets('displays minor and major headers', (tester) async {
+    testWidgets('displays Upper Section and Lower Section headers', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -14,14 +16,14 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
       );
 
-      expect(find.text('Minor'), findsOneWidget);
-      expect(find.text('Major'), findsOneWidget);
+      expect(find.text('Upper Section'), findsOneWidget);
+      expect(find.text('Lower Section'), findsOneWidget);
     });
 
     testWidgets('displays upper section categories', (tester) async {
@@ -39,18 +41,14 @@ void main() {
               },
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
       );
 
-      expect(find.text('1'), findsOneWidget);
-      expect(find.text('2'), findsOneWidget);
-      expect(find.text('3'), findsOneWidget);
-      expect(find.text('4'), findsOneWidget);
-      expect(find.text('5'), findsOneWidget);
-      expect(find.text('6'), findsOneWidget);
+      // Check that 6 ScoreRow widgets are displayed for upper section
+      expect(find.byType(ScoreRow), findsNWidgets(13)); // 6 upper + 7 lower
     });
 
     testWidgets('displays lower section categories', (tester) async {
@@ -69,7 +67,7 @@ void main() {
               },
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
@@ -92,7 +90,7 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 45,
+              upperTotal: 45,
             ),
           ),
         ),
@@ -112,7 +110,7 @@ void main() {
               potentialScores: {ScoreCategory.aces: 1},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
               onCategoryTapped: (category) => tappedCategory = category,
             ),
           ),
@@ -133,7 +131,7 @@ void main() {
               potentialScores: {ScoreCategory.aces: 2},
               currentScores: {ScoreCategory.aces: 2},
               scoredCategories: {ScoreCategory.aces},
-              minorTotal: 2,
+              upperTotal: 2,
             ),
           ),
         ),
@@ -150,7 +148,7 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
@@ -175,7 +173,7 @@ void main() {
               potentialScores: potentialScores,
               currentScores: currentScores,
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
@@ -187,7 +185,7 @@ void main() {
   });
 
   group('ScoreSheet - Layout', () {
-    testWidgets('minor column has 6 categories', (tester) async {
+    testWidgets('upper column has 6 categories', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -195,17 +193,17 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
       );
 
-      // Count minor section rows (6 categories + bonus row)
-      expect(find.text('Minor'), findsOneWidget);
+      // Count upper section rows (6 categories + bonus row)
+      expect(find.text('Upper Section'), findsOneWidget);
     });
 
-    testWidgets('major column has 7 categories', (tester) async {
+    testWidgets('lower column has 7 categories', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -213,14 +211,14 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
       );
 
-      // Count major section rows
-      expect(find.text('Major'), findsOneWidget);
+      // Count lower section rows
+      expect(find.text('Lower Section'), findsOneWidget);
     });
 
     testWidgets('bonus row is at bottom of upper column', (tester) async {
@@ -231,7 +229,7 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 30,
+              upperTotal: 30,
             ),
           ),
         ),
@@ -250,7 +248,7 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),
@@ -267,7 +265,7 @@ void main() {
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              minorTotal: 0,
+              upperTotal: 0,
             ),
           ),
         ),

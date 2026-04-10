@@ -746,11 +746,11 @@ void main() {
         final state = GameState(scoreSheet: scoreSheet);
 
         expect(state.scoreSheet.getBonus(), 35);
-        expect(state.scoreSheet.getMinorTotal(), 81);
+        expect(state.scoreSheet.getUpperTotal(), 81);
         expect(state.totalScore, greaterThan(81));
       });
 
-      test('does not award bonus when minor section < 63', () {
+      test('does not award bonus when upper section < 63', () {
         final scores = <ScoreCategory, int>{
           ScoreCategory.aces: 5,
           ScoreCategory.twos: 10,
@@ -763,7 +763,7 @@ void main() {
         final state = GameState(scoreSheet: scoreSheet);
 
         expect(state.scoreSheet.getBonus(), 0);
-        expect(state.scoreSheet.getMinorTotal(), 57);
+        expect(state.scoreSheet.getUpperTotal(), 57);
       });
     });
   });

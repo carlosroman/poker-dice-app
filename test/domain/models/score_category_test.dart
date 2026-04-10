@@ -33,27 +33,27 @@ void main() {
 
     group('displayName', () {
       test('aces has correct display name', () {
-        expect(ScoreCategory.aces.displayName, equals('1'));
+        expect(ScoreCategory.aces.displayName, equals('Aces'));
       });
 
       test('twos has correct display name', () {
-        expect(ScoreCategory.twos.displayName, equals('2'));
+        expect(ScoreCategory.twos.displayName, equals('Twos'));
       });
 
       test('threes has correct display name', () {
-        expect(ScoreCategory.threes.displayName, equals('3'));
+        expect(ScoreCategory.threes.displayName, equals('Threes'));
       });
 
       test('fours has correct display name', () {
-        expect(ScoreCategory.fours.displayName, equals('4'));
+        expect(ScoreCategory.fours.displayName, equals('Fours'));
       });
 
       test('fives has correct display name', () {
-        expect(ScoreCategory.fives.displayName, equals('5'));
+        expect(ScoreCategory.fives.displayName, equals('Fives'));
       });
 
       test('sixes has correct display name', () {
-        expect(ScoreCategory.sixes.displayName, equals('6'));
+        expect(ScoreCategory.sixes.displayName, equals('Sixes'));
       });
 
       test('threeOfKind has correct display name', () {
@@ -86,138 +86,138 @@ void main() {
     });
 
     group('section', () {
-      test('aces belongs to Minor section', () {
-        expect(ScoreCategory.aces.section, equals(ScoreSection.minor));
+      test('aces belongs to Upper section', () {
+        expect(ScoreCategory.aces.section, equals(ScoreSection.upper));
       });
 
-      test('twos belongs to Minor section', () {
-        expect(ScoreCategory.twos.section, equals(ScoreSection.minor));
+      test('twos belongs to Upper section', () {
+        expect(ScoreCategory.twos.section, equals(ScoreSection.upper));
       });
 
-      test('threes belongs to Minor section', () {
-        expect(ScoreCategory.threes.section, equals(ScoreSection.minor));
+      test('threes belongs to Upper section', () {
+        expect(ScoreCategory.threes.section, equals(ScoreSection.upper));
       });
 
-      test('fours belongs to Minor section', () {
-        expect(ScoreCategory.fours.section, equals(ScoreSection.minor));
+      test('fours belongs to Upper section', () {
+        expect(ScoreCategory.fours.section, equals(ScoreSection.upper));
       });
 
-      test('fives belongs to Minor section', () {
-        expect(ScoreCategory.fives.section, equals(ScoreSection.minor));
+      test('fives belongs to Upper section', () {
+        expect(ScoreCategory.fives.section, equals(ScoreSection.upper));
       });
 
-      test('sixes belongs to Minor section', () {
-        expect(ScoreCategory.sixes.section, equals(ScoreSection.minor));
+      test('sixes belongs to Upper section', () {
+        expect(ScoreCategory.sixes.section, equals(ScoreSection.upper));
       });
 
-      test('threeOfKind belongs to Major section', () {
-        expect(ScoreCategory.threeOfKind.section, equals(ScoreSection.major));
+      test('threeOfKind belongs to Lower section', () {
+        expect(ScoreCategory.threeOfKind.section, equals(ScoreSection.lower));
       });
 
-      test('fourOfKind belongs to Major section', () {
-        expect(ScoreCategory.fourOfKind.section, equals(ScoreSection.major));
+      test('fourOfKind belongs to Lower section', () {
+        expect(ScoreCategory.fourOfKind.section, equals(ScoreSection.lower));
       });
 
-      test('fullHouse belongs to Major section', () {
-        expect(ScoreCategory.fullHouse.section, equals(ScoreSection.major));
+      test('fullHouse belongs to Lower section', () {
+        expect(ScoreCategory.fullHouse.section, equals(ScoreSection.lower));
       });
 
-      test('smallStraight belongs to Major section', () {
-        expect(ScoreCategory.smallStraight.section, equals(ScoreSection.major));
+      test('smallStraight belongs to Lower section', () {
+        expect(ScoreCategory.smallStraight.section, equals(ScoreSection.lower));
       });
 
-      test('largeStraight belongs to Major section', () {
-        expect(ScoreCategory.largeStraight.section, equals(ScoreSection.major));
+      test('largeStraight belongs to Lower section', () {
+        expect(ScoreCategory.largeStraight.section, equals(ScoreSection.lower));
       });
 
-      test('yatzy belongs to Major section', () {
-        expect(ScoreCategory.yatzy.section, equals(ScoreSection.major));
+      test('yatzy belongs to Lower section', () {
+        expect(ScoreCategory.yatzy.section, equals(ScoreSection.lower));
       });
 
-      test('chance belongs to Major section', () {
-        expect(ScoreCategory.chance.section, equals(ScoreSection.major));
+      test('chance belongs to Lower section', () {
+        expect(ScoreCategory.chance.section, equals(ScoreSection.lower));
       });
     });
 
-    group('Minor section', () {
+    group('Upper section', () {
       test('has exactly 6 categories', () {
-        final minorCategories = ScoreCategory.values.where(
-          (category) => category.section == ScoreSection.minor,
+        final upperCategories = ScoreCategory.values.where(
+          (category) => category.section == ScoreSection.upper,
         );
-        expect(minorCategories.length, equals(6));
+        expect(upperCategories.length, equals(6));
       });
 
       test('contains only Aces through Sixes', () {
-        final minorCategories = ScoreCategory.values
-            .where((category) => category.section == ScoreSection.minor)
+        final upperCategories = ScoreCategory.values
+            .where((category) => category.section == ScoreSection.upper)
             .toList();
 
-        expect(minorCategories, contains(ScoreCategory.aces));
-        expect(minorCategories, contains(ScoreCategory.twos));
-        expect(minorCategories, contains(ScoreCategory.threes));
-        expect(minorCategories, contains(ScoreCategory.fours));
-        expect(minorCategories, contains(ScoreCategory.fives));
-        expect(minorCategories, contains(ScoreCategory.sixes));
+        expect(upperCategories, contains(ScoreCategory.aces));
+        expect(upperCategories, contains(ScoreCategory.twos));
+        expect(upperCategories, contains(ScoreCategory.threes));
+        expect(upperCategories, contains(ScoreCategory.fours));
+        expect(upperCategories, contains(ScoreCategory.fives));
+        expect(upperCategories, contains(ScoreCategory.sixes));
       });
 
-      test('isMinor returns true for Minor section categories', () {
-        expect(ScoreCategory.aces.isMinor, isTrue);
-        expect(ScoreCategory.twos.isMinor, isTrue);
-        expect(ScoreCategory.threes.isMinor, isTrue);
-        expect(ScoreCategory.fours.isMinor, isTrue);
-        expect(ScoreCategory.fives.isMinor, isTrue);
-        expect(ScoreCategory.sixes.isMinor, isTrue);
+      test('isUpper returns true for Upper section categories', () {
+        expect(ScoreCategory.aces.isUpper, isTrue);
+        expect(ScoreCategory.twos.isUpper, isTrue);
+        expect(ScoreCategory.threes.isUpper, isTrue);
+        expect(ScoreCategory.fours.isUpper, isTrue);
+        expect(ScoreCategory.fives.isUpper, isTrue);
+        expect(ScoreCategory.sixes.isUpper, isTrue);
       });
     });
 
-    group('Major section', () {
+    group('Lower section', () {
       test('has exactly 7 categories', () {
-        final majorCategories = ScoreCategory.values.where(
-          (category) => category.section == ScoreSection.major,
+        final lowerCategories = ScoreCategory.values.where(
+          (category) => category.section == ScoreSection.lower,
         );
-        expect(majorCategories.length, equals(7));
+        expect(lowerCategories.length, equals(7));
       });
 
       test('contains ThreeOfKind through Chance', () {
-        final majorCategories = ScoreCategory.values
-            .where((category) => category.section == ScoreSection.major)
+        final lowerCategories = ScoreCategory.values
+            .where((category) => category.section == ScoreSection.lower)
             .toList();
 
-        expect(majorCategories, contains(ScoreCategory.threeOfKind));
-        expect(majorCategories, contains(ScoreCategory.fourOfKind));
-        expect(majorCategories, contains(ScoreCategory.fullHouse));
-        expect(majorCategories, contains(ScoreCategory.smallStraight));
-        expect(majorCategories, contains(ScoreCategory.largeStraight));
-        expect(majorCategories, contains(ScoreCategory.yatzy));
-        expect(majorCategories, contains(ScoreCategory.chance));
+        expect(lowerCategories, contains(ScoreCategory.threeOfKind));
+        expect(lowerCategories, contains(ScoreCategory.fourOfKind));
+        expect(lowerCategories, contains(ScoreCategory.fullHouse));
+        expect(lowerCategories, contains(ScoreCategory.smallStraight));
+        expect(lowerCategories, contains(ScoreCategory.largeStraight));
+        expect(lowerCategories, contains(ScoreCategory.yatzy));
+        expect(lowerCategories, contains(ScoreCategory.chance));
       });
 
-      test('isMajor returns true for Major section categories', () {
-        expect(ScoreCategory.threeOfKind.isMajor, isTrue);
-        expect(ScoreCategory.fourOfKind.isMajor, isTrue);
-        expect(ScoreCategory.fullHouse.isMajor, isTrue);
-        expect(ScoreCategory.smallStraight.isMajor, isTrue);
-        expect(ScoreCategory.largeStraight.isMajor, isTrue);
-        expect(ScoreCategory.yatzy.isMajor, isTrue);
-        expect(ScoreCategory.chance.isMajor, isTrue);
+      test('isLower returns true for Lower section categories', () {
+        expect(ScoreCategory.threeOfKind.isLower, isTrue);
+        expect(ScoreCategory.fourOfKind.isLower, isTrue);
+        expect(ScoreCategory.fullHouse.isLower, isTrue);
+        expect(ScoreCategory.smallStraight.isLower, isTrue);
+        expect(ScoreCategory.largeStraight.isLower, isTrue);
+        expect(ScoreCategory.yatzy.isLower, isTrue);
+        expect(ScoreCategory.chance.isLower, isTrue);
       });
     });
 
     group('complementary properties', () {
-      test('isMinor and isMajor are mutually exclusive', () {
+      test('isUpper and isLower are mutually exclusive', () {
         for (final category in ScoreCategory.values) {
           expect(
-            category.isMinor && category.isMajor,
+            category.isUpper && category.isLower,
             isFalse,
             reason: '${category.displayName} should not be in both sections',
           );
         }
       });
 
-      test('every category is either Minor or Major', () {
+      test('every category is either Upper or Lower', () {
         for (final category in ScoreCategory.values) {
           expect(
-            category.isMinor || category.isMajor,
+            category.isUpper || category.isLower,
             isTrue,
             reason: '${category.displayName} must belong to a section',
           );

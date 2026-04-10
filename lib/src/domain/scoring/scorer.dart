@@ -29,13 +29,13 @@ class Scorer {
   /// Prevents instantiation of Scorer class.
   Scorer._();
 
-  /// Calculates the score for the minor section categories (1-6).
+  /// Calculates the score for the upper section categories (1-6).
   ///
   /// Returns the sum of dice values that match [category].
   /// For example, if category is [ScoreCategory.aces], returns sum of all 1s.
   static int calculateUpperScore(ScoreCategory category, List<int> dice) {
-    if (category.section != ScoreSection.minor) {
-      throw ArgumentError('Category must be from minor section');
+    if (category.section != ScoreSection.upper) {
+      throw ArgumentError('Category must be from upper section');
     }
 
     switch (category) {
@@ -56,10 +56,10 @@ class Scorer {
     }
   }
 
-  /// Calculates the score for the major section categories.
+  /// Calculates the score for the lower section categories.
   static int calculateLowerScore(ScoreCategory category, List<int> dice) {
-    if (category.section != ScoreSection.major) {
-      throw ArgumentError('Category must be from major section');
+    if (category.section != ScoreSection.lower) {
+      throw ArgumentError('Category must be from lower section');
     }
 
     switch (category) {

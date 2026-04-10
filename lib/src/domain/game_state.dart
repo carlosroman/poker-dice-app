@@ -135,16 +135,16 @@ class GameState {
 
     final diceValues = currentRound.dice.map((die) => die.value).toList();
 
-    if (category.isMinor) {
+    if (category.isUpper) {
       return ScoreSheet.allCategories.contains(category)
-          ? _calculateMinorPotential(category, diceValues)
+          ? _calculateUpperPotential(category, diceValues)
           : 0;
     }
 
-    return _calculateMajorPotential(category, diceValues);
+    return _calculateLowerPotential(category, diceValues);
   }
 
-  int _calculateMinorPotential(ScoreCategory category, List<int> diceValues) {
+  int _calculateUpperPotential(ScoreCategory category, List<int> diceValues) {
     switch (category) {
       case ScoreCategory.aces:
         return diceValues
@@ -175,7 +175,7 @@ class GameState {
     }
   }
 
-  int _calculateMajorPotential(ScoreCategory category, List<int> diceValues) {
+  int _calculateLowerPotential(ScoreCategory category, List<int> diceValues) {
     switch (category) {
       case ScoreCategory.threeOfKind:
         return _calculateThreeOfKindPotential(diceValues);

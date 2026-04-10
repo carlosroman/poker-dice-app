@@ -190,17 +190,17 @@ class _ScoreBreakdown extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Minor Section
+          // Upper Section
           _CategorySection(
-            title: 'Minor Section',
-            categories: ScoreSheet.minorCategories,
+            title: 'Upper Section',
+            categories: ScoreSheet.upperCategories,
             scoreSheet: scoreSheet,
           ),
 
-          // Minor Total
+          // Upper Total
           _ScoreRow(
-            label: 'Minor Total',
-            score: scoreSheet.getMinorTotal(),
+            label: 'Upper Total',
+            score: scoreSheet.getUpperTotal(),
             isTotal: true,
           ),
 
@@ -213,17 +213,17 @@ class _ScoreBreakdown extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.md),
 
-          // Major Section
+          // Lower Section
           _CategorySection(
-            title: 'Major Section',
-            categories: ScoreSheet.majorCategories,
+            title: 'Lower Section',
+            categories: ScoreSheet.lowerCategories,
             scoreSheet: scoreSheet,
           ),
 
-          // Major Total
+          // Lower Total
           _ScoreRow(
-            label: 'Major Total',
-            score: scoreSheet.getMajorTotal(),
+            label: 'Lower Total',
+            score: scoreSheet.getLowerTotal(),
             isTotal: true,
           ),
         ],

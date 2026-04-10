@@ -21,7 +21,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -35,7 +35,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -49,7 +49,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -63,7 +63,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -77,7 +77,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -91,7 +91,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -99,7 +99,7 @@ void main() {
       expect(find.text('PLAY'), findsOneWidget);
     });
 
-    testWidgets('displays score sheet with Minor and Major headers', (
+    testWidgets('displays score sheet with Upper and Lower headers', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -107,13 +107,13 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
 
-      expect(find.text('Minor'), findsOneWidget);
-      expect(find.text('Major'), findsOneWidget);
+      expect(find.text('Upper Section'), findsOneWidget);
+      expect(find.text('Lower Section'), findsOneWidget);
     });
 
     testWidgets('calls onBackTapped when back button is tapped', (
@@ -125,7 +125,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
             onBackTapped: () => tapped = true,
           ),
         ),
@@ -146,7 +146,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
             onMenuTapped: () => tapped = true,
           ),
         ),
@@ -167,7 +167,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
             onRollTapped: () => tapped = true,
           ),
         ),
@@ -189,7 +189,7 @@ void main() {
           home: GamePage(
             gameRound: gameRound,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
             onPlayTapped: () => tapped = true,
           ),
         ),
@@ -216,7 +216,7 @@ void main() {
           home: GamePage(
             gameRound: gameRoundWithDice,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -233,7 +233,7 @@ void main() {
           home: GamePage(
             gameRound: gameRoundWithRolls,
             scoreSheet: scoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -252,7 +252,7 @@ void main() {
           home: GamePage(
             gameRound: testGameRound,
             scoreSheet: testScoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -269,7 +269,7 @@ void main() {
           home: GamePage(
             gameRound: testGameRound,
             scoreSheet: testScoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -286,7 +286,7 @@ void main() {
           home: GamePage(
             gameRound: testGameRound,
             scoreSheet: testScoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -305,7 +305,7 @@ void main() {
           home: GamePage(
             gameRound: gameRoundWithRolls,
             scoreSheet: testScoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -325,7 +325,7 @@ void main() {
           home: GamePage(
             gameRound: testGameRound,
             scoreSheet: testScoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );
@@ -345,7 +345,7 @@ void main() {
           home: GamePage(
             gameRound: testGameRound,
             scoreSheet: testScoreSheet,
-            minorTotal: 0,
+            upperTotal: 0,
           ),
         ),
       );

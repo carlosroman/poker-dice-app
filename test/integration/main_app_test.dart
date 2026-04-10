@@ -68,8 +68,8 @@ void main() {
         await pumpMainApp(tester);
 
         // Score sheet should be displayed with two-column layout
-        expect(find.text('Minor'), findsOneWidget);
-        expect(find.text('Major'), findsOneWidget);
+        expect(find.text('Upper Section'), findsOneWidget);
+        expect(find.text('Lower Section'), findsOneWidget);
 
         // Verify score rows are present (Text widgets for scores)
         expect(find.byType(Text), findsWidgets);
@@ -212,12 +212,14 @@ void main() {
         expect(find.byType(Column), findsWidgets);
       });
 
-      testWidgets('score sheet has Minor and Major sections', (tester) async {
+      testWidgets('score sheet has Upper Section and Lower Section sections', (
+        tester,
+      ) async {
         await pumpMainApp(tester);
 
         // Score sheet should have both section headers
-        expect(find.text('Minor'), findsOneWidget);
-        expect(find.text('Major'), findsOneWidget);
+        expect(find.text('Upper Section'), findsOneWidget);
+        expect(find.text('Lower Section'), findsOneWidget);
       });
 
       testWidgets('dice row is properly positioned', (tester) async {

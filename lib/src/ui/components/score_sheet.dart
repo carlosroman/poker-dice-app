@@ -6,7 +6,7 @@ import 'package:poker_dice/src/ui/theme/app_theme.dart';
 
 /// A widget that displays the complete score sheet with two columns.
 ///
-/// The score sheet is divided into Minor and Major sections with
+/// The score sheet is divided into Upper Section and Lower Section with
 /// all scoring categories organized in a compact layout.
 class ScoreSheetWidget extends StatelessWidget {
   /// Map of categories to their potential scores (based on current dice).
@@ -18,8 +18,8 @@ class ScoreSheetWidget extends StatelessWidget {
   /// Set of categories that have been scored.
   final Set<ScoreCategory> scoredCategories;
 
-  /// The current minor section total.
-  final int minorTotal;
+  /// The current upper section total.
+  final int upperTotal;
 
   /// Callback when a category row is tapped.
   final Function(ScoreCategory)? onCategoryTapped;
@@ -30,17 +30,17 @@ class ScoreSheetWidget extends StatelessWidget {
     required this.potentialScores,
     required this.currentScores,
     required this.scoredCategories,
-    required this.minorTotal,
+    required this.upperTotal,
     this.onCategoryTapped,
   });
 
   @override
   Widget build(BuildContext context) {
-    final minorCategories = ScoreCategory.values
-        .where((c) => c.isMinor)
+    final upperCategories = ScoreCategory.values
+        .where((c) => c.isUpper)
         .toList();
-    final majorCategories = ScoreCategory.values
-        .where((c) => c.isMajor)
+    final lowerCategories = ScoreCategory.values
+        .where((c) => c.isLower)
         .toList();
 
     return Container(
@@ -60,22 +60,22 @@ class ScoreSheetWidget extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Minor column
+                // Upper column
                 Expanded(
-                  child: _MinorColumn(
-                    categories: minorCategories,
+                  child: _UpperColumn(
+                    categories: upperCategories,
                     potentialScores: potentialScores,
                     currentScores: currentScores,
                     scoredCategories: scoredCategories,
-                    minorTotal: minorTotal,
+                    upperTotal: upperTotal,
                     onCategoryTapped: onCategoryTapped,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
-                // Major column
+                // Lower column
                 Expanded(
-                  child: _MajorColumn(
-                    categories: majorCategories,
+                  child: _LowerColumn(
+                    categories: lowerCategories,
                     potentialScores: potentialScores,
                     currentScores: currentScores,
                     scoredCategories: scoredCategories,
@@ -105,7 +105,7 @@ class _ScoreSheetHeaders extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
             child: const Text(
-              'Minor',
+              'Upper Section',
               style: TextStyle(
                 color: AppTheme.textOnPrimary,
                 fontSize: AppTypography.medium,
@@ -124,7 +124,7 @@ class _ScoreSheetHeaders extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
             child: const Text(
-              'Major',
+              'Lower Section',
               style: TextStyle(
                 color: AppTheme.textOnPrimary,
                 fontSize: AppTypography.medium,
@@ -139,21 +139,21 @@ class _ScoreSheetHeaders extends StatelessWidget {
   }
 }
 
-/// Minor section column of the score sheet (individual die values).
-class _MinorColumn extends StatelessWidget {
+/// Upper section column of the score sheet (individual die values).
+class _UpperColumn extends StatelessWidget {
   final List<ScoreCategory> categories;
   final Map<ScoreCategory, int?> potentialScores;
   final Map<ScoreCategory, int?> currentScores;
   final Set<ScoreCategory> scoredCategories;
-  final int minorTotal;
+  final int upperTotal;
   final Function(ScoreCategory)? onCategoryTapped;
 
-  const _MinorColumn({
+  const _UpperColumn({
     required this.categories,
     required this.potentialScores,
     required this.currentScores,
     required this.scoredCategories,
-    required this.minorTotal,
+    required this.upperTotal,
     this.onCategoryTapped,
   });
 
@@ -170,7 +170,7 @@ class _MinorColumn extends StatelessWidget {
             currentScore: currentScores[category],
             isScored: scoredCategories.contains(category),
             yatzyBonus: false,
-            showDieIcon: true, // Show die icons for Minor section
+            showDieIcon: true, // Show die icons for Upper section
             onTap: () => onCategoryTapped?.call(category),
           ),
         ),
@@ -182,22 +182,22 @@ class _MinorColumn extends StatelessWidget {
             color: AppTheme.primaryDark.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
-          child: Center(child: BonusProgress(upperTotal: minorTotal)),
+          child: Center(child: BonusProgress(upperTotal: upperTotal)),
         ),
       ],
     );
   }
 }
 
-/// Major section column of the score sheet (combination categories).
-class _MajorColumn extends StatelessWidget {
+/// Lower section column of the score sheet (combination categories).
+class _LowerColumn extends StatelessWidget {
   final List<ScoreCategory> categories;
   final Map<ScoreCategory, int?> potentialScores;
   final Map<ScoreCategory, int?> currentScores;
   final Set<ScoreCategory> scoredCategories;
   final Function(ScoreCategory)? onCategoryTapped;
 
-  const _MajorColumn({
+  const _LowerColumn({
     required this.categories,
     required this.potentialScores,
     required this.currentScores,

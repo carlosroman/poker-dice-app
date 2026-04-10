@@ -205,13 +205,13 @@ void main() {
       });
     });
 
-    group('getMinorTotal', () {
-      test('returns 0 when no minor categories scored', () {
+    group('getUpperTotal', () {
+      test('returns 0 when no upper categories scored', () {
         final sheet = ScoreSheet();
-        expect(sheet.getMinorTotal(), 0);
+        expect(sheet.getUpperTotal(), 0);
       });
 
-      test('sums all scored minor categories', () {
+      test('sums all scored upper categories', () {
         final sheet = ScoreSheet();
         final sheetWithScores = sheet
             .score(ScoreCategory.aces, [1, 1, 1, 2, 3])
@@ -219,7 +219,7 @@ void main() {
             .score(ScoreCategory.threes, [3, 3, 3, 4, 5]);
 
         // Aces: 3 (three 1s), Twos: 4 (two 2s), Threes: 9 (three 3s)
-        expect(sheetWithScores.getMinorTotal(), 16);
+        expect(sheetWithScores.getUpperTotal(), 16);
       });
 
       test('includes zero scores for scored categories', () {
@@ -229,24 +229,24 @@ void main() {
             .score(ScoreCategory.twos, [2, 2, 2, 2, 2]);
 
         // Aces: 0 (no 1s), Twos: 10 (five 2s)
-        expect(sheetWithScores.getMinorTotal(), 10);
+        expect(sheetWithScores.getUpperTotal(), 10);
       });
     });
 
-    group('getMajorTotal', () {
-      test('returns 0 when no major categories scored', () {
+    group('getLowerTotal', () {
+      test('returns 0 when no lower categories scored', () {
         final sheet = ScoreSheet();
-        expect(sheet.getMajorTotal(), 0);
+        expect(sheet.getLowerTotal(), 0);
       });
 
-      test('sums all scored major categories', () {
+      test('sums all scored lower categories', () {
         final sheet = ScoreSheet();
         final sheetWithScores = sheet
             .score(ScoreCategory.threeOfKind, threeOfKindDice)
             .score(ScoreCategory.fullHouse, fullHouseDice)
             .score(ScoreCategory.chance, [1, 2, 3, 4, 5]);
 
-        expect(sheetWithScores.getMajorTotal(), 12 + 25 + 15);
+        expect(sheetWithScores.getLowerTotal(), 12 + 25 + 15);
       });
 
       test('includes zero scores for scored categories', () {
@@ -255,7 +255,7 @@ void main() {
             .score(ScoreCategory.fullHouse, [1, 2, 3, 4, 5])
             .score(ScoreCategory.chance, [1, 2, 3, 4, 5]);
 
-        expect(sheetWithScores.getMajorTotal(), 0 + 15);
+        expect(sheetWithScores.getLowerTotal(), 0 + 15);
       });
     });
 
@@ -294,11 +294,11 @@ void main() {
             .score(ScoreCategory.fours, [4, 4, 4, 4, 4])
             .score(ScoreCategory.fives, [5, 5, 5, 1, 2]);
 
-        expect(sheetWithScores.getMinorTotal(), 62);
+        expect(sheetWithScores.getUpperTotal(), 62);
         expect(sheetWithScores.getBonus(), 0);
       });
 
-      test('returns 35 when minor total is exactly 63', () {
+      test('returns 35 when upper total is exactly 63', () {
         final sheet = ScoreSheet();
         // Create a combination that sums to exactly 63
         final sheetWithScores = sheet
@@ -309,11 +309,11 @@ void main() {
             .score(ScoreCategory.fives, [5, 5, 5, 5, 5])
             .score(ScoreCategory.sixes, [6, 6, 6, 6, 6]);
 
-        expect(sheetWithScores.getMinorTotal(), 105);
+        expect(sheetWithScores.getUpperTotal(), 105);
         expect(sheetWithScores.getBonus(), 35);
       });
 
-      test('returns 35 when upper total exceeds 63', () {
+      test('returns 35 when upper section qualifies', () {
         final sheet = ScoreSheet();
         final sheetWithScores = sheet
             .score(ScoreCategory.aces, [1, 1, 1, 1, 1])

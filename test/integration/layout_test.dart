@@ -5,7 +5,7 @@ import 'package:poker_dice/src/ui/components/score_sheet.dart';
 
 /// Integration test for the score sheet layout.
 ///
-/// This test verifies that the Minor and Major sections are displayed
+/// This test verifies that the Upper Section and Lower Section are displayed
 /// side-by-side in a Row widget, not stacked vertically in a Column.
 void main() {
   group('ScoreSheetWidget Layout', () {
@@ -32,45 +32,46 @@ void main() {
             potentialScores: potentialScores,
             currentScores: currentScores,
             scoredCategories: scoredCategories,
-            minorTotal: 0,
+            upperTotal: 0,
             onCategoryTapped: null,
           ),
         ),
       );
     }
 
-    testWidgets('displays Minor and Major headers side-by-side', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createScoreSheetWidget());
+    testWidgets(
+      'displays Upper Section and Lower Section headers side-by-side',
+      (tester) async {
+        await tester.pumpWidget(createScoreSheetWidget());
 
-      // Verify Minor header is present
-      expect(find.text('Minor'), findsOneWidget);
+        // Verify Upper Section header is present
+        expect(find.text('Upper Section'), findsOneWidget);
 
-      // Verify Major header is present
-      expect(find.text('Major'), findsOneWidget);
+        // Verify Lower Section header is present
+        expect(find.text('Lower Section'), findsOneWidget);
 
-      // Verify both headers are found (they should be siblings in a Row)
-      final minorFinder = find.text('Minor');
-      final majorFinder = find.text('Major');
+        // Verify both headers are found (they should be siblings in a Row)
+        final upperFinder = find.text('Upper Section');
+        final lowerFinder = find.text('Lower Section');
 
-      expect(minorFinder, findsOneWidget);
-      expect(majorFinder, findsOneWidget);
-    });
+        expect(upperFinder, findsOneWidget);
+        expect(lowerFinder, findsOneWidget);
+      },
+    );
 
     testWidgets('headers are arranged in a Row widget', (tester) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
       // Find the Row widget that contains both headers
       final headerRowFinder = find.ancestor(
-        of: find.text('Minor'),
+        of: find.text('Upper Section'),
         matching: find.byType(Row),
       );
 
       expect(
         headerRowFinder,
         findsOneWidget,
-        reason: 'Minor header should be inside a Row widget',
+        reason: 'Upper Section header should be inside a Row widget',
       );
 
       // Verify the Row contains both headers
@@ -78,42 +79,43 @@ void main() {
       expect(
         rowWidget.children.length,
         greaterThanOrEqualTo(2),
-        reason: 'Row should have at least 2 children (Minor and Major headers)',
+        reason:
+            'Row should have at least 2 children (Upper Section and Lower Section headers)',
       );
     });
 
-    testWidgets('displays Minor section categories (6 categories)', (
+    testWidgets('displays Upper Section categories (6 categories)', (
       tester,
     ) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
-      // Verify Minor section has 6 categories (aces through sixes)
-      final minorCategories = ScoreCategory.values
-          .where((c) => c.isMinor)
+      // Verify Upper Section has 6 categories (aces through sixes)
+      final upperCategories = ScoreCategory.values
+          .where((c) => c.isUpper)
           .toList();
 
-      // We should have 6 categories in Minor section
+      // We should have 6 categories in Upper Section
       expect(
-        minorCategories.length,
+        upperCategories.length,
         6,
-        reason: 'Minor section should have 6 categories',
+        reason: 'Upper Section should have 6 categories',
       );
     });
 
-    testWidgets('displays Major section categories (7 categories)', (
+    testWidgets('displays Lower Section categories (7 categories)', (
       tester,
     ) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
-      // Verify Major section has 7 categories
-      final majorCategories = ScoreCategory.values
-          .where((c) => c.isMajor)
+      // Verify Lower Section has 7 categories
+      final lowerCategories = ScoreCategory.values
+          .where((c) => c.isLower)
           .toList();
 
       expect(
-        majorCategories.length,
+        lowerCategories.length,
         7,
-        reason: 'Major section should have 7 categories',
+        reason: 'Lower Section should have 7 categories',
       );
     });
 
@@ -153,7 +155,9 @@ void main() {
       );
     });
 
-    testWidgets('Minor and Major columns are properly spaced', (tester) async {
+    testWidgets('Upper Section and Lower Section columns are properly spaced', (
+      tester,
+    ) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
       // Find the SizedBox widgets used for spacing
@@ -179,50 +183,51 @@ void main() {
       );
     });
 
-    testWidgets('Minor section header is present', (tester) async {
+    testWidgets('Upper Section header is present', (tester) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
-      // Find the Minor header
-      final minorHeaderFinder = find.text('Minor');
-      expect(minorHeaderFinder, findsOneWidget);
+      // Find the Upper Section header
+      final upperHeaderFinder = find.text('Upper Section');
+      expect(upperHeaderFinder, findsOneWidget);
 
-      // Verify it's in a Row with the Major header
+      // Verify it's in a Row with the Lower Section header
       final rowFinder = find.ancestor(
-        of: minorHeaderFinder,
+        of: upperHeaderFinder,
         matching: find.byType(Row),
       );
 
       expect(
         rowFinder,
         findsOneWidget,
-        reason: 'Minor header should be in a Row widget',
+        reason: 'Upper Section header should be in a Row widget',
       );
     });
 
-    testWidgets('Major section header is present', (tester) async {
+    testWidgets('Lower Section header is present', (tester) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
-      // Find the Major header
-      final majorHeaderFinder = find.text('Major');
-      expect(majorHeaderFinder, findsOneWidget);
+      // Find the Lower Section header
+      final lowerHeaderFinder = find.text('Lower Section');
+      expect(lowerHeaderFinder, findsOneWidget);
 
-      // Verify it's in the same Row as Minor header
+      // Verify it's in the same Row as Upper Section header
       final rowFinder = find.ancestor(
-        of: majorHeaderFinder,
+        of: lowerHeaderFinder,
         matching: find.byType(Row),
       );
 
       expect(
         rowFinder,
         findsOneWidget,
-        reason: 'Major header should be in the same Row as Minor header',
+        reason:
+            'Lower Section header should be in the same Row as Upper Section header',
       );
     });
 
     testWidgets('score sheet has two columns layout', (tester) async {
       await tester.pumpWidget(createScoreSheetWidget());
 
-      // Find the Row that contains the two columns (Minor and Major)
+      // Find the Row that contains the two columns (Upper Section and Lower Section)
       // This should be inside the main Column of ScoreSheetWidget
       final columnFinder = find.byType(Column);
       expect(columnFinder, findsWidgets, reason: 'Should have Column widgets');

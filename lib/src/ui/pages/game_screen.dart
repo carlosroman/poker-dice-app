@@ -80,7 +80,7 @@ class _GameScreenState extends State<GameScreen> {
                             .where((e) => e.value != null)
                             .map((e) => e.key)
                             .toSet(),
-                        minorTotal: gameState.scoreSheet.getMinorTotal(),
+                        upperTotal: gameState.scoreSheet.getUpperTotal(),
                         onCategoryTapped: (category) =>
                             _gameBloc.selectCategory(category),
                       ),
