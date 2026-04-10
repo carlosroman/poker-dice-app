@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
+import '../utils/accessibility_utils.dart';
 
 /// A button for rolling dice that shows the current roll count.
 ///
@@ -28,22 +29,27 @@ class RollButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: isEnabled ? onTap : null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isEnabled ? AppTheme.surfaceDark : Colors.grey,
-        foregroundColor: AppTheme.textOnPrimary,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl,
-          vertical: AppSpacing.md,
+    return Semantics(
+      label: AccessibilityUtils.getRollLabel(rollCount, isEnabled),
+      button: true,
+      enabled: isEnabled,
+      child: ElevatedButton(
+        onPressed: isEnabled ? onTap : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isEnabled ? AppTheme.surfaceDark : Colors.grey,
+          foregroundColor: AppTheme.textOnPrimary,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.md,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        buttonText,
-        style: const TextStyle(
-          fontSize: AppTypography.large,
-          fontWeight: FontWeight.bold,
+        child: Text(
+          buttonText,
+          style: const TextStyle(
+            fontSize: AppTypography.large,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

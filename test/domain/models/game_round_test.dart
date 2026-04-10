@@ -89,37 +89,38 @@ void main() {
     });
 
     group('toggleDie', () {
-      test('toggles held state from false to true', () {
+      test('toggles held state from false to true after roll', () {
         final round = GameRound(dice: List.filled(5, const Die(held: false)));
+        final rolledRound = round.rollDice();
 
-        final toggledRound = round.toggleDie(0);
+        final toggledRound = rolledRound.toggleDie(0);
 
         expect(toggledRound.dice[0].held, isTrue);
       });
 
-      test('toggles held state from true to false', () {
+      test('toggles held state from true to false after roll', () {
         final round = GameRound(dice: List.filled(5, const Die(held: true)));
+        final rolledRound = round.rollDice();
 
-        final toggledRound = round.toggleDie(0);
+        final toggledRound = rolledRound.toggleDie(0);
 
         expect(toggledRound.dice[0].held, isFalse);
       });
 
-      test('preserves die value when toggling', () {
-        const dieValue = 4;
+      test('preserves die value when toggling after roll', () {
+        // Create round with held die at index 0
+        final initialDie = Die(value: 6, held: true);
         final round = GameRound(
-          dice: [
-            Die(value: dieValue, held: false),
-            Die(),
-            Die(),
-            Die(),
-            Die(),
-          ],
+          dice: [initialDie, Die(), Die(), Die(), Die()],
+          rollCount: 0,
         );
+        final rolledRound = round.rollDice(keptIndices: [0]);
 
-        final toggledRound = round.toggleDie(0);
+        final toggledRound = rolledRound.toggleDie(0);
 
-        expect(toggledRound.dice[0].value, equals(dieValue));
+        // Held die should retain its value (6) after toggle
+        expect(toggledRound.dice[0].value, equals(6));
+        expect(toggledRound.dice[0].held, isFalse);
       });
 
       test('throws RangeError for invalid index', () {
@@ -127,6 +128,15 @@ void main() {
 
         expect(() => round.toggleDie(-1), throwsRangeError);
         expect(() => round.toggleDie(5), throwsRangeError);
+      });
+
+      test('prevents toggling before first roll', () {
+        final round = GameRound(rollCount: 0);
+
+        // Returns the same instance without modifying it
+        final result = round.toggleDie(0);
+        expect(result, equals(round));
+        expect(result.dice[0].held, isFalse);
       });
     });
 

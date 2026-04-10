@@ -2,7 +2,8 @@ import 'dart:math';
 
 /// Represents a single poker die with value and held state.
 class Die {
-  /// The current value of the die (1-6).
+  /// The current value of the die (0-6).
+  /// 0 represents a blank/unrolled die.
   final int value;
 
   /// Whether the die is currently held.
@@ -10,9 +11,9 @@ class Die {
 
   /// Creates a new Die instance.
   ///
-  /// [value] defaults to 1 if not specified.
+  /// [value] defaults to 0 (blank) if not specified.
   /// [held] defaults to false if not specified.
-  const Die({this.value = 1, this.held = false});
+  const Die({this.value = 0, this.held = false});
 
   /// Creates a copy of this die with optional new values.
   Die copyWith({int? value, bool? held}) {
@@ -32,9 +33,14 @@ class Die {
   ///
   /// Returns a new [Die] instance with the toggled held state.
   /// The value is preserved.
+  /// Returns the same die if value is 0 (blank).
   Die toggleHold() {
+    if (value == 0) return this; // Cannot hold a blank die
     return copyWith(held: !held);
   }
+
+  /// Returns true if this die is blank (not yet rolled).
+  bool get isBlank => value == 0;
 
   @override
   bool operator ==(Object other) {
@@ -46,5 +52,6 @@ class Die {
   int get hashCode => value.hashCode ^ held.hashCode;
 
   @override
-  String toString() => 'Die(value: $value, held: $held)';
+  String toString() =>
+      'Die(value: ${value == 0 ? 'blank' : value}, held: $held)';
 }

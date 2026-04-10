@@ -96,15 +96,16 @@ void main() {
     });
 
     group('toggleDie', () {
-      test('toggles hold state of die at index', () {
+      test('toggles hold state of die at index after roll', () {
         final dice = List.generate(5, (i) => Die(value: i + 1, held: false));
         final round = GameRound(dice: dice);
         final state = GameState(currentRound: round);
+        final rolledState = state.rollDice();
 
-        final newState = state.toggleDie(2);
+        final newState = rolledState.toggleDie(2);
 
         expect(newState.currentRound.dice[2].held, true);
-        expect(state.currentRound.dice[2].held, false);
+        expect(rolledState.currentRound.dice[2].held, false);
         // Other dice unchanged
         for (int i = 0; i < 5; i++) {
           if (i != 2) {
@@ -113,7 +114,7 @@ void main() {
         }
       });
 
-      test('toggles held die back to unheld', () {
+      test('toggles held die back to unheld after roll', () {
         final dice = [
           const Die(value: 1, held: true),
           const Die(value: 2, held: false),
@@ -123,8 +124,9 @@ void main() {
         ];
         final round = GameRound(dice: dice);
         final state = GameState(currentRound: round);
+        final rolledState = state.rollDice();
 
-        final newState = state.toggleDie(0);
+        final newState = rolledState.toggleDie(0);
 
         expect(newState.currentRound.dice[0].held, false);
       });
@@ -141,6 +143,15 @@ void main() {
         expect(() => state.toggleDie(-1), throwsA(isA<RangeError>()));
         expect(() => state.toggleDie(5), throwsA(isA<RangeError>()));
         expect(() => state.toggleDie(10), throwsA(isA<RangeError>()));
+      });
+
+      test('prevents toggling before first roll', () {
+        final state = GameState();
+
+        // Returns the same state without modifying it
+        final newState = state.toggleDie(0);
+        expect(newState, equals(state));
+        expect(newState.currentRound.dice[0].held, isFalse);
       });
     });
 
@@ -735,11 +746,11 @@ void main() {
         final state = GameState(scoreSheet: scoreSheet);
 
         expect(state.scoreSheet.getBonus(), 35);
-        expect(state.scoreSheet.getUpperTotal(), 81);
+        expect(state.scoreSheet.getMinorTotal(), 81);
         expect(state.totalScore, greaterThan(81));
       });
 
-      test('does not award bonus when upper section < 63', () {
+      test('does not award bonus when minor section < 63', () {
         final scores = <ScoreCategory, int>{
           ScoreCategory.aces: 5,
           ScoreCategory.twos: 10,
@@ -752,7 +763,7 @@ void main() {
         final state = GameState(scoreSheet: scoreSheet);
 
         expect(state.scoreSheet.getBonus(), 0);
-        expect(state.scoreSheet.getUpperTotal(), 57);
+        expect(state.scoreSheet.getMinorTotal(), 57);
       });
     });
   });

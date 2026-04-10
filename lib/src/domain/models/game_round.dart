@@ -61,9 +61,15 @@ class GameRound {
   /// Returns a new [GameRound] instance with updated die state.
   ///
   /// Throws [RangeError] if index is out of bounds.
+  /// Returns the same instance if no rolls have been made yet.
   GameRound toggleDie(int index) {
     if (index < 0 || index >= dice.length) {
       throw RangeError('Die index $index is out of bounds');
+    }
+
+    // Cannot toggle dice before first roll
+    if (rollCount == 0) {
+      return this;
     }
 
     final newDice = List<Die>.from(dice);

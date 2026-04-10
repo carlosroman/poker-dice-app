@@ -9,7 +9,7 @@ import 'package:poker_dice/src/ui/components/roll_button.dart';
 import 'package:poker_dice/src/ui/components/score_sheet.dart' as ui;
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
 
-/// The main game page displaying the Yatzy game interface.
+// The main game page displaying the Yatzy game interface.
 ///
 /// Shows the score sheet, dice, and control buttons.
 class GamePage extends StatelessWidget {
@@ -19,8 +19,8 @@ class GamePage extends StatelessWidget {
   /// The current score sheet.
   final domain.ScoreSheet scoreSheet;
 
-  /// The current upper section total.
-  final int upperTotal;
+  /// The current minor section total.
+  final int minorTotal;
 
   /// Callback when a category is tapped for scoring.
   final Function(ScoreCategory)? onCategoryTapped;
@@ -42,7 +42,7 @@ class GamePage extends StatelessWidget {
     super.key,
     required this.gameRound,
     required this.scoreSheet,
-    required this.upperTotal,
+    required this.minorTotal,
     this.onCategoryTapped,
     this.onRollTapped,
     this.onPlayTapped,
@@ -82,13 +82,13 @@ class GamePage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
                   ),
-                  child: ui.ScoreSheet(
+                  child: ui.ScoreSheetWidget(
                     potentialScores: _getPotentialScores(),
                     currentScores: scoreSheet.scores,
                     scoredCategories: scoreSheet.scores.keys
                         .where((k) => scoreSheet.scores[k] != null)
                         .toSet(),
-                    upperTotal: upperTotal,
+                    minorTotal: minorTotal,
                     onCategoryTapped: onCategoryTapped,
                   ),
                 ),
@@ -100,6 +100,7 @@ class GamePage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: _DiceRow(
                   dice: gameRound.dice,
+                  rollCount: gameRound.rollCount,
                   onDieTapped: (index) => gameRound.toggleDie(index),
                 ),
               ),
@@ -185,9 +186,14 @@ class _GameHeader extends StatelessWidget {
 /// Widget displaying the 5 dice in a row.
 class _DiceRow extends StatelessWidget {
   final List<Die> dice;
+  final int rollCount;
   final Function(int) onDieTapped;
 
-  const _DiceRow({required this.dice, required this.onDieTapped});
+  const _DiceRow({
+    required this.dice,
+    required this.rollCount,
+    required this.onDieTapped,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -196,11 +202,13 @@ class _DiceRow extends StatelessWidget {
       children: dice.asMap().entries.map((entry) {
         final index = entry.key;
         final die = entry.value;
+        final isBlank = die.value == 0 && rollCount == 0;
         return DieWidget(
           key: ValueKey('die-$index'),
           value: die.value,
           isHeld: die.held,
-          onTap: () => onDieTapped(index),
+          isBlank: isBlank,
+          onTap: rollCount > 0 ? () => onDieTapped(index) : null,
         );
       }).toList(),
     );

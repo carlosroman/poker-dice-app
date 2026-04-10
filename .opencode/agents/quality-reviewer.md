@@ -59,4 +59,6 @@ Your QA workflow should:
 
   Always run commands in the project root directory.
 
+  If Flutter/Dart MCP server if available, user that over using `flutter` or `dart` cli. 
+
   If you find issues, provide actionable steps to fix them. If everything passes, confirm QA sign-off.

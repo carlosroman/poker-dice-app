@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:poker_dice/src/domain/models/score_category.dart';
 import 'package:poker_dice/src/domain/models/score_sheet.dart';
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
+import 'package:poker_dice/src/ui/utils/accessibility_utils.dart';
 
 /// The game over page displaying the final score and breakdown.
 ///
@@ -16,12 +17,16 @@ class GameOverPage extends StatelessWidget {
   /// Callback for back navigation.
   final VoidCallback? onBackTapped;
 
+  /// Callback for viewing high scores.
+  final VoidCallback? onViewHighScoresTapped;
+
   /// Creates a [GameOverPage].
   const GameOverPage({
     super.key,
     required this.scoreSheet,
     this.onNewGameTapped,
     this.onBackTapped,
+    this.onViewHighScoresTapped,
   });
 
   @override
@@ -72,22 +77,28 @@ class GameOverPage extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
 
                 // Final Score
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xxl,
-                    vertical: AppSpacing.xl,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentYellow.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.accentYellow, width: 2),
-                  ),
-                  child: Text(
-                    '$totalScore',
-                    style: const TextStyle(
-                      color: AppTheme.accentYellow,
-                      fontSize: 72,
-                      fontWeight: FontWeight.bold,
+                Semantics(
+                  label: AccessibilityUtils.getTotalScoreLabel(totalScore),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                      vertical: AppSpacing.xl,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentYellow.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppTheme.accentYellow,
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(
+                      '$totalScore',
+                      style: const TextStyle(
+                        color: AppTheme.accentYellow,
+                        fontSize: 72,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -126,6 +137,38 @@ class GameOverPage extends StatelessWidget {
                 ),
 
                 const SizedBox(height: AppSpacing.md),
+
+                // View High Scores Button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: onViewHighScoresTapped,
+                    icon: const Icon(Icons.emoji_events),
+                    label: const Text(
+                      'View High Scores',
+                      style: TextStyle(
+                        fontSize: AppTypography.extraLarge,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.accentYellow,
+                      side: const BorderSide(
+                        color: AppTheme.accentYellow,
+                        width: 2,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xl,
+                        vertical: AppSpacing.lg,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.md),
               ],
             ),
           ),
@@ -147,17 +190,17 @@ class _ScoreBreakdown extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Upper Section
+          // Minor Section
           _CategorySection(
-            title: 'Upper Section',
-            categories: ScoreSheet.upperCategories,
+            title: 'Minor Section',
+            categories: ScoreSheet.minorCategories,
             scoreSheet: scoreSheet,
           ),
 
-          // Upper Total
+          // Minor Total
           _ScoreRow(
-            label: 'Upper Total',
-            score: scoreSheet.getUpperTotal(),
+            label: 'Minor Total',
+            score: scoreSheet.getMinorTotal(),
             isTotal: true,
           ),
 
@@ -170,17 +213,17 @@ class _ScoreBreakdown extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.md),
 
-          // Lower Section
+          // Major Section
           _CategorySection(
-            title: 'Lower Section',
-            categories: ScoreSheet.lowerCategories,
+            title: 'Major Section',
+            categories: ScoreSheet.majorCategories,
             scoreSheet: scoreSheet,
           ),
 
-          // Lower Total
+          // Major Total
           _ScoreRow(
-            label: 'Lower Total',
-            score: scoreSheet.getLowerTotal(),
+            label: 'Major Total',
+            score: scoreSheet.getMajorTotal(),
             isTotal: true,
           ),
         ],

@@ -7,7 +7,7 @@ void main() {
       test('creates die with default values', () {
         final die = const Die();
 
-        expect(die.value, equals(1));
+        expect(die.value, equals(0));
         expect(die.held, isFalse);
       });
 
@@ -28,7 +28,7 @@ void main() {
       test('creates die with only held specified', () {
         const die = Die(held: true);
 
-        expect(die.value, equals(1));
+        expect(die.value, equals(0));
         expect(die.held, isTrue);
       });
     });
@@ -74,15 +74,15 @@ void main() {
     });
 
     group('toggleHold', () {
-      test('toggles held from false to true', () {
-        const die = Die(held: false);
+      test('toggles held from false to true for non-blank die', () {
+        const die = Die(value: 3, held: false);
         final toggled = die.toggleHold();
 
         expect(toggled.held, isTrue);
       });
 
-      test('toggles held from true to false', () {
-        const die = Die(held: true);
+      test('toggles held from true to false for non-blank die', () {
+        const die = Die(value: 3, held: true);
         final toggled = die.toggleHold();
 
         expect(toggled.held, isFalse);
@@ -104,7 +104,7 @@ void main() {
       });
 
       test('can toggle multiple times', () {
-        const die = Die(held: false);
+        const die = Die(value: 3, held: false);
         final toggled1 = die.toggleHold();
         final toggled2 = toggled1.toggleHold();
         final toggled3 = toggled2.toggleHold();
@@ -112,6 +112,15 @@ void main() {
         expect(toggled1.held, isTrue);
         expect(toggled2.held, isFalse);
         expect(toggled3.held, isTrue);
+      });
+
+      test('cannot toggle hold for blank die (value 0)', () {
+        const blankDie = Die(value: 0, held: false);
+        final toggled = blankDie.toggleHold();
+
+        // Returns the same instance for blank dice
+        expect(toggled, equals(blankDie));
+        expect(toggled.held, isFalse);
       });
     });
 

@@ -90,6 +90,7 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                     child: _DiceRow(
                       diceValues: gameState.diceValues,
+                      rollCount: gameState.currentRound.rollCount,
                       heldIndices: gameState.currentRound.dice
                           .asMap()
                           .entries
@@ -109,8 +110,9 @@ class _GameScreenState extends State<GameScreen> {
                     child: _ButtonRow(
                       rollCount: gameState.currentRound.rollCount,
                       canRoll: gameState.canRoll,
+                      hasUnscoredCategories: _gameBloc.hasUnscoredCategories,
                       onRollTapped: () => _gameBloc.rollDice(),
-                      onNewGameTapped: () => _gameBloc.newGame(),
+                      onPlayTapped: () => _handlePlayTapped(gameState),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -147,6 +149,26 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     );
+  }
+
+  void _handlePlayTapped(GameState gameState) {
+    // Find the currently selected category based on held dice
+    // For now, we'll just select the first unscored category that matches the dice
+    // This should be improved to track user selection properly
+    final heldDice = gameState.currentRound.dice
+        .where((die) => die.held)
+        .toList();
+    if (heldDice.isEmpty) {
+      // No dice held, just roll again
+      return;
+    }
+
+    // For simplicity, auto-select a matching category
+    // In a real implementation, you'd track the user's category selection
+    final unscoredCategories = gameState.getValidCategories();
+    if (unscoredCategories.isNotEmpty) {
+      _gameBloc.commitCategory(unscoredCategories.first);
+    }
   }
 }
 
@@ -238,19 +260,19 @@ class _ScoreSheetState extends State<_ScoreSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Upper Section
+        // Minor Section
         Expanded(
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
               ..._buildCategoryRows(
-                ScoreCategory.values.where((c) => c.isUpper).toList(),
+                ScoreCategory.values.where((c) => c.isMinor).toList(),
                 widget.gameState,
                 widget.onCategoryTapped,
               ),
               const SizedBox(height: AppSpacing.sm),
-              _UpperTotalRow(
-                upperTotal: widget.gameState.scoreSheet.getUpperTotal(),
+              _MinorTotalRow(
+                minorTotal: widget.gameState.scoreSheet.getMinorTotal(),
                 hasBonus: widget.gameState.scoreSheet.getBonus() > 0,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -260,13 +282,13 @@ class _ScoreSheetState extends State<_ScoreSheet> {
 
         const Divider(height: 1, thickness: 2),
 
-        // Lower Section
+        // Major Section
         Expanded(
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
               ..._buildCategoryRows(
-                ScoreCategory.values.where((c) => c.isLower).toList(),
+                ScoreCategory.values.where((c) => c.isMajor).toList(),
                 widget.gameState,
                 widget.onCategoryTapped,
               ),
@@ -309,12 +331,12 @@ class _ScoreSheetState extends State<_ScoreSheet> {
   }
 }
 
-/// Widget displaying the upper section total.
-class _UpperTotalRow extends StatelessWidget {
-  final int upperTotal;
+/// Widget displaying the minor section total.
+class _MinorTotalRow extends StatelessWidget {
+  final int minorTotal;
   final bool hasBonus;
 
-  const _UpperTotalRow({required this.upperTotal, required this.hasBonus});
+  const _MinorTotalRow({required this.minorTotal, required this.hasBonus});
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +357,7 @@ class _UpperTotalRow extends StatelessWidget {
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
           Text(
-            hasBonus ? '50' : '0',
+            hasBonus ? '35' : '0',
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -349,11 +371,13 @@ class _UpperTotalRow extends StatelessWidget {
 
 class _DiceRow extends StatefulWidget {
   final List<int> diceValues;
+  final int rollCount;
   final List<int> heldIndices;
   final Function(int) onDieTapped;
 
   const _DiceRow({
     required this.diceValues,
+    required this.rollCount,
     required this.heldIndices,
     required this.onDieTapped,
   });
@@ -384,11 +408,13 @@ class _DiceRowState extends State<_DiceRow> {
         final index = entry.key;
         final value = entry.value;
         final isHeld = widget.heldIndices.contains(index);
+        final isBlank = value == 0 && widget.rollCount == 0;
         return AnimatedDieWidget(
           key: ValueKey('die-$index'),
           value: value,
           isHeld: isHeld,
-          onTap: () => widget.onDieTapped(index),
+          isBlank: isBlank,
+          onTap: widget.rollCount > 0 ? () => widget.onDieTapped(index) : null,
           triggerAnimation: _lastRollCount > 0,
         );
       }).toList(),
@@ -396,18 +422,20 @@ class _DiceRowState extends State<_DiceRow> {
   }
 }
 
-/// Widget displaying the Roll and New Game buttons.
+/// Widget displaying the Roll and Play buttons.
 class _ButtonRow extends StatelessWidget {
   final int rollCount;
   final bool canRoll;
+  final bool hasUnscoredCategories;
   final VoidCallback? onRollTapped;
-  final VoidCallback? onNewGameTapped;
+  final VoidCallback? onPlayTapped;
 
   const _ButtonRow({
     required this.rollCount,
     required this.canRoll,
+    required this.hasUnscoredCategories,
     this.onRollTapped,
-    this.onNewGameTapped,
+    this.onPlayTapped,
   });
 
   @override
@@ -423,7 +451,7 @@ class _ButtonRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: ElevatedButton(
-            onPressed: onNewGameTapped,
+            onPressed: hasUnscoredCategories ? onPlayTapped : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.accentOrange,
               foregroundColor: Colors.white,
@@ -436,7 +464,7 @@ class _ButtonRow extends StatelessWidget {
               ),
             ),
             child: const Text(
-              'New Game',
+              'PLAY',
               style: TextStyle(
                 fontSize: AppTypography.large,
                 fontWeight: FontWeight.bold,

@@ -104,11 +104,29 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('asserts value is between 1 and 6', (
+    testWidgets('accepts value 0 (blank/unrolled)', (
       WidgetTester tester,
     ) async {
-      expect(() => AnimatedDieWidget(value: 0), throwsA(isA<AssertionError>()));
-      expect(() => AnimatedDieWidget(value: 7), throwsA(isA<AssertionError>()));
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: AnimatedDieWidget(value: 0, isBlank: true)),
+        ),
+      );
+
+      // Should display blank die without error
+      expect(find.byType(AnimatedDieWidget), findsOneWidget);
+    });
+
+    testWidgets('handles value 7 gracefully (no assertion)', (
+      WidgetTester tester,
+    ) async {
+      // Widget accepts any value, displays no dots for invalid values
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: AnimatedDieWidget(value: 7))),
+      );
+
+      // Should display without error (no dots shown for invalid value)
+      expect(find.byType(AnimatedDieWidget), findsOneWidget);
     });
 
     testWidgets('updates when value changes', (WidgetTester tester) async {

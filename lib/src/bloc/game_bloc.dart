@@ -69,6 +69,28 @@ class GameBloc extends ValueNotifier<GameState> {
     }
   }
 
+  /// Commits/plays the selected category for scoring.
+  ///
+  /// This is called when the Play button is tapped.
+  /// [category] is the scoring category to apply.
+  void commitCategory(ScoreCategory category) {
+    if (value.isGameOver) {
+      return;
+    }
+
+    try {
+      value = value.commitCategory(category);
+      _emitEvent('category_committed_${category.name}');
+    } catch (e) {
+      _emitEvent('error: $e');
+    }
+  }
+
+  /// Returns true if there are unscored categories available.
+  bool get hasUnscoredCategories {
+    return !value.isGameOver && value.getValidCategories().isNotEmpty;
+  }
+
   /// Starts a new game.
   void newGame() {
     value = value.newGame();

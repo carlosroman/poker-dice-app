@@ -60,7 +60,8 @@ void main() {
     });
 
     group('toggleDie', () {
-      test('toggles die held state', () {
+      test('toggles die held state after roll', () {
+        gameBloc.rollDice();
         final die0 = gameBloc.value.currentRound.dice[0];
         expect(die0.held, isFalse);
 
@@ -78,6 +79,12 @@ void main() {
         final die0 = gameBloc.value.currentRound.dice[0];
         gameBloc.toggleDie(0);
         expect(gameBloc.value.currentRound.dice[0].held, die0.held);
+      });
+
+      test('does nothing before first roll', () {
+        final initialState = gameBloc.value;
+        gameBloc.toggleDie(0);
+        expect(gameBloc.value, initialState);
       });
     });
 

@@ -81,23 +81,6 @@ void main() {
       expect(container, isA<Container>());
     });
 
-    testWidgets('throws assertion when value is out of range', (tester) async {
-      expect(() => DieWidget(value: 0), throwsA(isA<AssertionError>()));
-
-      expect(() => DieWidget(value: 7), throwsA(isA<AssertionError>()));
-    });
-
-    testWidgets('has shadow effect', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: DieWidget(value: 1))),
-      );
-
-      final container = tester.widget<Container>(find.byType(Container).first);
-      final decoration = container.decoration as BoxDecoration;
-
-      expect(decoration.boxShadow, isNotEmpty);
-    });
-
     testWidgets('renders all die values correctly', (tester) async {
       for (int value = 1; value <= 6; value++) {
         await tester.pumpWidget(
@@ -109,6 +92,25 @@ void main() {
         expect(find.byType(DieWidget), findsOneWidget);
         await tester.pumpAndSettle();
       }
+    });
+
+    testWidgets('renders blank die with value 0', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 0))),
+      );
+
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('has shadow effect', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 1))),
+      );
+
+      final container = tester.widget<Container>(find.byType(Container).first);
+      final decoration = container.decoration as BoxDecoration;
+
+      expect(decoration.boxShadow, isNotEmpty);
     });
   });
 

@@ -6,29 +6,29 @@ import 'package:poker_dice/src/ui/components/score_row.dart';
 
 void main() {
   group('ScoreSheet', () {
-    testWidgets('displays upper and lower headers', (tester) async {
+    testWidgets('displays minor and major headers', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
       );
 
-      expect(find.text('Upper'), findsOneWidget);
-      expect(find.text('Lower'), findsOneWidget);
+      expect(find.text('Minor'), findsOneWidget);
+      expect(find.text('Major'), findsOneWidget);
     });
 
     testWidgets('displays upper section categories', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {
                 ScoreCategory.aces: 1,
                 ScoreCategory.twos: 2,
@@ -39,7 +39,7 @@ void main() {
               },
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
@@ -57,7 +57,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {
                 ScoreCategory.threeOfKind: 15,
                 ScoreCategory.fourOfKind: 20,
@@ -69,7 +69,7 @@ void main() {
               },
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
@@ -88,11 +88,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 45,
+              minorTotal: 45,
             ),
           ),
         ),
@@ -108,11 +108,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {ScoreCategory.aces: 1},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
               onCategoryTapped: (category) => tappedCategory = category,
             ),
           ),
@@ -129,11 +129,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {ScoreCategory.aces: 2},
               currentScores: {ScoreCategory.aces: 2},
               scoredCategories: {ScoreCategory.aces},
-              upperTotal: 2,
+              minorTotal: 2,
             ),
           ),
         ),
@@ -146,11 +146,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
@@ -171,11 +171,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: potentialScores,
               currentScores: currentScores,
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
@@ -187,51 +187,51 @@ void main() {
   });
 
   group('ScoreSheet - Layout', () {
-    testWidgets('upper column has 6 categories', (tester) async {
+    testWidgets('minor column has 6 categories', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
       );
 
-      // Count upper section rows (6 categories + bonus row)
-      expect(find.text('Upper'), findsOneWidget);
+      // Count minor section rows (6 categories + bonus row)
+      expect(find.text('Minor'), findsOneWidget);
     });
 
-    testWidgets('lower column has 7 categories', (tester) async {
+    testWidgets('major column has 7 categories', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
       );
 
-      // Count lower section rows
-      expect(find.text('Lower'), findsOneWidget);
+      // Count major section rows
+      expect(find.text('Major'), findsOneWidget);
     });
 
     testWidgets('bonus row is at bottom of upper column', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 30,
+              minorTotal: 30,
             ),
           ),
         ),
@@ -246,11 +246,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),
@@ -263,11 +263,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ScoreSheet(
+            body: ScoreSheetWidget(
               potentialScores: {},
               currentScores: {},
               scoredCategories: {},
-              upperTotal: 0,
+              minorTotal: 0,
             ),
           ),
         ),

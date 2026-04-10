@@ -100,6 +100,15 @@ class GameState {
     return copyWith(scoreSheet: newScoreSheet, currentRound: newRound);
   }
 
+  /// Commits/play the selected category for scoring.
+  ///
+  /// This is an alias for [selectCategory] used for the Play button.
+  /// [category] is the scoring category to apply.
+  /// Returns a new [GameState] with the updated score sheet.
+  GameState commitCategory(ScoreCategory category) {
+    return selectCategory(category);
+  }
+
   /// Resets the game state to initial values.
   ///
   /// Returns a new [GameState] representing a fresh game.
@@ -126,16 +135,16 @@ class GameState {
 
     final diceValues = currentRound.dice.map((die) => die.value).toList();
 
-    if (category.isUpper) {
+    if (category.isMinor) {
       return ScoreSheet.allCategories.contains(category)
-          ? _calculateUpperPotential(category, diceValues)
+          ? _calculateMinorPotential(category, diceValues)
           : 0;
     }
 
-    return _calculateLowerPotential(category, diceValues);
+    return _calculateMajorPotential(category, diceValues);
   }
 
-  int _calculateUpperPotential(ScoreCategory category, List<int> diceValues) {
+  int _calculateMinorPotential(ScoreCategory category, List<int> diceValues) {
     switch (category) {
       case ScoreCategory.aces:
         return diceValues
@@ -166,7 +175,7 @@ class GameState {
     }
   }
 
-  int _calculateLowerPotential(ScoreCategory category, List<int> diceValues) {
+  int _calculateMajorPotential(ScoreCategory category, List<int> diceValues) {
     switch (category) {
       case ScoreCategory.threeOfKind:
         return _calculateThreeOfKindPotential(diceValues);

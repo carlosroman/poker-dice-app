@@ -1,10 +1,10 @@
-/// Represents the section of the scorecard (Upper or Lower).
+/// Represents the section of the scorecard (Minor or Major).
 enum ScoreSection {
-  /// Upper section: Aces through Sixes
-  upper,
+  /// Minor section: Individual die values (1-6)
+  minor,
 
-  /// Lower section: ThreeOfKind through Chance
-  lower,
+  /// Major section: Combination categories
+  major,
 }
 
 /// Represents a scoring category in the poker dice game.
@@ -55,31 +55,31 @@ enum ScoreCategory {
   String get displayName {
     switch (this) {
       case ScoreCategory.aces:
-        return 'Aces';
+        return '1';
       case ScoreCategory.twos:
-        return 'Twos';
+        return '2';
       case ScoreCategory.threes:
-        return 'Threes';
+        return '3';
       case ScoreCategory.fours:
-        return 'Fours';
+        return '4';
       case ScoreCategory.fives:
-        return 'Fives';
+        return '5';
       case ScoreCategory.sixes:
-        return 'Sixes';
+        return '6';
       case ScoreCategory.threeOfKind:
-        return 'Three of a Kind';
+        return '3x';
       case ScoreCategory.fourOfKind:
-        return 'Four of a Kind';
+        return '4x';
       case ScoreCategory.fullHouse:
-        return 'Full House';
+        return 'House';
       case ScoreCategory.smallStraight:
-        return 'Small Straight';
+        return 'small';
       case ScoreCategory.largeStraight:
-        return 'Large Straight';
+        return 'large';
       case ScoreCategory.yatzy:
         return 'Yatzy';
       case ScoreCategory.chance:
-        return 'Chance';
+        return '?';
     }
   }
 
@@ -92,7 +92,7 @@ enum ScoreCategory {
       case ScoreCategory.fours:
       case ScoreCategory.fives:
       case ScoreCategory.sixes:
-        return ScoreSection.upper;
+        return ScoreSection.minor;
       case ScoreCategory.threeOfKind:
       case ScoreCategory.fourOfKind:
       case ScoreCategory.fullHouse:
@@ -100,13 +100,13 @@ enum ScoreCategory {
       case ScoreCategory.largeStraight:
       case ScoreCategory.yatzy:
       case ScoreCategory.chance:
-        return ScoreSection.lower;
+        return ScoreSection.major;
     }
   }
 
-  /// Returns true if this category belongs to the Upper section.
-  bool get isUpper => section == ScoreSection.upper;
+  /// Returns true if this category belongs to the Minor section.
+  bool get isMinor => section == ScoreSection.minor;
 
-  /// Returns true if this category belongs to the Lower section.
-  bool get isLower => section == ScoreSection.lower;
+  /// Returns true if this category belongs to the Major section.
+  bool get isMajor => section == ScoreSection.major;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:poker_dice/src/domain/models/score_category.dart';
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
+import '../utils/accessibility_utils.dart';
 
 /// A widget that displays a single row in the score sheet.
 ///
@@ -22,6 +23,9 @@ class ScoreRow extends StatelessWidget {
   /// Whether the Yatzy bonus applies (+50).
   final bool yatzyBonus;
 
+  /// Whether to show a die face icon (for Minor section).
+  final bool showDieIcon;
+
   /// Callback when the row is tapped.
   final VoidCallback? onTap;
 
@@ -33,6 +37,7 @@ class ScoreRow extends StatelessWidget {
     this.currentScore,
     this.isScored = false,
     this.yatzyBonus = false,
+    this.showDieIcon = false,
     this.onTap,
   });
 
@@ -40,43 +45,51 @@ class ScoreRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xs,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              // Icon column
-              _CategoryIcon(category: category),
-              const SizedBox(width: AppSpacing.sm),
+      child: Semantics(
+        label: AccessibilityUtils.getScoreRowLabel(
+          category.displayName,
+          potentialScore,
+          currentScore,
+        ),
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xs,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                // Icon column
+                _CategoryIcon(category: category, showDieIcon: showDieIcon),
+                const SizedBox(width: AppSpacing.sm),
 
-              // Potential score column
-              Expanded(
-                flex: 2,
-                child: Text(
-                  potentialScore?.toString() ?? '-',
-                  style: const TextStyle(
-                    color: AppTheme.textOnPrimary,
-                    fontSize: AppTypography.medium,
-                    fontWeight: FontWeight.w500,
+                // Potential score column
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    potentialScore?.toString() ?? '-',
+                    style: const TextStyle(
+                      color: AppTheme.textOnPrimary,
+                      fontSize: AppTypography.medium,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
-              ),
 
-              const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.sm),
 
-              // Current score column
-              _ScoreBox(
-                score: currentScore,
-                isScored: isScored,
-                yatzyBonus: yatzyBonus,
-              ),
-            ],
+                // Current score column
+                _ScoreBox(
+                  score: currentScore,
+                  isScored: isScored,
+                  yatzyBonus: yatzyBonus,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -87,8 +100,9 @@ class ScoreRow extends StatelessWidget {
 /// Displays the category icon.
 class _CategoryIcon extends StatelessWidget {
   final ScoreCategory category;
+  final bool showDieIcon;
 
-  const _CategoryIcon({required this.category});
+  const _CategoryIcon({required this.category, this.showDieIcon = false});
 
   @override
   Widget build(BuildContext context) {
@@ -104,19 +118,21 @@ class _CategoryIcon extends StatelessWidget {
   }
 
   Widget _buildIcon() {
+    // Show die face icon for Minor section (die values 1-6)
+    if (showDieIcon) {
+      final dieValue = _getDieValueForCategory(category);
+      return _DieFaceIcon(dots: dieValue);
+    }
+
     switch (category) {
       case ScoreCategory.aces:
-        return const _DieFaceIcon(dots: 1);
       case ScoreCategory.twos:
-        return const _DieFaceIcon(dots: 2);
       case ScoreCategory.threes:
-        return const _DieFaceIcon(dots: 3);
       case ScoreCategory.fours:
-        return const _DieFaceIcon(dots: 4);
       case ScoreCategory.fives:
-        return const _DieFaceIcon(dots: 5);
       case ScoreCategory.sixes:
-        return const _DieFaceIcon(dots: 6);
+        // Fallback for Minor section without die icon
+        return _DieFaceIcon(dots: _getDieValueForCategory(category));
       case ScoreCategory.threeOfKind:
         return const Text(
           '3x',
@@ -155,6 +171,25 @@ class _CategoryIcon extends StatelessWidget {
         );
       case ScoreCategory.chance:
         return const Icon(Icons.help, color: Colors.black, size: 18);
+    }
+  }
+
+  int _getDieValueForCategory(ScoreCategory category) {
+    switch (category) {
+      case ScoreCategory.aces:
+        return 1;
+      case ScoreCategory.twos:
+        return 2;
+      case ScoreCategory.threes:
+        return 3;
+      case ScoreCategory.fours:
+        return 4;
+      case ScoreCategory.fives:
+        return 5;
+      case ScoreCategory.sixes:
+        return 6;
+      default:
+        return 1;
     }
   }
 }

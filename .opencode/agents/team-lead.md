@@ -61,9 +61,13 @@ Task "QA the code written" -> quality-reviewer
 
 ### Step 4:
 If QA fails in step 3 then:
-- Delegate to a new subagent to fix the issues 
-- Go back and perform Step 3
+- Delegate to to `flutter-dev` to fix the issues 
+- Go back and perform Step 3 and perform QA till no issues are found.
 
 ## On Failure:
 - Log exact error with context
 - Suggest fixes based on error type
+
+## On QA Review
+
+If `quality-reviewer` returns any suggestions or requires fixes send back to `flutter-dev` to fix. Once done, pass back to `quality-reviewer` for review. Send back to `flutter-dev` if QA fails and continue cycle till QA happy. 

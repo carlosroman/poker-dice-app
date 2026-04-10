@@ -3,18 +3,39 @@ import '../models/score_category.dart';
 /// Scorer class for Yatzy dice game scoring logic.
 ///
 /// Provides static methods for calculating scores for all categories
-/// in the Yatzy dice game.
+/// in the Yatzy dice game. This class implements the official Yatzy scoring rules
+/// including special rules for Yatzy bonuses and Full House validation.
+///
+/// ## Scoring Algorithms
+///
+/// ### Upper Section (Aces through Sixes)
+/// - Sum all dice showing the target value
+/// - Example: Aces scores sum of all 1s
+///
+/// ### Lower Section
+/// - **Three of a Kind**: Sum of ALL dice if 3+ match
+/// - **Four of a Kind**: Sum of ALL dice if 4+ match
+/// - **Full House**: 25 points if exactly 3+2 (4+1 is NOT valid)
+/// - **Small Straight**: 30 points for 4 consecutive values
+/// - **Large Straight**: 40 points for 5 consecutive values
+/// - **Yatzy**: 50 points + 50 bonus for each additional Yatzy
+/// - **Chance**: Sum of all dice
+///
+/// ### Special Rules
+/// - **Yatzy Bonus**: Each Yatzy after the first adds +50 bonus
+/// - **Full House**: Must be exactly 3 of one value + 2 of another
+/// - **Straights**: Small straight = 4 consecutive, Large = 5 consecutive
 class Scorer {
   /// Prevents instantiation of Scorer class.
   Scorer._();
 
-  /// Calculates the score for the upper section categories (Aces through Sixes).
+  /// Calculates the score for the minor section categories (1-6).
   ///
   /// Returns the sum of dice values that match [category].
   /// For example, if category is [ScoreCategory.aces], returns sum of all 1s.
   static int calculateUpperScore(ScoreCategory category, List<int> dice) {
-    if (category.section != ScoreSection.upper) {
-      throw ArgumentError('Category must be from upper section');
+    if (category.section != ScoreSection.minor) {
+      throw ArgumentError('Category must be from minor section');
     }
 
     switch (category) {
@@ -35,10 +56,10 @@ class Scorer {
     }
   }
 
-  /// Calculates the score for the lower section categories.
+  /// Calculates the score for the major section categories.
   static int calculateLowerScore(ScoreCategory category, List<int> dice) {
-    if (category.section != ScoreSection.lower) {
-      throw ArgumentError('Category must be from lower section');
+    if (category.section != ScoreSection.major) {
+      throw ArgumentError('Category must be from major section');
     }
 
     switch (category) {

@@ -87,7 +87,7 @@ Avoid running shell commands unless the MCP server cannot perform the task.
 * **Components:** Use `ThemeExtension` for custom tokens (colors/sizes).
 
 ## Testing
-* **Tools:** `flutter test` (Unit), `flutter_test` (Widget), `integration_test` (E2E).
+* **Tools:** `flutter test` (Unit), `flutter_test` (Widget), `integration_test` (E2E). Use Flutter/Dart MCP server if available. 
 * **Mocks:** Prefer Fakes. Use `mockito` sparingly.
 * **Pattern:** Arrange-Act-Assert.
 * **Assertions:** Use `package:checks`.

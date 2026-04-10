@@ -17,7 +17,8 @@ import 'package:poker_dice/src/ui/animation/animation_constants.dart';
 /// )
 /// ```
 class AnimatedDieWidget extends StatefulWidget {
-  /// The value of the die (1-6).
+  /// The value of the die (0-6).
+  /// 0 represents a blank/unrolled die.
   final int value;
 
   /// Whether the die is currently held/selected.
@@ -29,18 +30,23 @@ class AnimatedDieWidget extends StatefulWidget {
   /// Whether to trigger the roll animation.
   final bool triggerAnimation;
 
+  /// Whether the die is blank (not yet rolled).
+  final bool isBlank;
+
   /// Creates an [AnimatedDieWidget].
   ///
-  /// The [value] must be between 1 and 6.
+  /// The [value] must be between 0 and 6.
   /// The [isHeld] defaults to false.
   /// The [triggerAnimation] defaults to false.
+  /// The [isBlank] defaults to false.
   const AnimatedDieWidget({
     super.key,
     required this.value,
     this.isHeld = false,
     this.onTap,
     this.triggerAnimation = false,
-  }) : assert(value >= 1 && value <= 6, 'Die value must be between 1 and 6');
+    this.isBlank = false,
+  });
 
   @override
   State<AnimatedDieWidget> createState() => _AnimatedDieWidgetState();
@@ -119,6 +125,7 @@ class _AnimatedDieWidgetState extends State<AnimatedDieWidget>
         value: widget.value,
         isHeld: widget.isHeld,
         onTap: widget.onTap,
+        isBlank: widget.isBlank,
       ),
     );
   }
@@ -129,20 +136,28 @@ class _DieContent extends StatelessWidget {
   final int value;
   final bool isHeld;
   final VoidCallback? onTap;
+  final bool isBlank;
 
-  const _DieContent({required this.value, required this.isHeld, this.onTap});
+  const _DieContent({
+    required this.value,
+    required this.isHeld,
+    this.onTap,
+    this.isBlank = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isBlank ? null : onTap,
       child: Container(
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isBlank ? Colors.grey.shade200 : Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: isHeld ? Border.all(color: Colors.orange, width: 3) : null,
+          border: isHeld && !isBlank
+              ? Border.all(color: Colors.orange, width: 3)
+              : null,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.2),
@@ -151,8 +166,20 @@ class _DieContent extends StatelessWidget {
             ),
           ],
         ),
-        child: _DieDots(value: value),
+        child: isBlank ? const _BlankDieFace() : _DieDots(value: value),
       ),
+    );
+  }
+}
+
+/// Internal widget that displays a blank die face.
+class _BlankDieFace extends StatelessWidget {
+  const _BlankDieFace();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Icon(Icons.remove, color: Colors.grey, size: 30),
     );
   }
 }

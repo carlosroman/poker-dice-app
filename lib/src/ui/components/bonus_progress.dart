@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
+import '../utils/accessibility_utils.dart';
 
 /// A widget that displays progress toward the upper section bonus.
 ///
@@ -23,54 +24,61 @@ class BonusProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     final showBonus = upperTotal >= 63;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+    return Semantics(
+      label: AccessibilityUtils.getBonusProgressLabel(
+        upperTotal,
+        63,
+        showBonus ? 35 : 0,
       ),
-      decoration: BoxDecoration(
-        color: showBonus ? AppTheme.accentOrange : AppTheme.scoreBoxLightBlue,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$upperTotal/63',
-            style: TextStyle(
-              color: showBonus ? Colors.white : Colors.black,
-              fontSize: AppTypography.medium,
-              fontWeight: FontWeight.bold,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: showBonus ? AppTheme.accentOrange : AppTheme.scoreBoxLightBlue,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          if (showBonus)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xs,
-                vertical: AppSpacing.xs,
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$upperTotal/63',
+              style: TextStyle(
+                color: showBonus ? Colors.white : Colors.black,
+                fontSize: AppTypography.medium,
+                fontWeight: FontWeight.bold,
               ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                '+35',
-                style: TextStyle(
-                  color: AppTheme.accentOrange,
-                  fontSize: AppTypography.small,
-                  fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            if (showBonus)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xs,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  '+35',
+                  style: TextStyle(
+                    color: AppTheme.accentOrange,
+                    fontSize: AppTypography.small,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

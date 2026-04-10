@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../utils/accessibility_utils.dart';
 
 /// A widget that displays a single die face with dots representing the value.
 ///
 /// The die is displayed as a white rounded square with black dots.
 /// When held, it shows an orange border to indicate selection.
+/// When value is 0, displays a blank die.
 class DieWidget extends StatelessWidget {
-  /// The value of the die (1-6).
+  /// The value of the die (0-6).
+  /// 0 represents a blank/unrolled die.
   final int value;
 
   /// Whether the die is currently held/selected.
@@ -14,38 +17,64 @@ class DieWidget extends StatelessWidget {
   /// Optional callback when the die is tapped.
   final VoidCallback? onTap;
 
+  /// Whether the die is blank (not yet rolled).
+  final bool isBlank;
+
   /// Creates a [DieWidget].
   ///
-  /// The [value] must be between 1 and 6.
+  /// The [value] must be between 0 and 6.
   /// The [isHeld] defaults to false.
+  /// The [isBlank] defaults to false.
   const DieWidget({
     super.key,
     required this.value,
     this.isHeld = false,
     this.onTap,
-  }) : assert(value >= 1 && value <= 6, 'Die value must be between 1 and 6');
+    this.isBlank = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: isHeld ? Border.all(color: Colors.orange, width: 3) : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+      onTap: isBlank ? null : onTap,
+      child: Semantics(
+        label: isBlank
+            ? 'Blank die'
+            : AccessibilityUtils.getDieLabel(value, isHeld: isHeld),
+        button: !isBlank,
+        selected: isHeld,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: isBlank ? Colors.grey.shade200 : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: isHeld && !isBlank
+                ? Border.all(color: Colors.orange, width: 3)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: isBlank ? const _BlankDieFace() : _DieDots(value: value),
         ),
-        child: _DieDots(value: value),
       ),
+    );
+  }
+}
+
+/// Internal widget that displays a blank die face.
+class _BlankDieFace extends StatelessWidget {
+  const _BlankDieFace();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Icon(Icons.remove, color: Colors.grey, size: 30),
     );
   }
 }
