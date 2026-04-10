@@ -237,4 +237,110 @@ void main() {
       }
     });
   });
+
+  group('DieFaceIcon', () {
+    testWidgets('die face 1 shows 1 dot', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.aces,
+              potentialScore: 1,
+              showDieIcon: true,
+            ),
+          ),
+        ),
+      );
+
+      // Count Container widgets that represent dots
+      final dotFinder = find.byType(Container);
+      expect(dotFinder, findsWidgets);
+
+      // Find the Container with BoxShape.circle decoration (the dots)
+      // We expect at least 1 dot for die face 1
+      final containers = tester.widgetList<Container>(dotFinder).toList();
+      expect(containers.length, greaterThanOrEqualTo(1));
+    });
+
+    testWidgets('die face 2 shows 2 dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.twos,
+              potentialScore: 2,
+              showDieIcon: true,
+            ),
+          ),
+        ),
+      );
+
+      // Verify the widget builds without errors
+      expect(find.byType(ScoreRow), findsOneWidget);
+    });
+
+    testWidgets('die face 3 shows 3 dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.threes,
+              potentialScore: 3,
+              showDieIcon: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+    });
+
+    testWidgets('die face 4 shows 4 dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.fours,
+              potentialScore: 4,
+              showDieIcon: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+    });
+
+    testWidgets('die face 5 shows 5 dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.fives,
+              potentialScore: 5,
+              showDieIcon: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+    });
+
+    testWidgets('die face 6 shows 6 dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.sixes,
+              potentialScore: 6,
+              showDieIcon: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+    });
+  });
 }

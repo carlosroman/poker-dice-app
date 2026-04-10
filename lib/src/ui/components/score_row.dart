@@ -203,50 +203,164 @@ class _DieFaceIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment.center,
       children: [
-        // Build dots based on value
-        if (dots >= 1) _Dot(position: Alignment.center),
-        if (dots >= 2) ...[
-          _Dot(position: Alignment.topLeft, offset: const Offset(4, 4)),
-          _Dot(position: Alignment.bottomRight, offset: const Offset(-4, -4)),
-        ],
-        if (dots >= 4) ...[
-          _Dot(position: Alignment.topRight, offset: const Offset(-4, 4)),
-          _Dot(position: Alignment.bottomLeft, offset: const Offset(4, -4)),
-        ],
-        if (dots == 6) ...[
-          _Dot(position: Alignment.centerLeft, offset: const Offset(4, 0)),
-          _Dot(position: Alignment.centerRight, offset: const Offset(-4, 0)),
-        ],
+        // Value 1: Center
+        if (dots == 1)
+          Positioned.fill(
+            child: Align(alignment: Alignment.center, child: _DieDot()),
+          ),
+        // Value 2: Top-left and bottom-right
+        if (dots == 2)
+          Positioned.fill(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Value 3: Top-left, center, bottom-right
+        if (dots == 3)
+          Positioned.fill(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(alignment: Alignment.center, child: _DieDot()),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Value 4: Four corners
+        if (dots == 4)
+          Positioned.fill(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Value 5: Four corners + center
+        if (dots == 5)
+          Positioned.fill(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(alignment: Alignment.center, child: _DieDot()),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: _DieDot(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Value 6: Two columns of 3
+        if (dots == 6)
+          Positioned.fill(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [_DieDot(), _DieDot(), _DieDot()],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [_DieDot(), _DieDot(), _DieDot()],
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
 }
 
 /// A small black dot for die face icons.
-class _Dot extends StatelessWidget {
-  final AlignmentGeometry position;
-  final Offset offset;
-
-  const _Dot({this.position = Alignment.center, this.offset = Offset.zero});
+class _DieDot extends StatelessWidget {
+  const _DieDot();
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Align(
-        alignment: position,
-        child: Transform.translate(
-          offset: offset,
-          child: Container(
-            width: 4,
-            height: 4,
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
+    return Container(
+      width: 4,
+      height: 4,
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        shape: BoxShape.circle,
       ),
     );
   }
