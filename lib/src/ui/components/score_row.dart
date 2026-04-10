@@ -127,7 +127,7 @@ class _CategoryIcon extends StatelessWidget {
     // Show die face icon for Minor section (die values 1-6)
     if (showDieIcon) {
       final dieValue = _getDieValueForCategory(category);
-      return _DieFaceIcon(dots: dieValue);
+      return Center(child: _DieFaceIcon(dots: dieValue));
     }
 
     switch (category) {
@@ -138,45 +138,58 @@ class _CategoryIcon extends StatelessWidget {
       case ScoreCategory.fives:
       case ScoreCategory.sixes:
         // Fallback for Minor section without die icon
-        return _DieFaceIcon(dots: _getDieValueForCategory(category));
+        return Center(
+          child: _DieFaceIcon(dots: _getDieValueForCategory(category)),
+        );
       case ScoreCategory.threeOfKind:
-        return const Text(
-          '3x',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+        return const Center(
+          child: Text(
+            '3x',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          textAlign: TextAlign.center,
         );
       case ScoreCategory.fourOfKind:
-        return const Text(
-          '4x',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+        return const Center(
+          child: Text(
+            '4x',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          textAlign: TextAlign.center,
         );
       case ScoreCategory.fullHouse:
-        return const Icon(Icons.home, color: Colors.black, size: 18);
+        return const Center(
+          child: Icon(Icons.home, color: Colors.black, size: 18),
+        );
       case ScoreCategory.smallStraight:
-        return const Icon(Icons.card_giftcard, color: Colors.black, size: 18);
+        return const Center(
+          child: Icon(Icons.card_giftcard, color: Colors.black, size: 18),
+        );
       case ScoreCategory.largeStraight:
-        return const Icon(Icons.card_giftcard, color: Colors.black, size: 18);
+        return const Center(
+          child: Icon(Icons.card_giftcard, color: Colors.black, size: 18),
+        );
       case ScoreCategory.yatzy:
-        return const Text(
-          'Y',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+        return const Center(
+          child: Text(
+            'Y',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          textAlign: TextAlign.center,
         );
       case ScoreCategory.chance:
-        return const Icon(Icons.help, color: Colors.black, size: 18);
+        return const Center(
+          child: Icon(Icons.help, color: Colors.black, size: 18),
+        );
     }
   }
 

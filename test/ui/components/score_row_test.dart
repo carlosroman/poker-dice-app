@@ -395,4 +395,174 @@ void main() {
       expect(find.byType(ScoreRow), findsOneWidget);
     });
   });
+
+  group('ScoreRow - Icon centering', () {
+    testWidgets('3x icon is centered for ThreeOfKind', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.threeOfKind,
+              potentialScore: 15,
+            ),
+          ),
+        ),
+      );
+
+      // Verify Center widget wraps the icon
+      expect(find.byType(Center), findsWidgets);
+      expect(find.text('3x'), findsOneWidget);
+    });
+
+    testWidgets('4x icon is centered for FourOfKind', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.fourOfKind,
+              potentialScore: 20,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Center), findsWidgets);
+      expect(find.text('4x'), findsOneWidget);
+    });
+
+    testWidgets('house icon is centered for FullHouse', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.fullHouse,
+              potentialScore: 25,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Center), findsWidgets);
+      expect(find.byIcon(Icons.home), findsOneWidget);
+    });
+
+    testWidgets('gift icon is centered for SmallStraight', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.smallStraight,
+              potentialScore: 20,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Center), findsWidgets);
+      expect(find.byIcon(Icons.card_giftcard), findsOneWidget);
+    });
+
+    testWidgets('gift icon is centered for LargeStraight', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.largeStraight,
+              potentialScore: 20,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Center), findsWidgets);
+      expect(find.byIcon(Icons.card_giftcard), findsOneWidget);
+    });
+
+    testWidgets('Y icon is centered for Yatzy', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(category: ScoreCategory.yatzy, potentialScore: 50),
+          ),
+        ),
+      );
+
+      expect(find.byType(Center), findsWidgets);
+      expect(find.text('Y'), findsOneWidget);
+    });
+
+    testWidgets('help icon is centered for Chance', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(category: ScoreCategory.chance, potentialScore: 18),
+          ),
+        ),
+      );
+
+      expect(find.byType(Center), findsWidgets);
+      expect(find.byIcon(Icons.help), findsOneWidget);
+    });
+
+    testWidgets('die face icons are centered for upper section', (
+      tester,
+    ) async {
+      for (final category in [
+        ScoreCategory.aces,
+        ScoreCategory.twos,
+        ScoreCategory.threes,
+        ScoreCategory.fours,
+        ScoreCategory.fives,
+        ScoreCategory.sixes,
+      ]) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ScoreRow(category: category, potentialScore: 5),
+            ),
+          ),
+        );
+
+        expect(find.byType(Center), findsWidgets);
+        await tester.pumpAndSettle();
+      }
+    });
+
+    testWidgets('all category icons use Center widget for alignment', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                ScoreRow(
+                  category: ScoreCategory.threeOfKind,
+                  potentialScore: 10,
+                ),
+                ScoreRow(
+                  category: ScoreCategory.fourOfKind,
+                  potentialScore: 10,
+                ),
+                ScoreRow(category: ScoreCategory.fullHouse, potentialScore: 10),
+                ScoreRow(
+                  category: ScoreCategory.smallStraight,
+                  potentialScore: 10,
+                ),
+                ScoreRow(
+                  category: ScoreCategory.largeStraight,
+                  potentialScore: 10,
+                ),
+                ScoreRow(category: ScoreCategory.yatzy, potentialScore: 10),
+                ScoreRow(category: ScoreCategory.chance, potentialScore: 10),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // All icons should be wrapped in Center widgets
+      expect(find.byType(Center), findsWidgets);
+    });
+  });
 }

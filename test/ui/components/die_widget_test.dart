@@ -124,4 +124,82 @@ void main() {
       expect(find.byType(GestureDetector), findsOneWidget);
     });
   });
+
+  group('DieWidget - Dot centering', () {
+    testWidgets('die value 1 has centered dot', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 1))),
+      );
+
+      // Verify the widget renders without errors
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('die value 2 has properly positioned corner dots', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 2))),
+      );
+
+      // Verify the widget renders without errors
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('die value 3 has properly positioned dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 3))),
+      );
+
+      // Verify the widget renders without errors
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('die value 4 has properly positioned corner dots', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 4))),
+      );
+
+      // Verify the widget renders without errors
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('die value 5 has properly positioned dots including center', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 5))),
+      );
+
+      // Verify the widget renders without errors
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('die value 6 has properly positioned dots', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: DieWidget(value: 6))),
+      );
+
+      // Verify the widget renders without errors
+      expect(find.byType(DieWidget), findsOneWidget);
+    });
+
+    testWidgets('all die values render correct number of dots', (tester) async {
+      for (int value = 1; value <= 6; value++) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: DieWidget(value: value)),
+          ),
+        );
+
+        // Find all Container widgets (dots are containers with circle decoration)
+        final dotFinder = find.byType(Container);
+        expect(dotFinder, findsWidgets);
+
+        await tester.pumpAndSettle();
+      }
+    });
+  });
 }

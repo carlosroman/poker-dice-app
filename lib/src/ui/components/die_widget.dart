@@ -104,10 +104,13 @@ class _DieDots extends StatelessWidget {
   }
 
   /// Returns the positions of dots for a given die value.
+  ///
+  /// Positions are adjusted by subtracting 5 pixels (half the dot size)
+  /// to properly center the 10x10 dots in the 60x60 container.
   List<Offset> _getDotPositions(int value) {
-    const center = 30.0; // Center of 60x60 container
-    const corner = 15.0;
-    const mid = 45.0;
+    const center = 25.0; // 30 - 5 (half container - half dot)
+    const corner = 10.0; // 15 - 5
+    const mid = 40.0; // 45 - 5
 
     switch (value) {
       case 1:
@@ -139,10 +142,10 @@ class _DieDots extends StatelessWidget {
         return [
           Offset(corner, corner),
           Offset(mid, corner),
-          Offset(corner, center),
-          Offset(mid, center),
           Offset(corner, mid),
           Offset(mid, mid),
+          Offset(corner, center),
+          Offset(mid, center),
         ];
       default:
         return [];
