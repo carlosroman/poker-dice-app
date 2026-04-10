@@ -208,168 +208,81 @@ class _DieFaceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Value 1: Center
-        if (dots == 1)
-          Positioned.fill(
-            child: Align(alignment: Alignment.center, child: _DieDot()),
-          ),
-        // Value 2: Top-left and bottom-right
-        if (dots == 2)
-          Positioned.fill(
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        // Value 3: Top-left, center, bottom-right
-        if (dots == 3)
-          Positioned.fill(
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(alignment: Alignment.center, child: _DieDot()),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        // Value 4: Four corners
-        if (dots == 4)
-          Positioned.fill(
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        // Value 5: Four corners + center
-        if (dots == 5)
-          Positioned.fill(
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(alignment: Alignment.center, child: _DieDot()),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _DieDot(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        // Value 6: Two columns of 3
-        if (dots == 6)
-          Positioned.fill(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [_DieDot(), _DieDot(), _DieDot()],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [_DieDot(), _DieDot(), _DieDot()],
-                ),
-              ],
-            ),
-          ),
-      ],
+    return Center(
+      child: CustomPaint(
+        size: const Size(28, 28),
+        painter: _DieFacePainter(dots: dots),
+      ),
     );
   }
 }
 
-/// A small black dot for die face icons.
-class _DieDot extends StatelessWidget {
-  const _DieDot();
+/// Paints die face dots on a canvas.
+class _DieFacePainter extends CustomPainter {
+  final int dots;
+
+  _DieFacePainter({required this.dots});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 4,
-      height: 4,
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        shape: BoxShape.circle,
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    final dotRadius = 3.0;
+    final center = Offset(size.width / 2, size.height / 2);
+    final offset = size.width * 0.25;
+
+    // Define dot positions for each value
+    final positions = <Offset>[];
+
+    switch (dots) {
+      case 1:
+        positions.add(center);
+        break;
+      case 2:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 3:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(center);
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 4:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(Offset(center.dx + offset, center.dy - offset));
+        positions.add(Offset(center.dx - offset, center.dy + offset));
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 5:
+        positions.add(Offset(center.dx - offset, center.dy - offset));
+        positions.add(Offset(center.dx + offset, center.dy - offset));
+        positions.add(center);
+        positions.add(Offset(center.dx - offset, center.dy + offset));
+        positions.add(Offset(center.dx + offset, center.dy + offset));
+        break;
+      case 6:
+        final colOffset = offset * 0.8;
+        final rowOffset = offset * 1.2;
+        positions.add(Offset(center.dx - colOffset, center.dy - rowOffset));
+        positions.add(Offset(center.dx + colOffset, center.dy - rowOffset));
+        positions.add(Offset(center.dx - colOffset, center.dy));
+        positions.add(Offset(center.dx + colOffset, center.dy));
+        positions.add(Offset(center.dx - colOffset, center.dy + rowOffset));
+        positions.add(Offset(center.dx + colOffset, center.dy + rowOffset));
+        break;
+    }
+
+    // Draw all dots
+    for (final pos in positions) {
+      canvas.drawCircle(pos, dotRadius, paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant _DieFacePainter oldDelegate) =>
+      oldDelegate.dots != dots;
 }
 
 /// Displays the current score in a light blue box.
