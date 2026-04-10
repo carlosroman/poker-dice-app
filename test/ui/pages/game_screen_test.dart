@@ -53,8 +53,9 @@ void main() {
     testWidgets('displays score sheet with categories', (tester) async {
       await tester.pumpWidget(createGameScreen());
 
-      // Upper section categories are displayed as icons with scores
-      expect(find.byType(ListView), findsWidgets);
+      // Score sheet should have Minor and Major section headers
+      expect(find.text('Minor'), findsOneWidget);
+      expect(find.text('Major'), findsOneWidget);
     });
 
     testWidgets('toggles die held state when tapped', (tester) async {
@@ -94,8 +95,8 @@ void main() {
     testWidgets('displays bonus row in upper section', (tester) async {
       await tester.pumpWidget(createGameScreen());
 
-      // The bonus row should be present in the ListView
-      expect(find.byType(ListView), findsWidgets);
+      // The bonus row should be present in the Minor column
+      expect(find.text('Minor'), findsOneWidget);
     });
 
     testWidgets('shows menu modal when menu button is tapped', (tester) async {
@@ -142,8 +143,8 @@ void main() {
     testWidgets('displays upper section total row', (tester) async {
       await tester.pumpWidget(createGameScreen());
 
-      // The bonus row should show upper total info
-      expect(find.byType(ListView), findsWidgets);
+      // The bonus row should be present in the Minor column
+      expect(find.text('Minor'), findsOneWidget);
     });
 
     testWidgets('New Game button resets the game', (tester) async {

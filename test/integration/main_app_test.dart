@@ -67,10 +67,11 @@ void main() {
       testWidgets('displays score sheet with categories', (tester) async {
         await pumpMainApp(tester);
 
-        // Score sheet should be displayed with ListView for categories
-        expect(find.byType(ListView), findsWidgets);
+        // Score sheet should be displayed with two-column layout
+        expect(find.text('Minor'), findsOneWidget);
+        expect(find.text('Major'), findsOneWidget);
 
-        // Verify score rows are present (ScoreRow widgets)
+        // Verify score rows are present (Text widgets for scores)
         expect(find.byType(Text), findsWidgets);
       });
 
@@ -211,12 +212,12 @@ void main() {
         expect(find.byType(Column), findsWidgets);
       });
 
-      testWidgets('score sheet has upper and lower sections', (tester) async {
+      testWidgets('score sheet has Minor and Major sections', (tester) async {
         await pumpMainApp(tester);
 
-        // Score sheet should have list views for categories
-        final listViews = find.byType(ListView);
-        expect(listViews, findsWidgets);
+        // Score sheet should have both section headers
+        expect(find.text('Minor'), findsOneWidget);
+        expect(find.text('Major'), findsOneWidget);
       });
 
       testWidgets('dice row is properly positioned', (tester) async {

@@ -4,9 +4,8 @@ import 'package:poker_dice/src/bloc/game_bloc.dart';
 import 'package:poker_dice/src/domain/game_state.dart';
 import 'package:poker_dice/src/domain/models/score_category.dart';
 import 'package:poker_dice/src/ui/animation/dice_animation.dart';
-import 'package:poker_dice/src/ui/animation/selection_animation.dart';
 import 'package:poker_dice/src/ui/components/roll_button.dart';
-import 'package:poker_dice/src/ui/components/score_row.dart';
+import 'package:poker_dice/src/ui/components/score_sheet.dart' as ui;
 import 'package:poker_dice/src/ui/theme/app_theme.dart';
 
 /// The main game screen with GameBloc integration.
@@ -74,8 +73,14 @@ class _GameScreenState extends State<GameScreen> {
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.md,
                       ),
-                      child: _ScoreSheet(
-                        gameState: gameState,
+                      child: ui.ScoreSheetWidget(
+                        potentialScores: _buildPotentialScores(gameState),
+                        currentScores: gameState.scoreSheet.scores,
+                        scoredCategories: gameState.scoreSheet.scores.entries
+                            .where((e) => e.value != null)
+                            .map((e) => e.key)
+                            .toSet(),
+                        minorTotal: gameState.scoreSheet.getMinorTotal(),
                         onCategoryTapped: (category) =>
                             _gameBloc.selectCategory(category),
                       ),
@@ -151,6 +156,18 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  Map<ScoreCategory, int?> _buildPotentialScores(GameState gameState) {
+    final potentialScores = <ScoreCategory, int?>{};
+    for (final category in ScoreCategory.values) {
+      if (!gameState.scoreSheet.isCategoryScored(category)) {
+        potentialScores[category] = gameState.getPotentialScore(category);
+      } else {
+        potentialScores[category] = null;
+      }
+    }
+    return potentialScores;
+  }
+
   void _handlePlayTapped(GameState gameState) {
     // Find the currently selected category based on held dice
     // For now, we'll just select the first unscored category that matches the dice
@@ -211,157 +228,6 @@ class _GameHeader extends StatelessWidget {
             onPressed: onMenuTapped,
             icon: const Icon(Icons.more_vert),
             color: AppTheme.textOnPrimary,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Score sheet widget displaying all scoring categories.
-class _ScoreSheet extends StatefulWidget {
-  final GameState gameState;
-  final Function(ScoreCategory) onCategoryTapped;
-
-  const _ScoreSheet({required this.gameState, required this.onCategoryTapped});
-
-  @override
-  State<_ScoreSheet> createState() => _ScoreSheetState();
-}
-
-class _ScoreSheetState extends State<_ScoreSheet> {
-  ScoreCategory? _lastSelectedCategory;
-
-  @override
-  void didUpdateWidget(_ScoreSheet oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Track when a new category is selected
-    final currentSelected =
-        widget.gameState.currentRound.dice
-            .asMap()
-            .entries
-            .where((entry) => entry.value.held)
-            .isNotEmpty
-        ? _findSelectedCategory(oldWidget.gameState)
-        : null;
-    if (currentSelected != _lastSelectedCategory) {
-      setState(() {
-        _lastSelectedCategory = currentSelected;
-      });
-    }
-  }
-
-  ScoreCategory? _findSelectedCategory(GameState state) {
-    // Find a category that might be selected based on game state changes
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Minor Section
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              ..._buildCategoryRows(
-                ScoreCategory.values.where((c) => c.isMinor).toList(),
-                widget.gameState,
-                widget.onCategoryTapped,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _MinorTotalRow(
-                minorTotal: widget.gameState.scoreSheet.getMinorTotal(),
-                hasBonus: widget.gameState.scoreSheet.getBonus() > 0,
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-          ),
-        ),
-
-        const Divider(height: 1, thickness: 2),
-
-        // Major Section
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              ..._buildCategoryRows(
-                ScoreCategory.values.where((c) => c.isMajor).toList(),
-                widget.gameState,
-                widget.onCategoryTapped,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildCategoryRows(
-    List<ScoreCategory> categories,
-    GameState gameState,
-    Function(ScoreCategory) onCategoryTapped,
-  ) {
-    return categories.map((category) {
-      final isScored = gameState.scoreSheet.isCategoryScored(category);
-      final currentScore = isScored
-          ? gameState.scoreSheet.scores[category] ?? 0
-          : null;
-      final potentialScore = isScored
-          ? null
-          : gameState.getPotentialScore(category);
-
-      return AnimatedCategorySelection(
-        key: ValueKey('score_row_${category.name}'),
-        isSelected: false,
-        onTap: isScored ? null : () => onCategoryTapped(category),
-        child: ScoreRow(
-          category: category,
-          potentialScore: potentialScore,
-          currentScore: currentScore,
-          isScored: isScored,
-          yatzyBonus:
-              category == ScoreCategory.yatzy &&
-              gameState.scoreSheet.yatzyCount > 0,
-        ),
-      );
-    }).toList();
-  }
-}
-
-/// Widget displaying the minor section total.
-class _MinorTotalRow extends StatelessWidget {
-  final int minorTotal;
-  final bool hasBonus;
-
-  const _MinorTotalRow({required this.minorTotal, required this.hasBonus});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: AppTheme.accentYellow,
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Bonus',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            hasBonus ? '35' : '0',
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
           ),
         ],
       ),
