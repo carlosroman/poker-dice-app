@@ -89,13 +89,51 @@ void main() {
     });
 
     group('selectCategory', () {
-      test('scores a category and updates score sheet', () {
+      test('selects a category without scoring', () {
         // First roll dice
         gameBloc.rollDice();
 
         final initialScore =
             gameBloc.value.scoreSheet.scores[ScoreCategory.aces];
         gameBloc.selectCategory(ScoreCategory.aces);
+
+        // Category should be selected but not scored
+        expect(gameBloc.selectedCategory, ScoreCategory.aces);
+        expect(gameBloc.value.scoreSheet.scores[ScoreCategory.aces], isNull);
+        expect(
+          gameBloc.value.scoreSheet.scores[ScoreCategory.aces],
+          equals(initialScore),
+        );
+      });
+
+      test('does nothing if game is over', () {
+        gameBloc = GameBloc(
+          initialState: gameBloc.value.copyWith(isGameOver: true),
+        );
+        final scoreSheet = gameBloc.value.scoreSheet;
+        gameBloc.selectCategory(ScoreCategory.aces);
+        expect(gameBloc.value.scoreSheet, scoreSheet);
+      });
+
+      test('does nothing if category already scored', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        gameBloc.commitCategory();
+
+        gameBloc.selectCategory(ScoreCategory.aces);
+
+        expect(gameBloc.selectedCategory, isNull);
+      });
+    });
+
+    group('commitCategory', () {
+      test('scores the selected category', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        final initialScore =
+            gameBloc.value.scoreSheet.scores[ScoreCategory.aces];
+
+        gameBloc.commitCategory();
 
         expect(gameBloc.value.scoreSheet.scores[ScoreCategory.aces], isNotNull);
         expect(
@@ -106,8 +144,9 @@ void main() {
 
       test('starts a new round after scoring', () {
         gameBloc.rollDice();
-
         gameBloc.selectCategory(ScoreCategory.aces);
+
+        gameBloc.commitCategory();
 
         expect(gameBloc.value.currentRound.rollCount, 0);
       });
@@ -117,17 +156,16 @@ void main() {
         for (final category in ScoreCategory.values) {
           gameBloc.rollDice();
           gameBloc.selectCategory(category);
+          gameBloc.commitCategory();
         }
 
         expect(gameBloc.value.isGameOver, isTrue);
       });
 
-      test('does nothing if game is over', () {
-        gameBloc = GameBloc(
-          initialState: gameBloc.value.copyWith(isGameOver: true),
-        );
+      test('does nothing if no category selected', () {
+        gameBloc.rollDice();
         final scoreSheet = gameBloc.value.scoreSheet;
-        gameBloc.selectCategory(ScoreCategory.aces);
+        gameBloc.commitCategory();
         expect(gameBloc.value.scoreSheet, scoreSheet);
       });
     });
@@ -161,6 +199,7 @@ void main() {
       test('returns 0 for already scored category', () {
         gameBloc.rollDice();
         gameBloc.selectCategory(ScoreCategory.aces);
+        gameBloc.commitCategory();
 
         final potential = gameBloc.getPotentialScore(ScoreCategory.aces);
         expect(potential, 0);
@@ -188,6 +227,87 @@ void main() {
 
         gameBloc.newGame();
         expect(notifyCount, 3);
+      });
+    });
+
+    group('Category selection flow', () {
+      test('selectCategory selects category without scoring', () {
+        gameBloc.rollDice();
+        expect(gameBloc.selectedCategory, isNull);
+
+        gameBloc.selectCategory(ScoreCategory.aces);
+
+        expect(gameBloc.selectedCategory, ScoreCategory.aces);
+        expect(gameBloc.value.scoreSheet.scores[ScoreCategory.aces], isNull);
+      });
+
+      test('commitCategory scores the selected category', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        expect(gameBloc.selectedCategory, ScoreCategory.aces);
+
+        gameBloc.commitCategory();
+
+        expect(gameBloc.selectedCategory, isNull);
+        expect(gameBloc.value.scoreSheet.scores[ScoreCategory.aces], isNotNull);
+      });
+
+      test('selectCategory does not score already scored category', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        gameBloc.commitCategory();
+
+        gameBloc.selectCategory(ScoreCategory.aces);
+
+        expect(gameBloc.selectedCategory, isNull);
+      });
+
+      test('isPlayEnabled returns true when category is selected', () {
+        gameBloc.rollDice();
+        expect(gameBloc.isPlayEnabled, isFalse);
+
+        gameBloc.selectCategory(ScoreCategory.aces);
+        expect(gameBloc.isPlayEnabled, isTrue);
+      });
+
+      test('isPlayEnabled returns false when no category selected', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        gameBloc.commitCategory();
+
+        expect(gameBloc.isPlayEnabled, isFalse);
+      });
+
+      test('commitCategory clears selection after scoring', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        expect(gameBloc.selectedCategory, ScoreCategory.aces);
+
+        gameBloc.commitCategory();
+
+        expect(gameBloc.selectedCategory, isNull);
+      });
+
+      test('selectCategory notifies listeners', () {
+        gameBloc.rollDice();
+        var notifyCount = 0;
+        gameBloc.addListener(() => notifyCount++);
+
+        gameBloc.selectCategory(ScoreCategory.aces);
+
+        expect(notifyCount, 1);
+      });
+
+      test('commitCategory notifies listeners', () {
+        gameBloc.rollDice();
+        gameBloc.selectCategory(ScoreCategory.aces);
+        var notifyCount = 0;
+        gameBloc.addListener(() => notifyCount++);
+
+        gameBloc.commitCategory();
+
+        // commitCategory calls notifyListeners once
+        expect(notifyCount, 1);
       });
     });
   });

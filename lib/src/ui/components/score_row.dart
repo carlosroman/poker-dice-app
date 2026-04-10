@@ -20,6 +20,9 @@ class ScoreRow extends StatelessWidget {
   /// Whether this category has been scored.
   final bool isScored;
 
+  /// Whether this category is currently selected.
+  final bool isSelected;
+
   /// Whether the Yatzy bonus applies (+50).
   final bool yatzyBonus;
 
@@ -36,6 +39,7 @@ class ScoreRow extends StatelessWidget {
     this.potentialScore,
     this.currentScore,
     this.isScored = false,
+    this.isSelected = false,
     this.yatzyBonus = false,
     this.showDieIcon = false,
     this.onTap,
@@ -44,7 +48,9 @@ class ScoreRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: isSelected
+          ? AppTheme.primaryDark.withValues(alpha: 0.5)
+          : Colors.transparent,
       child: Semantics(
         label: AccessibilityUtils.getScoreRowLabel(
           category.displayName,

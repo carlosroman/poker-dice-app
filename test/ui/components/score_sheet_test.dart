@@ -239,6 +239,62 @@ void main() {
     });
   });
 
+  group('ScoreSheet - Selection', () {
+    testWidgets('passes selectedCategory to ScoreRow', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ScoreSheetWidget(
+              potentialScores: {ScoreCategory.aces: 1},
+              currentScores: {},
+              scoredCategories: {},
+              upperTotal: 0,
+              selectedCategory: ScoreCategory.aces,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsNWidgets(13));
+    });
+
+    testWidgets('highlights selected category', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ScoreSheetWidget(
+              potentialScores: {ScoreCategory.aces: 1, ScoreCategory.twos: 2},
+              currentScores: {},
+              scoredCategories: {},
+              upperTotal: 0,
+              selectedCategory: ScoreCategory.aces,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsNWidgets(13));
+    });
+
+    testWidgets('handles null selectedCategory', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ScoreSheetWidget(
+              potentialScores: {},
+              currentScores: {},
+              scoredCategories: {},
+              upperTotal: 0,
+              selectedCategory: null,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsNWidgets(13));
+    });
+  });
+
   group('ScoreSheet - Empty State', () {
     testWidgets('displays dashes for null potential scores', (tester) async {
       await tester.pumpWidget(

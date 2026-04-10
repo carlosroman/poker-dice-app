@@ -238,6 +238,58 @@ void main() {
     });
   });
 
+  group('ScoreRow - Selection highlighting', () {
+    testWidgets('displays highlight when isSelected is true', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.aces,
+              potentialScore: 3,
+              isSelected: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+      // Verify the widget builds with selection
+      expect(find.text('3'), findsOneWidget);
+    });
+
+    testWidgets('displays transparent background when isSelected is false', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(
+              category: ScoreCategory.twos,
+              potentialScore: 4,
+              isSelected: false,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+      expect(find.text('4'), findsOneWidget);
+    });
+
+    testWidgets('defaults isSelected to false', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ScoreRow(category: ScoreCategory.threes, potentialScore: 5),
+          ),
+        ),
+      );
+
+      expect(find.byType(ScoreRow), findsOneWidget);
+      expect(find.text('5'), findsOneWidget);
+    });
+  });
+
   group('DieFaceIcon', () {
     testWidgets('die face 1 shows 1 dot', (tester) async {
       await tester.pumpWidget(

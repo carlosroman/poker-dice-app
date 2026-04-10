@@ -81,6 +81,7 @@ class _GameScreenState extends State<GameScreen> {
                             .map((e) => e.key)
                             .toSet(),
                         upperTotal: gameState.scoreSheet.getUpperTotal(),
+                        selectedCategory: _gameBloc.selectedCategory,
                         onCategoryTapped: (category) =>
                             _gameBloc.selectCategory(category),
                       ),
@@ -115,9 +116,9 @@ class _GameScreenState extends State<GameScreen> {
                     child: _ButtonRow(
                       rollCount: gameState.currentRound.rollCount,
                       canRoll: gameState.canRoll,
-                      hasUnscoredCategories: _gameBloc.hasUnscoredCategories,
+                      isPlayEnabled: _gameBloc.isPlayEnabled,
                       onRollTapped: () => _gameBloc.rollDice(),
-                      onPlayTapped: () => _handlePlayTapped(gameState),
+                      onPlayTapped: () => _handlePlayTapped(),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -168,24 +169,9 @@ class _GameScreenState extends State<GameScreen> {
     return potentialScores;
   }
 
-  void _handlePlayTapped(GameState gameState) {
-    // Find the currently selected category based on held dice
-    // For now, we'll just select the first unscored category that matches the dice
-    // This should be improved to track user selection properly
-    final heldDice = gameState.currentRound.dice
-        .where((die) => die.held)
-        .toList();
-    if (heldDice.isEmpty) {
-      // No dice held, just roll again
-      return;
-    }
-
-    // For simplicity, auto-select a matching category
-    // In a real implementation, you'd track the user's category selection
-    final unscoredCategories = gameState.getValidCategories();
-    if (unscoredCategories.isNotEmpty) {
-      _gameBloc.commitCategory(unscoredCategories.first);
-    }
+  void _handlePlayTapped() {
+    // Commit the currently selected category
+    _gameBloc.commitCategory();
   }
 }
 
@@ -292,14 +278,14 @@ class _DiceRowState extends State<_DiceRow> {
 class _ButtonRow extends StatelessWidget {
   final int rollCount;
   final bool canRoll;
-  final bool hasUnscoredCategories;
+  final bool isPlayEnabled;
   final VoidCallback? onRollTapped;
   final VoidCallback? onPlayTapped;
 
   const _ButtonRow({
     required this.rollCount,
     required this.canRoll,
-    required this.hasUnscoredCategories,
+    required this.isPlayEnabled,
     this.onRollTapped,
     this.onPlayTapped,
   });
@@ -317,7 +303,7 @@ class _ButtonRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: ElevatedButton(
-            onPressed: hasUnscoredCategories ? onPlayTapped : null,
+            onPressed: isPlayEnabled ? onPlayTapped : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.accentOrange,
               foregroundColor: Colors.white,

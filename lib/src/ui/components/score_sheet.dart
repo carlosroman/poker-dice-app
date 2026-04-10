@@ -24,6 +24,9 @@ class ScoreSheetWidget extends StatelessWidget {
   /// Callback when a category row is tapped.
   final Function(ScoreCategory)? onCategoryTapped;
 
+  /// The currently selected category for scoring.
+  final ScoreCategory? selectedCategory;
+
   /// Creates a [ScoreSheetWidget].
   const ScoreSheetWidget({
     super.key,
@@ -31,6 +34,7 @@ class ScoreSheetWidget extends StatelessWidget {
     required this.currentScores,
     required this.scoredCategories,
     required this.upperTotal,
+    this.selectedCategory,
     this.onCategoryTapped,
   });
 
@@ -68,6 +72,7 @@ class ScoreSheetWidget extends StatelessWidget {
                     currentScores: currentScores,
                     scoredCategories: scoredCategories,
                     upperTotal: upperTotal,
+                    selectedCategory: selectedCategory,
                     onCategoryTapped: onCategoryTapped,
                   ),
                 ),
@@ -79,6 +84,7 @@ class ScoreSheetWidget extends StatelessWidget {
                     potentialScores: potentialScores,
                     currentScores: currentScores,
                     scoredCategories: scoredCategories,
+                    selectedCategory: selectedCategory,
                     onCategoryTapped: onCategoryTapped,
                   ),
                 ),
@@ -146,6 +152,7 @@ class _UpperColumn extends StatelessWidget {
   final Map<ScoreCategory, int?> currentScores;
   final Set<ScoreCategory> scoredCategories;
   final int upperTotal;
+  final ScoreCategory? selectedCategory;
   final Function(ScoreCategory)? onCategoryTapped;
 
   const _UpperColumn({
@@ -154,6 +161,7 @@ class _UpperColumn extends StatelessWidget {
     required this.currentScores,
     required this.scoredCategories,
     required this.upperTotal,
+    this.selectedCategory,
     this.onCategoryTapped,
   });
 
@@ -169,6 +177,7 @@ class _UpperColumn extends StatelessWidget {
             potentialScore: potentialScores[category],
             currentScore: currentScores[category],
             isScored: scoredCategories.contains(category),
+            isSelected: selectedCategory == category,
             yatzyBonus: false,
             showDieIcon: true, // Show die icons for Upper section
             onTap: () => onCategoryTapped?.call(category),
@@ -195,6 +204,7 @@ class _LowerColumn extends StatelessWidget {
   final Map<ScoreCategory, int?> potentialScores;
   final Map<ScoreCategory, int?> currentScores;
   final Set<ScoreCategory> scoredCategories;
+  final ScoreCategory? selectedCategory;
   final Function(ScoreCategory)? onCategoryTapped;
 
   const _LowerColumn({
@@ -202,6 +212,7 @@ class _LowerColumn extends StatelessWidget {
     required this.potentialScores,
     required this.currentScores,
     required this.scoredCategories,
+    this.selectedCategory,
     this.onCategoryTapped,
   });
 
@@ -217,6 +228,7 @@ class _LowerColumn extends StatelessWidget {
               potentialScore: potentialScores[category],
               currentScore: currentScores[category],
               isScored: scoredCategories.contains(category),
+              isSelected: selectedCategory == category,
               yatzyBonus: false,
               onTap: () => onCategoryTapped?.call(category),
             ),

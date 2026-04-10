@@ -18,6 +18,12 @@ class GameBloc extends ValueNotifier<GameState> {
   /// Stream of game events for debugging/analytics.
   Stream<String> get eventStream => _eventController.stream;
 
+  /// The currently selected category for scoring.
+  ScoreCategory? _selectedCategory;
+
+  /// The currently selected category for scoring.
+  ScoreCategory? get selectedCategory => _selectedCategory;
+
   /// Creates a new GameBloc instance.
   ///
   /// [initialState] defaults to a new game if not specified.
@@ -53,42 +59,48 @@ class GameBloc extends ValueNotifier<GameState> {
     }
   }
 
-  /// Selects a category to score the current dice.
+  /// Selects a category (highlights it without scoring).
   ///
-  /// [category] is the scoring category to apply.
+  /// [category] is the scoring category to select.
   void selectCategory(ScoreCategory category) {
     if (value.isGameOver) {
       return;
     }
 
-    try {
-      value = value.selectCategory(category);
-      _emitEvent('category_selected_${category.name}');
-    } catch (e) {
-      _emitEvent('error: $e');
+    // Don't allow selecting an already scored category
+    if (value.scoreSheet.isCategoryScored(category)) {
+      return;
     }
+
+    _selectedCategory = category;
+    notifyListeners();
+    _emitEvent('category_selected_${category.name}');
   }
 
-  /// Commits/plays the selected category for scoring.
+  /// Commits/plays the currently selected category for scoring.
   ///
   /// This is called when the Play button is tapped.
-  /// [category] is the scoring category to apply.
-  void commitCategory(ScoreCategory category) {
-    if (value.isGameOver) {
+  /// Scores the selected category and clears the selection.
+  void commitCategory() {
+    if (value.isGameOver || _selectedCategory == null) {
       return;
     }
 
     try {
-      value = value.commitCategory(category);
+      final category = _selectedCategory!;
+      _selectedCategory = null; // Clear selection first
+      value = value.selectCategory(category);
       _emitEvent('category_committed_${category.name}');
     } catch (e) {
       _emitEvent('error: $e');
     }
   }
 
-  /// Returns true if there are unscored categories available.
-  bool get hasUnscoredCategories {
-    return !value.isGameOver && value.getValidCategories().isNotEmpty;
+  /// Returns true if a category is selected and there are unscored categories.
+  bool get isPlayEnabled {
+    return !value.isGameOver &&
+        _selectedCategory != null &&
+        value.getValidCategories().isNotEmpty;
   }
 
   /// Starts a new game.
