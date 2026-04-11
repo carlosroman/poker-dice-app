@@ -97,7 +97,8 @@ class _DieDots extends StatelessWidget {
 /// Custom painter for die dots.
 ///
 /// This painter draws dots on a die face using Canvas API, ensuring
-/// proper centering of dots from their center point (like the Upper section).
+/// proper centering of dots from their center point.
+/// Uses precise pixel-based positioning to match traditional dice patterns.
 class _DieDotPainter extends CustomPainter {
   final int dots;
 
@@ -109,48 +110,57 @@ class _DieDotPainter extends CustomPainter {
       ..color = Colors.black
       ..style = PaintingStyle.fill;
 
-    final dotRadius = 5.0; // Half of 10x10 dot size
-    final center = Offset(size.width / 2, size.height / 2);
-    final offset = size.width * 0.25; // 15px for 60px container
+    final dotRadius = 5.0;
 
-    // Define dot positions for each value
+    // Precise positions for a 60x60 die
+    // Center of each dot position
+    const center = 30.0; // Center of 60x60
+    const corner = 15.0; // Corner position (15px from edge)
+    const edge = 45.0; // Edge position (45px from origin)
+
     final positions = <Offset>[];
 
     switch (dots) {
       case 1:
-        positions.add(center);
+        // Single dot in center
+        positions.add(Offset(center, center));
         break;
       case 2:
-        positions.add(Offset(center.dx - offset, center.dy - offset));
-        positions.add(Offset(center.dx + offset, center.dy + offset));
+        // Diagonal from top-left to bottom-right
+        positions.add(Offset(corner, corner));
+        positions.add(Offset(edge, edge));
         break;
       case 3:
-        positions.add(Offset(center.dx - offset, center.dy - offset));
-        positions.add(center);
-        positions.add(Offset(center.dx + offset, center.dy + offset));
+        // Diagonal with center
+        positions.add(Offset(corner, corner));
+        positions.add(Offset(center, center));
+        positions.add(Offset(edge, edge));
         break;
       case 4:
-        positions.add(Offset(center.dx - offset, center.dy - offset));
-        positions.add(Offset(center.dx + offset, center.dy - offset));
-        positions.add(Offset(center.dx - offset, center.dy + offset));
-        positions.add(Offset(center.dx + offset, center.dy + offset));
+        // Four corners
+        positions.add(Offset(corner, corner));
+        positions.add(Offset(edge, corner));
+        positions.add(Offset(corner, edge));
+        positions.add(Offset(edge, edge));
         break;
       case 5:
-        positions.add(Offset(center.dx - offset, center.dy - offset));
-        positions.add(Offset(center.dx + offset, center.dy - offset));
-        positions.add(center);
-        positions.add(Offset(center.dx - offset, center.dy + offset));
-        positions.add(Offset(center.dx + offset, center.dy + offset));
+        // Four corners + center
+        positions.add(Offset(corner, corner));
+        positions.add(Offset(edge, corner));
+        positions.add(Offset(center, center));
+        positions.add(Offset(corner, edge));
+        positions.add(Offset(edge, edge));
         break;
       case 6:
-        final colOffset = offset * 0.8;
-        final rowOffset = offset * 1.2;
-        positions.add(Offset(center.dx - colOffset, center.dy - rowOffset));
-        positions.add(Offset(center.dx + colOffset, center.dy - rowOffset));
-        positions.add(Offset(center.dx - colOffset, center.dy));
-        positions.add(Offset(center.dx + colOffset, center.dy));
-        positions.add(Offset(center.dx - colOffset, center.dy + rowOffset));
-        positions.add(Offset(center.dx + colOffset, center.dy + rowOffset));
+        // Two columns of 3 dots each
+        // Left column: x=15, right column: x=45
+        // Top: y=12, middle: y=30, bottom: y=48
+        positions.add(Offset(corner, 12.0));
+        positions.add(Offset(edge, 12.0));
+        positions.add(Offset(corner, center));
+        positions.add(Offset(edge, center));
+        positions.add(Offset(corner, 48.0));
+        positions.add(Offset(edge, 48.0));
         break;
     }
 

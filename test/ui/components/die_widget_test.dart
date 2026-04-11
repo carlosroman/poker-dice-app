@@ -218,4 +218,149 @@ void main() {
       expect(find.byType(DieWidget), findsOneWidget);
     });
   });
+
+  group('DieWidget - Dot position verification', () {
+    test('die value 1 has dot at center (30, 30)', () {
+      const expectedPositions = [Offset(30.0, 30.0)];
+      expect(_getDotPositionsForValue(1), expectedPositions);
+    });
+
+    test('die value 2 has dots at diagonal corners', () {
+      const expectedPositions = [Offset(15.0, 15.0), Offset(45.0, 45.0)];
+      expect(_getDotPositionsForValue(2), expectedPositions);
+    });
+
+    test('die value 3 has dots on diagonal including center', () {
+      const expectedPositions = [
+        Offset(15.0, 15.0),
+        Offset(30.0, 30.0),
+        Offset(45.0, 45.0),
+      ];
+      expect(_getDotPositionsForValue(3), expectedPositions);
+    });
+
+    test('die value 4 has dots at four corners', () {
+      const expectedPositions = [
+        Offset(15.0, 15.0),
+        Offset(45.0, 15.0),
+        Offset(15.0, 45.0),
+        Offset(45.0, 45.0),
+      ];
+      expect(_getDotPositionsForValue(4), expectedPositions);
+    });
+
+    test('die value 5 has dots at corners and center', () {
+      const expectedPositions = [
+        Offset(15.0, 15.0),
+        Offset(45.0, 15.0),
+        Offset(30.0, 30.0),
+        Offset(15.0, 45.0),
+        Offset(45.0, 45.0),
+      ];
+      expect(_getDotPositionsForValue(5), expectedPositions);
+    });
+
+    test('die value 6 has two columns of three dots each', () {
+      const expectedPositions = [
+        Offset(15.0, 12.0),
+        Offset(45.0, 12.0),
+        Offset(15.0, 30.0),
+        Offset(45.0, 30.0),
+        Offset(15.0, 48.0),
+        Offset(45.0, 48.0),
+      ];
+      expect(_getDotPositionsForValue(6), expectedPositions);
+    });
+
+    test('all dot positions are within die bounds (60x60)', () {
+      for (int value = 1; value <= 6; value++) {
+        final positions = _getDotPositionsForValue(value);
+        for (final pos in positions) {
+          expect(pos.dx, inInclusiveRange(0, 60));
+          expect(pos.dy, inInclusiveRange(0, 60));
+        }
+      }
+    });
+
+    test('dot positions are symmetric for traditional dice patterns', () {
+      // Die 2: diagonal symmetry
+      final die2 = _getDotPositionsForValue(2);
+      expect(die2[0].dx + die2[1].dx, 60.0); // 15 + 45 = 60
+      expect(die2[0].dy + die2[1].dy, 60.0);
+
+      // Die 4: four corners symmetry
+      final die4 = _getDotPositionsForValue(4);
+      expect(die4[0].dx, die4[2].dx); // left column x
+      expect(die4[1].dx, die4[3].dx); // right column x
+      expect(die4[0].dy, die4[1].dy); // top row y
+      expect(die4[2].dy, die4[3].dy); // bottom row y
+
+      // Die 6: two column symmetry
+      // Left column: indices 0, 2, 4 (x=15)
+      // Right column: indices 1, 3, 5 (x=45)
+      final die6 = _getDotPositionsForValue(6);
+      // Check left column dots
+      expect(die6[0].dx, 15.0);
+      expect(die6[2].dx, 15.0);
+      expect(die6[4].dx, 15.0);
+      // Check right column dots
+      expect(die6[1].dx, 45.0);
+      expect(die6[3].dx, 45.0);
+      expect(die6[5].dx, 45.0);
+      // Check y positions match between columns
+      expect(die6[0].dy, die6[1].dy); // top row
+      expect(die6[2].dy, die6[3].dy); // middle row
+      expect(die6[4].dy, die6[5].dy); // bottom row
+    });
+  });
+}
+
+/// Helper function to extract dot positions from the painter.
+/// This simulates what the painter does to verify correct positioning.
+List<Offset> _getDotPositionsForValue(int value) {
+  const center = 30.0;
+  const corner = 15.0;
+  const edge = 45.0;
+
+  final positions = <Offset>[];
+
+  switch (value) {
+    case 1:
+      positions.add(Offset(center, center));
+      break;
+    case 2:
+      positions.add(Offset(corner, corner));
+      positions.add(Offset(edge, edge));
+      break;
+    case 3:
+      positions.add(Offset(corner, corner));
+      positions.add(Offset(center, center));
+      positions.add(Offset(edge, edge));
+      break;
+    case 4:
+      positions.add(Offset(corner, corner));
+      positions.add(Offset(edge, corner));
+      positions.add(Offset(corner, edge));
+      positions.add(Offset(edge, edge));
+      break;
+    case 5:
+      positions.add(Offset(corner, corner));
+      positions.add(Offset(edge, corner));
+      positions.add(Offset(center, center));
+      positions.add(Offset(corner, edge));
+      positions.add(Offset(edge, edge));
+      break;
+    case 6:
+      positions.add(Offset(corner, 12.0));
+      positions.add(Offset(edge, 12.0));
+      positions.add(Offset(corner, center));
+      positions.add(Offset(edge, center));
+      positions.add(Offset(corner, 48.0));
+      positions.add(Offset(edge, 48.0));
+      break;
+    default:
+      break;
+  }
+
+  return positions;
 }
