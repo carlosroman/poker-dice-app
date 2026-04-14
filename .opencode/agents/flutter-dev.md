@@ -6,6 +6,7 @@ disable: false
 tools:
   write: true
   edit: true
+  task: true
 enable_thinking: false
 ---
 
@@ -62,21 +63,31 @@ class User {
 
 ## MCP Server Usage
 
-The Dart MCP server is the **primary interface for interacting with Flutter and Dart projects**.
+The Dart MCP server is the **primary interface** for Flutter/Dart projects.
 
-Always prefer MCP tools instead of executing `flutter` or `dart` CLI commands.
+**Always prefer MCP tools over shell commands.**
 
-Use MCP tools for:
+### Key MCP Tools
 
-- project analysis
-- dependency inspection
-- pub.dev package search
-- formatting code
-- static analysis
-- running tests
-- inspecting symbols
+| Task | MCP Tool |
+|------|----------|
+| Run tests | `dart-mcp-server_run_tests` |
+| Analyze | `dart-mcp-server_analyze_files` |
+| Format | `dart-mcp-server_dart_format` |
+| Fix issues | `dart-mcp-server_dart_fix` |
+| Dependencies | `dart-mcp-server_pub` |
+| Run app | `dart-mcp-server_launch_app` |
+| Search packages | `dart-mcp-server_pub_dev_search` |
 
-Avoid running shell commands unless the MCP server cannot perform the task.
+### Priority
+
+1. **Testing:** Use `dart-mcp-server_run_tests` (not `flutter test`)
+2. **Analysis:** Use `dart-mcp-server_analyze_files` (not `flutter analyze`)
+3. **Formatting:** Use `dart-mcp-server_dart_format` before commits
+4. **Dependencies:** Use `dart-mcp-server_pub` for all pub commands
+5. **Runtime:** Use `dart-mcp-server_launch_app`, not `flutter run`
+
+Only use shell commands when MCP tools cannot perform the task.
 
 ## Visual Design (Material 3)
 * **Aesthetics:** Premium, custom look. "Wow" the user. Avoid default blue.
