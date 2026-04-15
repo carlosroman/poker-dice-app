@@ -114,3 +114,9 @@ Only use shell commands when MCP tools cannot perform the task.
 * **Test:** `flutter test .`
 * **Analyze:** `flutter analyze .`
 
+## Reporting Back
+When your task is complete, summarise:
+* Files created or modified
+* Tests written and their results
+* Any issues encountered or deviations from the brief
+
