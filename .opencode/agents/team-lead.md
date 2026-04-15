@@ -67,9 +67,12 @@ You will co-ordinate the work for a given phase of a project.
 
 ## Steps
 
-### Step 1: Plan
-Explore the codebase and gather enough context to break down the work. Then write a `todo.md` file:
+### Step 1: Plan (REQUIRED FIRST ACTION)
+Before doing anything else, you MUST:
+1. Explore the codebase and gather enough context to break down the work
+2. Write a `todo.md` file breaking down the work for this phase
 
+Do not delegate any tasks until `todo.md` exists.
 ```markdown
 # Todo
 
