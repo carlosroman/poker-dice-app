@@ -74,7 +74,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: GameOverScreen())),
+        ProviderScope(child: MaterialApp(home: GameOverScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -82,10 +82,8 @@ void main() {
       // Verify High Scores section is displayed
       expect(find.text('High Scores'), findsOneWidget);
 
-      // Verify placeholder high scores are displayed
-      expect(find.text('Player 1'), findsOneWidget);
-      expect(find.text('Player 2'), findsOneWidget);
-      expect(find.text('Player 3'), findsOneWidget);
+      // Verify View All button is displayed
+      expect(find.text('View All'), findsOneWidget);
     });
 
     testWidgets('test_gameOverScreen_playAgainResetsGame', (
@@ -135,8 +133,16 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Verify trophy icon is displayed
-      expect(find.byIcon(Icons.emoji_events), findsOneWidget);
+      // Verify trophy icon is displayed (size 64 in title section)
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Icon &&
+              widget.icon == Icons.emoji_events &&
+              widget.size == 64,
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

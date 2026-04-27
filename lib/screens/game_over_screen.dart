@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/game_state.dart';
 import '../providers/game_provider.dart';
+import '../providers/settings_provider.dart';
+import '../widgets/high_scores_dialog.dart';
 
 /// A screen displayed when the game is over.
 ///
@@ -44,7 +46,7 @@ class GameOverScreen extends ConsumerWidget {
               const SizedBox(height: 32),
 
               // High Scores Section
-              _buildHighScoresSection(context),
+              _buildHighScoresSection(context, ref),
 
               const SizedBox(height: 32),
 
@@ -215,8 +217,9 @@ class GameOverScreen extends ConsumerWidget {
   }
 
   /// Builds the high scores section.
-  Widget _buildHighScoresSection(BuildContext context) {
+  Widget _buildHighScoresSection(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final settingsState = ref.watch(settingsProvider);
 
     return Card(
       elevation: 2,
@@ -226,31 +229,93 @@ class GameOverScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'High Scores',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Text(
+                  'High Scores',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () => showHighScoresDialog(context),
+                  icon: const Icon(Icons.emoji_events, size: 18),
+                  label: const Text('View All'),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
 
-            // Placeholder for high scores (can be implemented later)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(8),
+            if (settingsState.isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else if (settingsState.highScores.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'No high scores yet!',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: settingsState.highScores
+                      .take(3)
+                      .toList()
+                      .asMap()
+                      .entries
+                      .map((entry) {
+                        final index = entry.key;
+                        final score = entry.value;
+                        return Column(
+                          children: [
+                            _buildHighScoreRow(
+                              context,
+                              index + 1,
+                              score.playerName,
+                              score.score,
+                            ),
+                            if (index <
+                                settingsState.highScores
+                                        .take(3)
+                                        .toList()
+                                        .length -
+                                    1)
+                              const SizedBox(height: 8),
+                          ],
+                        );
+                      })
+                      .toList(),
+                ),
               ),
-              child: Column(
-                children: [
-                  _buildHighScoreRow(context, 1, 'Player 1', 0),
-                  const SizedBox(height: 8),
-                  _buildHighScoreRow(context, 2, 'Player 2', 0),
-                  const SizedBox(height: 8),
-                  _buildHighScoreRow(context, 3, 'Player 3', 0),
-                ],
-              ),
-            ),
           ],
         ),
       ),

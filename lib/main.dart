@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/game_provider.dart';
+import 'providers/settings_provider.dart';
 import 'screens/game_screen.dart';
 import 'screens/game_over_screen.dart';
+import 'services/storage_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize storage service
+  await StorageService.getInstance();
+
   runApp(const ProviderScope(child: MainApp()));
 }
 
@@ -13,25 +20,32 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Poker Dice',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      themeMode: ThemeMode.system,
-      home: const GameScreenWrapper(),
+    return Consumer(
+      builder: (context, ref, child) {
+        final settingsState = ref.watch(settingsProvider);
+        return MaterialApp(
+          title: 'Poker Dice',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          themeMode: settingsState.isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          home: const GameScreenWrapper(),
+        );
+      },
     );
   }
 }
@@ -48,8 +62,13 @@ class _GameScreenWrapperState extends ConsumerState<GameScreenWrapper> {
   @override
   void initState() {
     super.initState();
-    // Start a new game when the widget is first created
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Load settings and start a new game when the widget is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Load settings from storage
+      final settingsNotifier = ref.read(settingsProvider.notifier);
+      await settingsNotifier.loadSettings();
+
+      // Start a new game
       final gameNotifier = ref.read(gameProvider.notifier);
       gameNotifier.startNewGame();
       gameNotifier.startTurn();
