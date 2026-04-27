@@ -11,15 +11,6 @@ import 'score_category_row.dart';
 ///
 /// Each category row shows the category name and its score (if scored).
 /// Selected categories are highlighted for visual feedback.
-///
-/// Example usage:
-/// ```dart
-/// Scorecard(
-///   scores: {Category.ones: 3, Category.twos: 4},
-///   selectedCategory: Category.threes,
-///   onCategoryTapped: (category) => selectCategory(category),
-/// )
-/// ```
 class Scorecard extends StatelessWidget {
   /// The scores for each category.
   ///

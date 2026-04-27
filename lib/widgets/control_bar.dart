@@ -1,50 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/game_provider.dart';
 
 /// ControlBar widget provides game control buttons for rolling dice and playing.
 ///
 /// Displays two main buttons:
 /// - Roll button: Shows remaining rolls count, disabled when 0
 /// - Play button: For selecting highlighted category
-class ControlBar extends StatelessWidget {
-  /// Number of rolls remaining (0-3)
-  final int remainingRolls;
+///
+/// This widget can consume Riverpod state OR accept explicit parameters.
+class ControlBar extends ConsumerWidget {
+  /// Number of rolls remaining (0-3).
+  ///
+  /// If null, reads from gameProvider.
+  final int? remainingRolls;
 
-  /// Callback when roll button is pressed
+  /// Callback when roll button is pressed.
+  ///
+  /// If null, calls gameProvider's rollDice.
   final VoidCallback? onRollPressed;
 
-  /// Callback when play button is pressed
+  /// Callback when play button is pressed.
+  ///
+  /// If null, calls gameProvider's scoreCategory.
   final VoidCallback? onPlayPressed;
 
-  /// Whether the play button is enabled
-  final bool isPlayEnabled;
+  /// Whether the play button is enabled.
+  ///
+  /// If null, calculated from gameProvider state.
+  final bool? isPlayEnabled;
 
-  /// Creates a ControlBar widget.
   const ControlBar({
     super.key,
-    required this.remainingRolls,
+    this.remainingRolls,
     this.onRollPressed,
     this.onPlayPressed,
-    this.isPlayEnabled = false,
+    this.isPlayEnabled,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final isRollEnabled = remainingRolls > 0;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final useRiverpod =
+        remainingRolls == null &&
+        onRollPressed == null &&
+        onPlayPressed == null &&
+        isPlayEnabled == null;
+
+    final gameState = useRiverpod ? ref.watch(gameProvider) : null;
+    final gameNotifier = useRiverpod ? ref.read(gameProvider.notifier) : null;
+
+    final rolls = remainingRolls ?? (gameState?.remainingRolls ?? 0);
+    final isRollEnabled = rolls > 0;
+
+    final playEnabled =
+        isPlayEnabled ??
+        ((gameState?.selectedCategory != null) &&
+            !(gameState?.scores.containsKey(gameState.selectedCategory) ??
+                false));
+
+    // Determine roll button callback
+    VoidCallback? rollCallback;
+    if (onRollPressed != null) {
+      rollCallback = isRollEnabled ? onRollPressed : null;
+    } else if (gameNotifier != null) {
+      rollCallback = isRollEnabled ? () => gameNotifier.rollDice() : null;
+    }
+
+    // Determine play button callback
+    VoidCallback? playCallback;
+    if (onPlayPressed != null) {
+      playCallback = playEnabled ? onPlayPressed : null;
+    } else if (gameNotifier != null && gameState != null) {
+      playCallback = playEnabled && gameState.selectedCategory != null
+          ? () => gameNotifier.scoreCategory(gameState.selectedCategory!)
+          : null;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
         children: [
           Expanded(
-            child: _RollButton(
-              remainingRolls: remainingRolls,
-              onPressed: isRollEnabled ? onRollPressed : null,
-            ),
+            child: _RollButton(remainingRolls: rolls, onPressed: rollCallback),
           ),
           const SizedBox(width: 16.0),
-          Expanded(
-            child: _PlayButton(onPressed: isPlayEnabled ? onPlayPressed : null),
-          ),
+          Expanded(child: _PlayButton(onPressed: playCallback)),
         ],
       ),
     );
