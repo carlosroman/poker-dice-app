@@ -1,1 +1,6 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Constants should use UPPER_SNAKE_CASE per project guidelines
+    constant_identifier_names: false
