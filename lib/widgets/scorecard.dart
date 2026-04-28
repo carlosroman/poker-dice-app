@@ -36,15 +36,31 @@ class Scorecard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 600),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: _buildUpperColumn(context)),
-          const SizedBox(width: 16),
-          Expanded(child: _buildLowerColumn(context)),
-        ],
+      child: Card(
+        elevation: 8,
+        shadowColor: Colors.black.withValues(alpha: 0.3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _buildUpperColumn(context)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildLowerColumn(context)),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -121,23 +137,47 @@ class Scorecard extends StatelessWidget {
     );
   }
 
-  /// Builds the section header.
+  /// Builds the section header with gradient background.
   Widget _buildSectionHeader(BuildContext context, String text) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: theme.textTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: theme.colorScheme.primary,
-          letterSpacing: 1.2,
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primaryContainer,
+            theme.colorScheme.primaryContainer.withValues(alpha: 0.7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withValues(alpha: 0.15),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            text == 'UPPER' ? Icons.diamond : Icons.emoji_events,
+            size: 18,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+              letterSpacing: 1.5,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -146,10 +186,19 @@ class Scorecard extends StatelessWidget {
   Widget _buildDivider(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Divider(
-      height: 24,
-      thickness: 2,
-      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      height: 2,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.transparent,
+            theme.colorScheme.primary.withValues(alpha: 0.5),
+            Colors.transparent,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(1),
+      ),
     );
   }
 }

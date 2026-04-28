@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// A widget that displays a single die face with pips (dots).
 ///
 /// Supports values 1-6 with standard dice pip arrangements.
 /// Can be toggled to a "held" state with visual feedback.
+/// Includes smooth animations for rolling and state transitions.
 class DieWidget extends StatefulWidget {
   /// The value of the die face (1-6).
   final int value;
@@ -17,41 +20,95 @@ class DieWidget extends StatefulWidget {
   /// The size of the die in pixels.
   final double size;
 
+  /// Whether this die is currently being rolled.
+  final bool isRolling;
+
   const DieWidget({
     super.key,
     required this.value,
     required this.isHeld,
     this.onTap,
     this.size = 60.0,
+    this.isRolling = false,
   }) : assert(value >= 1 && value <= 6, 'Die value must be between 1 and 6');
 
   @override
   State<DieWidget> createState() => _DieWidgetState();
 }
 
-class _DieWidgetState extends State<DieWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _DieWidgetState extends State<DieWidget> with TickerProviderStateMixin {
+  late AnimationController _tapAnimationController;
+  late AnimationController _heldAnimationController;
+  late Animation<double> _heldScaleAnimation;
+  late Animation<double> _heldRotationAnimation;
+  Timer? _rollTimer;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    _tapAnimationController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
+    );
+    _heldAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _heldScaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _heldAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+    _heldRotationAnimation = Tween<double>(begin: 0.0, end: 0.05).animate(
+      CurvedAnimation(
+        parent: _heldAnimationController,
+        curve: Curves.easeInOut,
+      ),
     );
   }
 
   @override
+  void didUpdateWidget(DieWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isHeld != widget.isHeld) {
+      if (widget.isHeld) {
+        _heldAnimationController.forward();
+      } else {
+        _heldAnimationController.reverse();
+      }
+    }
+    if (widget.isRolling && oldWidget.isRolling != widget.isRolling) {
+      _startRandomValueCycling();
+    } else if (!widget.isRolling && oldWidget.isRolling != widget.isRolling) {
+      _stopRandomValueCycling();
+    }
+  }
+
+  void _startRandomValueCycling() {
+    _rollTimer?.cancel();
+    _rollTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      // Trigger rebuild to show random values during roll
+      setState(() {});
+    });
+  }
+
+  void _stopRandomValueCycling() {
+    _rollTimer?.cancel();
+  }
+
+  @override
   void dispose() {
-    _animationController.dispose();
+    _rollTimer?.cancel();
+    _tapAnimationController.dispose();
+    _heldAnimationController.dispose();
     super.dispose();
   }
 
   void _handleTap() {
     if (widget.onTap != null) {
-      _animationController.forward().then((_) {
-        _animationController.reverse();
+      _tapAnimationController.forward().then((_) {
+        _tapAnimationController.reverse();
       });
       widget.onTap!();
     }
@@ -61,39 +118,56 @@ class _DieWidgetState extends State<DieWidget>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap != null ? _handleTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(widget.size * 0.15),
-          border: Border.all(
-            color: widget.isHeld ? Colors.deepOrange : Colors.grey.shade300,
-            width: widget.isHeld ? 3.0 : 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.isHeld
-                  ? Colors.deepOrange.withValues(alpha: 0.4)
-                  : Colors.black.withValues(alpha: 0.15),
-              blurRadius: widget.isHeld
-                  ? widget.size * 0.25
-                  : widget.size * 0.1,
-              offset: Offset(
-                0,
-                widget.isHeld ? widget.size * 0.08 : widget.size * 0.04,
-              ),
+      child: AnimatedBuilder(
+        animation: Listenable.merge([
+          _tapAnimationController,
+          _heldAnimationController,
+        ]),
+        builder: (context, child) {
+          final tapScale = _tapAnimationController.isAnimating
+              ? 0.95
+              : _heldScaleAnimation.value;
+          final rotation = _heldRotationAnimation.value;
+
+          return Transform.scale(
+            scale: tapScale,
+            child: Transform.rotate(angle: rotation, child: child),
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(widget.size * 0.15),
+            border: Border.all(
+              color: widget.isHeld ? Colors.deepOrange : Colors.grey.shade300,
+              width: widget.isHeld ? 3.0 : 1.5,
             ),
-          ],
-        ),
-        child: Center(
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Padding(
-              padding: EdgeInsets.all(widget.size * 0.12),
-              child: _buildPipLayout(),
+            boxShadow: [
+              BoxShadow(
+                color: widget.isHeld
+                    ? Colors.deepOrange.withValues(alpha: 0.4)
+                    : Colors.black.withValues(alpha: 0.15),
+                blurRadius: widget.isHeld
+                    ? widget.size * 0.25
+                    : widget.size * 0.1,
+                offset: Offset(
+                  0,
+                  widget.isHeld ? widget.size * 0.08 : widget.size * 0.04,
+                ),
+              ),
+            ],
+          ),
+          child: Center(
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Padding(
+                padding: EdgeInsets.all(widget.size * 0.12),
+                child: _buildPipLayout(),
+              ),
             ),
           ),
         ),

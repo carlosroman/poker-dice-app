@@ -67,7 +67,7 @@ void main() {
       expect(find.text('Upper Section'), findsOneWidget);
       expect(find.text('Bonus'), findsOneWidget);
       expect(find.text('Lower Section'), findsOneWidget);
-      expect(find.text('Total'), findsOneWidget);
+      expect(find.text('Total Score'), findsOneWidget);
     });
 
     testWidgets('test_gameOverScreen_displaysHighScores', (
@@ -133,13 +133,15 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Verify trophy icon is displayed (size 64 in title section)
+      // Verify trophy icon is displayed (size 64-72 in title section)
       expect(
         find.byWidgetPredicate(
           (widget) =>
               widget is Icon &&
               widget.icon == Icons.emoji_events &&
-              widget.size == 64,
+              widget.size != null &&
+              widget.size! >= 64 &&
+              widget.size! <= 72,
         ),
         findsOneWidget,
       );

@@ -8,6 +8,8 @@ import '../providers/game_provider.dart';
 /// - Roll button: Shows remaining rolls count, disabled when 0
 /// - Play button: For selecting highlighted category
 ///
+/// Includes button press animations and ripple effects.
+///
 /// This widget can consume Riverpod state OR accept explicit parameters.
 class ControlBar extends ConsumerWidget {
   /// Number of rolls remaining (0-3).
@@ -91,43 +93,112 @@ class ControlBar extends ConsumerWidget {
   }
 }
 
-/// Private widget for the Roll button with animated remaining rolls count.
-class _RollButton extends StatelessWidget {
+/// Private widget for the Roll button with animated remaining rolls count
+/// and button press animation.
+class _RollButton extends StatefulWidget {
   final int remainingRolls;
   final VoidCallback? onPressed;
 
   const _RollButton({required this.remainingRolls, this.onPressed});
 
   @override
+  State<_RollButton> createState() => _RollButtonState();
+}
+
+class _RollButtonState extends State<_RollButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pressController;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onPressed != null) {
+      _pressController.forward();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _pressController.reverse();
+  }
+
+  void _handleTapCancel() {
+    _pressController.reverse();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDisabled = onPressed == null;
+    final isDisabled = widget.onPressed == null;
 
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isDisabled
-            ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
-            : theme.colorScheme.primary,
-        foregroundColor: isDisabled
-            ? theme.colorScheme.onSurface.withValues(alpha: 0.38)
-            : theme.colorScheme.onPrimary,
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-      ),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(scale: animation, child: child),
-          );
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
-        child: Text(
-          'ROLL $remainingRolls',
-          key: ValueKey<int>(remainingRolls),
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+        child: InkResponse(
+          onTap: widget.onPressed,
+          radius: 50,
+          containedInkWell: true,
+          highlightColor: theme.colorScheme.primary.withValues(alpha: 0.2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            decoration: BoxDecoration(
+              color: isDisabled
+                  ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
+                  : theme.colorScheme.primary,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      (isDisabled
+                              ? theme.colorScheme.onSurface
+                              : theme.colorScheme.primary)
+                          .withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                );
+              },
+              child: Text(
+                'ROLL ${widget.remainingRolls}',
+                key: ValueKey<int>(widget.remainingRolls),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isDisabled
+                      ? theme.colorScheme.onSurface.withValues(alpha: 0.38)
+                      : theme.colorScheme.onPrimary,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -135,42 +206,110 @@ class _RollButton extends StatelessWidget {
   }
 }
 
-/// Private widget for the Play button.
-class _PlayButton extends StatelessWidget {
+/// Private widget for the Play button with press animation.
+class _PlayButton extends StatefulWidget {
   final VoidCallback? onPressed;
 
   const _PlayButton({this.onPressed});
 
   @override
+  State<_PlayButton> createState() => _PlayButtonState();
+}
+
+class _PlayButtonState extends State<_PlayButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pressController;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onPressed != null) {
+      _pressController.forward();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _pressController.reverse();
+  }
+
+  void _handleTapCancel() {
+    _pressController.reverse();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDisabled = onPressed == null;
+    final isDisabled = widget.onPressed == null;
 
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isDisabled
-            ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
-            : theme.colorScheme.secondary,
-        foregroundColor: isDisabled
-            ? theme.colorScheme.onSurface.withValues(alpha: 0.38)
-            : theme.colorScheme.onSecondary,
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-      ),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(scale: animation, child: child),
-          );
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
-        child: Text(
-          'PLAY',
-          key: const ValueKey<String>('play'),
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+        child: InkResponse(
+          onTap: widget.onPressed,
+          radius: 50,
+          containedInkWell: true,
+          highlightColor: theme.colorScheme.secondary.withValues(alpha: 0.2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            decoration: BoxDecoration(
+              color: isDisabled
+                  ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
+                  : theme.colorScheme.secondary,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      (isDisabled
+                              ? theme.colorScheme.onSurface
+                              : theme.colorScheme.secondary)
+                          .withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                );
+              },
+              child: Text(
+                'PLAY',
+                key: const ValueKey<String>('play'),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isDisabled
+                      ? theme.colorScheme.onSurface.withValues(alpha: 0.38)
+                      : theme.colorScheme.onSecondary,
+                ),
+              ),
+            ),
           ),
         ),
       ),

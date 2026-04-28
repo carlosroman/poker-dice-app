@@ -7,6 +7,9 @@ import '../models/category.dart';
 /// with visual feedback for different states: available, selected, scored,
 /// and zero score.
 ///
+/// Includes hover effects for web, smooth color transitions, and improved
+/// selected state highlighting.
+///
 /// Example usage:
 /// ```dart
 /// ScoreCategoryRow(
@@ -17,7 +20,7 @@ import '../models/category.dart';
 ///   isUpperSection: true,
 /// )
 /// ```
-class ScoreCategoryRow extends StatelessWidget {
+class ScoreCategoryRow extends StatefulWidget {
   /// The category to display.
   final Category category;
 
@@ -46,38 +49,57 @@ class ScoreCategoryRow extends StatelessWidget {
   });
 
   @override
+  State<ScoreCategoryRow> createState() => _ScoreCategoryRowState();
+}
+
+class _ScoreCategoryRowState extends State<ScoreCategoryRow> {
+  bool _isHovering = false;
+
+  void _handleHover(bool hovering) {
+    if (hovering != _isHovering) {
+      setState(() {
+        _isHovering = hovering;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: _getBackgroundColor(context, theme),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _getBorderColor(context, theme),
-            width: _getBorderWidth(),
-          ),
-          boxShadow: _getBoxShadow(context, theme),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                category.displayName,
-                style: _getCategoryTextStyle(context, theme),
-              ),
+    return MouseRegion(
+      onEnter: (_) => _handleHover(true),
+      onExit: (_) => _handleHover(false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: _getBackgroundColor(context, theme),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _getBorderColor(context, theme),
+              width: _getBorderWidth(),
             ),
-            const SizedBox(width: 16),
-            _buildScoreBox(context, theme, isDark),
-          ],
+            boxShadow: _getBoxShadow(context, theme),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.category.displayName,
+                  style: _getCategoryTextStyle(context, theme),
+                ),
+              ),
+              const SizedBox(width: 16),
+              _buildScoreBox(context, theme, isDark),
+            ],
+          ),
         ),
       ),
     );
@@ -85,14 +107,14 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the background color based on the current state.
   Color _getBackgroundColor(BuildContext context, ThemeData theme) {
-    final bool isScored = score != null;
+    final bool isScored = widget.score != null;
 
-    if (isSelected) {
+    if (widget.isSelected) {
       return theme.colorScheme.primaryContainer.withValues(alpha: 0.5);
     }
 
     if (isScored) {
-      return isUpperSection
+      return widget.isUpperSection
           ? (theme.brightness == Brightness.dark
                 ? Colors.grey.shade800
                 : Colors.grey.shade100)
@@ -101,7 +123,7 @@ class ScoreCategoryRow extends StatelessWidget {
                 : Colors.grey.shade50);
     }
 
-    return isUpperSection
+    return widget.isUpperSection
         ? (theme.brightness == Brightness.dark
               ? Colors.grey.shade900
               : Colors.grey.shade50)
@@ -112,11 +134,11 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the border color based on the current state.
   Color _getBorderColor(BuildContext context, ThemeData theme) {
-    if (isSelected) {
+    if (widget.isSelected) {
       return theme.colorScheme.primary;
     }
 
-    final bool isScored = score != null;
+    final bool isScored = widget.score != null;
     if (isScored) {
       return theme.colorScheme.secondary.withValues(alpha: 0.3);
     }
@@ -126,12 +148,12 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the border width based on the current state.
   double _getBorderWidth() {
-    return isSelected ? 2.0 : 1.0;
+    return widget.isSelected ? 2.0 : 1.0;
   }
 
   /// Gets the box shadows based on the current state.
   List<BoxShadow> _getBoxShadow(BuildContext context, ThemeData theme) {
-    if (isSelected) {
+    if (widget.isSelected) {
       return [
         BoxShadow(
           color: theme.colorScheme.primary.withValues(alpha: 0.2),
@@ -152,16 +174,16 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the text style for the category name.
   TextStyle _getCategoryTextStyle(BuildContext context, ThemeData theme) {
-    final bool isScored = score != null;
+    final bool isScored = widget.score != null;
 
     return TextStyle(
       fontSize: 16,
-      fontWeight: isSelected
+      fontWeight: widget.isSelected
           ? FontWeight.w600
           : isScored
           ? FontWeight.w500
           : FontWeight.w400,
-      color: isSelected
+      color: widget.isSelected
           ? theme.colorScheme.primary
           : isScored
           ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
@@ -171,8 +193,10 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Builds the score display box.
   Widget _buildScoreBox(BuildContext context, ThemeData theme, bool isDark) {
-    final bool isScored = score != null;
-    final String scoreText = score != null ? score.toString() : '---';
+    final bool isScored = widget.score != null;
+    final String scoreText = widget.score != null
+        ? widget.score.toString()
+        : '---';
 
     return Container(
       width: 60,
@@ -196,14 +220,14 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the background color for the score box.
   Color _getScoreBoxColor(BuildContext context, ThemeData theme) {
-    final bool isScored = score != null;
+    final bool isScored = widget.score != null;
 
-    if (isSelected && !isScored) {
+    if (widget.isSelected && !isScored) {
       return theme.colorScheme.primary.withValues(alpha: 0.1);
     }
 
     if (isScored) {
-      if (score == 0) {
+      if (widget.score == 0) {
         return theme.colorScheme.error.withValues(alpha: 0.1);
       }
       return theme.colorScheme.secondary.withValues(alpha: 0.1);
@@ -214,14 +238,14 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the border color for the score box.
   Color _getScoreBoxBorderColor(BuildContext context, ThemeData theme) {
-    final bool isScored = score != null;
+    final bool isScored = widget.score != null;
 
-    if (isSelected && !isScored) {
+    if (widget.isSelected && !isScored) {
       return theme.colorScheme.primary;
     }
 
     if (isScored) {
-      if (score == 0) {
+      if (widget.score == 0) {
         return theme.colorScheme.error.withValues(alpha: 0.5);
       }
       return theme.colorScheme.secondary;
@@ -232,10 +256,10 @@ class ScoreCategoryRow extends StatelessWidget {
 
   /// Gets the border width for the score box.
   double _getScoreBoxBorderWidth() {
-    final bool isScored = score != null;
-    final bool isZero = score == 0;
+    final bool isScored = widget.score != null;
+    final bool isZero = widget.score == 0;
 
-    if (isSelected && !isScored) {
+    if (widget.isSelected && !isScored) {
       return 2.0;
     }
 
@@ -256,7 +280,9 @@ class ScoreCategoryRow extends StatelessWidget {
       fontSize: 18,
       fontWeight: isScored ? FontWeight.w700 : FontWeight.w400,
       color: isScored
-          ? (score == 0 ? theme.colorScheme.error : theme.colorScheme.onSurface)
+          ? (widget.score == 0
+                ? theme.colorScheme.error
+                : theme.colorScheme.onSurface)
           : theme.colorScheme.onSurface.withValues(alpha: 0.4),
     );
   }

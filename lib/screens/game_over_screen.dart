@@ -23,84 +23,106 @@ class GameOverScreen extends ConsumerWidget {
         title: const Text('Game Over'),
         centerTitle: true,
         elevation: 2,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primaryContainer,
+                Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Game Over Title
-              _buildGameOverTitle(context),
-
-              const SizedBox(height: 32),
-
-              // Final Score Card
-              _buildFinalScoreCard(context, gameState),
-
-              const SizedBox(height: 24),
-
-              // Score Breakdown
-              _buildScoreBreakdown(context, gameState),
-
-              const SizedBox(height: 32),
-
-              // High Scores Section
-              _buildHighScoresSection(context, ref),
-
-              const SizedBox(height: 32),
-
-              // Action Buttons
-              _buildActionButtons(context, gameNotifier),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Game Over Title
+                _buildGameOverTitle(context),
+
+                const SizedBox(height: 32),
+
+                // Final Score Card
+                _buildFinalScoreCard(context, gameState),
+
+                const SizedBox(height: 24),
+
+                // Score Breakdown
+                _buildScoreBreakdown(context, gameState),
+
+                const SizedBox(height: 32),
+
+                // High Scores Section
+                _buildHighScoresSection(context, ref),
+
+                const SizedBox(height: 32),
+
+                // Action Buttons
+                _buildActionButtons(context, gameNotifier),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// Builds the Game Over title section.
+  /// Builds the Game Over title section with animated trophy.
   Widget _buildGameOverTitle(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Center(
-      child: Column(
-        children: [
-          Icon(Icons.emoji_events, size: 64, color: theme.colorScheme.primary),
-          const SizedBox(height: 16),
-          Text(
-            'Game Over!',
-            style: theme.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the final score card.
-  Widget _buildFinalScoreCard(BuildContext context, GameState gameState) {
-    final theme = Theme.of(context);
-
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.elasticOut,
+      builder: (context, double value, child) {
+        return Transform.scale(
+          scale: 0.5 + (0.5 * value),
+          child: Transform.rotate(angle: (1.0 - value) * 0.5, child: child),
+        );
+      },
+      child: Center(
         child: Column(
           children: [
-            Text(
-              'Final Score',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 800),
+              builder: (context, double iconValue, child) {
+                return Icon(
+                  Icons.emoji_events,
+                  size: 64 + (iconValue * 8),
+                  color: iconValue > 0.7
+                      ? (iconValue > 0.85
+                            ? Colors.amber
+                            : theme.colorScheme.primary)
+                      : theme.colorScheme.primary.withValues(alpha: 0.3),
+                );
+              },
             ),
             const SizedBox(height: 16),
             Text(
-              gameState.totalScore.toString(),
-              style: theme.textTheme.displayLarge?.copyWith(
+              'Game Over!',
+              style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
               ),
@@ -111,31 +133,140 @@ class GameOverScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds the score breakdown section.
+  /// Builds the final score card with gradient and animation.
+  Widget _buildFinalScoreCard(BuildContext context, GameState gameState) {
+    final theme = Theme.of(context);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutBack,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: 0.9 + (0.1 * value),
+          child: Opacity(opacity: value.clamp(0.0, 1.0), child: child),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              theme.colorScheme.primaryContainer,
+              theme.colorScheme.secondaryContainer.withValues(alpha: 0.7),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: theme.colorScheme.secondary,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Final Score',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.star,
+                    color: theme.colorScheme.secondary,
+                    size: 24,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: gameState.totalScore.toDouble()),
+                duration: Duration(
+                  milliseconds: 1000 + (gameState.totalScore * 5),
+                ),
+                curve: Curves.easeOut,
+                builder: (context, value, child) {
+                  return Text(
+                    '${value.toInt()}',
+                    style: theme.textTheme.displayLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the score breakdown section with improved styling.
   Widget _buildScoreBreakdown(BuildContext context, GameState gameState) {
     final theme = Theme.of(context);
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Score Breakdown',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Icon(
+                  Icons.analytics,
+                  color: theme.colorScheme.secondary,
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Score Breakdown',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            const Divider(height: 24),
+            const SizedBox(height: 16),
 
             // Upper Section
             _buildBreakdownRow(
               context,
               'Upper Section',
               gameState.upperSectionTotal,
+              icon: Icons.diamond,
             ),
 
             // Bonus
@@ -144,6 +275,7 @@ class GameOverScreen extends ConsumerWidget {
               'Bonus',
               gameState.bonusAwarded ? 35 : 0,
               isBonus: true,
+              icon: Icons.emoji_events,
             ),
 
             // Lower Section
@@ -153,16 +285,30 @@ class GameOverScreen extends ConsumerWidget {
               gameState.totalScore -
                   gameState.upperSectionTotal -
                   (gameState.bonusAwarded ? 35 : 0),
+              icon: Icons.emoji_events,
             ),
 
-            const Divider(height: 24),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              height: 1.5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    theme.colorScheme.primary.withValues(alpha: 0.3),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
 
             // Total
             _buildBreakdownRow(
               context,
-              'Total',
+              'Total Score',
               gameState.totalScore,
               isTotal: true,
+              icon: Icons.star,
             ),
           ],
         ),
@@ -170,45 +316,71 @@ class GameOverScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds a single breakdown row.
+  /// Builds a single breakdown row with improved styling.
   Widget _buildBreakdownRow(
     BuildContext context,
     String label,
     int score, {
     bool isBonus = false,
     bool isTotal = false,
+    IconData? icon,
   }) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: isTotal
+            ? theme.colorScheme.primaryContainer.withValues(alpha: 0.3)
+            : isBonus
+            ? theme.colorScheme.secondaryContainer.withValues(alpha: 0.3)
+            : null,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: isTotal || isBonus
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: isBonus
-                  ? theme.colorScheme.secondary
-                  : isTotal
-                  ? theme.colorScheme.primary
-                  : null,
-            ),
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isTotal
+                      ? theme.colorScheme.primary
+                      : isBonus
+                      ? theme.colorScheme.secondary
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                label,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: isTotal || isBonus
+                      ? FontWeight.w600
+                      : FontWeight.w500,
+                  color: isTotal
+                      ? theme.colorScheme.primary
+                      : isBonus
+                      ? theme.colorScheme.secondary
+                      : theme.colorScheme.onSurface,
+                ),
+              ),
+            ],
           ),
           Text(
             score.toString(),
             style: theme.textTheme.bodyLarge?.copyWith(
               fontWeight: isTotal || isBonus
                   ? FontWeight.bold
-                  : FontWeight.normal,
-              color: isBonus
-                  ? theme.colorScheme.secondary
-                  : isTotal
+                  : FontWeight.w600,
+              color: isTotal
                   ? theme.colorScheme.primary
-                  : null,
+                  : isBonus
+                  ? theme.colorScheme.secondary
+                  : theme.colorScheme.onSurface,
             ),
           ),
         ],
