@@ -83,11 +83,11 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Rolls all unheld dice if rolls remain.
   ///
   /// Decrements [remainingRolls] by 1.
-  /// Does nothing if no dice roll is active or no rolls remain.
+  /// Does nothing if no rolls remain.
   void rollDice() {
-    if (state.diceRoll == null || state.remainingRolls <= 0) return;
+    if (state.remainingRolls <= 0) return;
     state = GameState(
-      diceRoll: state.diceRoll!.rollUnheldDice(),
+      diceRoll: state.diceRoll?.rollUnheldDice() ?? DiceRoll.random(),
       scores: Map.from(state.scores),
       selectedCategory: state.selectedCategory,
       remainingRolls: state.remainingRolls - 1,

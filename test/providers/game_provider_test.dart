@@ -513,18 +513,62 @@ void main() {
       expect(container.read(diceRollProvider), isNull);
     });
 
+    test('testFirstRollWorksWhenDiceIsNull', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Initial state: dice are null, remainingRolls = 3
+      expect(container.read(diceRollProvider), isNull);
+      expect(container.read(remainingRollsProvider), 3);
+
+      // First roll should work even though dice are null
+      container.read(gameProvider.notifier).rollDice();
+
+      // Dice should now be rolled
+      expect(container.read(diceRollProvider), isNotNull);
+      expect(container.read(diceRollProvider)!.dice.length, 5);
+      // Remaining rolls should be decremented to 2
+      expect(container.read(remainingRollsProvider), 2);
+    });
+
+    test('testRollButtonEnabledAtGameStart', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // At game start: dice are null, remainingRolls = 3
+      // Roll button should be enabled when remainingRolls > 0
+      expect(container.read(remainingRollsProvider), 3);
+
+      // Verify we can roll (simulating button being enabled and tapped)
+      container.read(gameProvider.notifier).rollDice();
+
+      // Should have rolled successfully
+      expect(container.read(diceRollProvider), isNotNull);
+      expect(container.read(remainingRollsProvider), 2);
+    });
+
     test('testRollDiceDoesNothingWhenNoDiceRoll', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      // Initial state has no dice roll
-      expect(container.read(diceRollProvider), isNull);
+      // Start a turn first to get dice
+      container.read(gameProvider.notifier).startTurn();
 
-      // Try to roll dice
+      // Use all rolls
+      container.read(gameProvider.notifier).rollDice();
+      container.read(gameProvider.notifier).rollDice();
       container.read(gameProvider.notifier).rollDice();
 
-      // Should still be null
-      expect(container.read(diceRollProvider), isNull);
+      // Now remainingRolls = 0, but dice exist
+      expect(container.read(remainingRollsProvider), 0);
+
+      // Try to roll again - should do nothing
+      final diceBefore = container.read(diceRollProvider);
+      container.read(gameProvider.notifier).rollDice();
+
+      // Should still have same dice and 0 rolls
+      expect(container.read(diceRollProvider), diceBefore);
+      expect(container.read(remainingRollsProvider), 0);
     });
 
     test('testScoreCategoryDoesNothingWhenNoDiceRoll', () {
