@@ -106,9 +106,7 @@ class StorageService {
 
   /// Initializes the storage service.
   Future<void> _init() async {
-    if (_prefs == null) {
-      _prefs = await SharedPreferences.getInstance();
-    }
+    _prefs ??= await SharedPreferences.getInstance();
   }
 
   /// Gets the singleton instance of [StorageService].
