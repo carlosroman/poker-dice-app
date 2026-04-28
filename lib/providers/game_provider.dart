@@ -40,6 +40,7 @@ class GameNotifier extends StateNotifier<GameState> {
       upperSectionTotal: 0,
       bonusAwarded: false,
       totalScore: 0,
+      isGameStarted: true,
     );
   }
 
@@ -182,6 +183,7 @@ class GameNotifier extends StateNotifier<GameState> {
         upperSectionTotal: savedState['upperSectionTotal'] as int? ?? 0,
         bonusAwarded: savedState['bonusAwarded'] as bool? ?? false,
         totalScore: savedState['totalScore'] as int? ?? 0,
+        isGameStarted: savedState['isGameStarted'] as bool? ?? false,
       );
     } catch (e) {
       // If restoration fails, start a new game
@@ -211,6 +213,7 @@ class GameNotifier extends StateNotifier<GameState> {
       'upperSectionTotal': state.upperSectionTotal,
       'bonusAwarded': state.bonusAwarded,
       'totalScore': state.totalScore,
+      'isGameStarted': state.isGameStarted,
     };
     await storageService.saveGameState(stateMap);
   }

@@ -41,6 +41,9 @@ class GameState {
   /// Final calculated score including bonus.
   final int totalScore;
 
+  /// Whether the game has been started (user tapped NEW GAME).
+  final bool isGameStarted;
+
   GameState({
     this.diceRoll,
     Map<Category, int>? scores,
@@ -51,6 +54,7 @@ class GameState {
     this.upperSectionTotal = 0,
     this.bonusAwarded = false,
     this.totalScore = 0,
+    this.isGameStarted = false,
   }) : scores = scores ?? {};
 
   /// Starts a new turn, rolls dice, resets rolls to 3.

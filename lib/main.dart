@@ -84,8 +84,8 @@ class _GameWrapperState extends ConsumerState<GameWrapper> {
       return const GameOverScreen();
     }
 
-    // Show game screen if game has started (has dice roll or scores)
-    if (gameState.hasRolled || gameState.scores.isNotEmpty) {
+    // Show game screen if game has started (user tapped NEW GAME)
+    if (gameState.isGameStarted) {
       return GameScreenWrapper();
     }
 
@@ -94,30 +94,12 @@ class _GameWrapperState extends ConsumerState<GameWrapper> {
   }
 }
 
-/// Wrapper for the game screen that handles auto-start of turns.
-class GameScreenWrapper extends ConsumerStatefulWidget {
+/// Wrapper for the game screen.
+///
+/// The game screen shows blank dice initially (diceRoll == null).
+/// User must tap "ROLL" to start the first turn.
+class GameScreenWrapper extends StatelessWidget {
   const GameScreenWrapper({super.key});
-
-  @override
-  ConsumerState<GameScreenWrapper> createState() => _GameScreenWrapperState();
-}
-
-class _GameScreenWrapperState extends ConsumerState<GameScreenWrapper> {
-  bool _hasStartedTurn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Start a new turn if dice haven't been rolled yet
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final gameState = ref.read(gameProvider);
-      if (!_hasStartedTurn && !gameState.hasRolled) {
-        setState(() => _hasStartedTurn = true);
-        final gameNotifier = ref.read(gameProvider.notifier);
-        gameNotifier.startTurn();
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

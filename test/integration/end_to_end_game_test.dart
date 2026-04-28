@@ -672,4 +672,59 @@ void main() {
       expect(state.diceRoll!.dice[0].isHeld, true);
     });
   });
+
+  group('Navigation Tests', () {
+    late ScoringService navigationScoringService;
+
+    setUp(() {
+      navigationScoringService = ScoringService();
+    });
+
+    /// Tests that new game sets isGameStarted flag.
+    ///
+    /// Verifies the fix for navigation condition:
+    /// - startNewGame sets isGameStarted = true
+    /// - Initial GameState has isGameStarted = false
+    test('test_newGameSetsIsGameStartedFlag', () {
+      final notifier = GameNotifier(scoringService: navigationScoringService);
+
+      // Initial state should have isGameStarted = false
+      var state = notifier.state;
+      expect(state.isGameStarted, false);
+      expect(state.remainingRolls, 3);
+      expect(state.diceRoll, isNull);
+
+      // Start new game should set isGameStarted = true
+      notifier.startNewGame();
+      state = notifier.state;
+
+      expect(state.isGameStarted, true);
+      expect(state.remainingRolls, 3);
+      expect(state.diceRoll, isNull);
+    });
+
+    /// Tests that roll button would be enabled after starting a new game.
+    ///
+    /// Verifies:
+    /// - remainingRolls = 3 after startNewGame
+    /// - User must tap ROLL to start the first turn
+    test('test_rollButtonEnabled_afterNewGame', () {
+      final notifier = GameNotifier(scoringService: navigationScoringService);
+
+      notifier.startNewGame();
+      var state = notifier.state;
+
+      // Verify game state: remainingRolls = 3, diceRoll = null
+      expect(state.remainingRolls, 3);
+      expect(state.diceRoll, isNull);
+      expect(state.isGameStarted, true);
+
+      // After rolling, dice should appear and remainingRolls should decrease
+      notifier.rollDice();
+      state = notifier.state;
+
+      expect(state.diceRoll, isNotNull);
+      expect(state.remainingRolls, 2);
+    });
+  });
 }
