@@ -48,7 +48,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     // Start a fresh game
     final gameNotifier = ref.read(gameProvider.notifier);
     gameNotifier.startNewGame();
-    gameNotifier.startTurn();
 
     // Navigate to game screen
     if (mounted) {
