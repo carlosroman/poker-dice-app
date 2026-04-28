@@ -631,4 +631,104 @@ void main() {
       expect(container.read(remainingRollsProvider), 2);
     });
   });
+
+  group('State Persistence Tests', () {
+    test('testRestoreGameState', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Create a saved state
+      final savedState = {
+        'diceRoll': [
+          {'value': 1, 'isHeld': false},
+          {'value': 2, 'isHeld': false},
+          {'value': 3, 'isHeld': false},
+          {'value': 4, 'isHeld': false},
+          {'value': 5, 'isHeld': false},
+        ],
+        'scores': {'0': 1}, // Category.ones scored as 1
+        'selectedCategory': 0, // Category.ones
+        'remainingRolls': 2,
+        'currentTurn': 2,
+        'isGameOver': false,
+        'upperSectionTotal': 1,
+        'bonusAwarded': false,
+        'totalScore': 1,
+      };
+
+      // Restore the game state
+      container.read(gameProvider.notifier).restoreGameState(savedState);
+
+      final gameState = container.read(gameProvider);
+
+      expect(gameState.diceRoll, isNotNull);
+      expect(gameState.diceRoll!.dice.length, 5);
+      expect(gameState.diceRoll!.dice[0].value, 1);
+      expect(gameState.diceRoll!.dice[4].value, 5);
+      expect(gameState.scores.containsKey(Category.ones), true);
+      expect(gameState.selectedCategory, Category.ones);
+      expect(gameState.remainingRolls, 2);
+      expect(gameState.currentTurn, 2);
+    });
+
+    test('testRestoreGameStateWithNullDiceRoll', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Create a saved state with null dice roll
+      final savedState = {
+        'diceRoll': null,
+        'scores': {},
+        'selectedCategory': null,
+        'remainingRolls': 3,
+        'currentTurn': 1,
+        'isGameOver': false,
+        'upperSectionTotal': 0,
+        'bonusAwarded': false,
+        'totalScore': 0,
+      };
+
+      container.read(gameProvider.notifier).restoreGameState(savedState);
+
+      final gameState = container.read(gameProvider);
+
+      expect(gameState.diceRoll, isNull);
+      expect(gameState.scores.isEmpty, true);
+      expect(gameState.remainingRolls, 3);
+    });
+
+    test('testRestoreGameStateWithInvalidData', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Create an invalid saved state
+      final invalidState = {'invalid': 'data'};
+
+      // Should not throw, should start new game
+      container.read(gameProvider.notifier).restoreGameState(invalidState);
+
+      final gameState = container.read(gameProvider);
+
+      // Should have default state
+      expect(gameState.remainingRolls, 3);
+      expect(gameState.isGameOver, false);
+    });
+
+    test('testHasRolledGetter', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Initial state - no roll
+      expect(container.read(gameProvider).hasRolled, false);
+
+      // After starting turn
+      container.read(gameProvider.notifier).startTurn();
+      expect(container.read(gameProvider).hasRolled, true);
+
+      // After scoring (diceRoll becomes null)
+      container.read(gameProvider.notifier).selectCategory(Category.chance);
+      container.read(gameProvider.notifier).scoreCategory(Category.chance);
+      expect(container.read(gameProvider).hasRolled, false);
+    });
+  });
 }

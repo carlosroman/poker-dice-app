@@ -4,6 +4,7 @@ import 'providers/game_provider.dart';
 import 'providers/settings_provider.dart';
 import 'screens/game_screen.dart';
 import 'screens/game_over_screen.dart';
+import 'screens/welcome_screen.dart';
 import 'services/storage_service.dart';
 
 void main() async {
@@ -43,35 +44,34 @@ class MainApp extends StatelessWidget {
           themeMode: settingsState.isDarkMode
               ? ThemeMode.dark
               : ThemeMode.light,
-          home: const GameScreenWrapper(),
+          home: const GameWrapper(),
         );
       },
     );
   }
 }
 
-/// Wrapper widget that handles game state initialization and game over navigation.
-class GameScreenWrapper extends ConsumerStatefulWidget {
-  const GameScreenWrapper({super.key});
+/// Wrapper widget that handles game state management and navigation.
+///
+/// This widget:
+/// - Displays WelcomeScreen initially
+/// - Manages navigation to GameScreen and GameOverScreen
+/// - Saves game state on navigation
+class GameWrapper extends ConsumerStatefulWidget {
+  const GameWrapper({super.key});
 
   @override
-  ConsumerState<GameScreenWrapper> createState() => _GameScreenWrapperState();
+  ConsumerState<GameWrapper> createState() => _GameWrapperState();
 }
 
-class _GameScreenWrapperState extends ConsumerState<GameScreenWrapper> {
+class _GameWrapperState extends ConsumerState<GameWrapper> {
   @override
   void initState() {
     super.initState();
-    // Load settings and start a new game when the widget is first created
+    // Load settings when app starts
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Load settings from storage
       final settingsNotifier = ref.read(settingsProvider.notifier);
       await settingsNotifier.loadSettings();
-
-      // Start a new game
-      final gameNotifier = ref.read(gameProvider.notifier);
-      gameNotifier.startNewGame();
-      gameNotifier.startTurn();
     });
   }
 
@@ -84,6 +84,43 @@ class _GameScreenWrapperState extends ConsumerState<GameScreenWrapper> {
       return const GameOverScreen();
     }
 
-    return GameScreen();
+    // Show game screen if game has started (has dice roll or scores)
+    if (gameState.hasRolled || gameState.scores.isNotEmpty) {
+      return GameScreenWrapper();
+    }
+
+    // Otherwise show welcome screen
+    return const WelcomeScreen();
+  }
+}
+
+/// Wrapper for the game screen that handles auto-start of turns.
+class GameScreenWrapper extends ConsumerStatefulWidget {
+  const GameScreenWrapper({super.key});
+
+  @override
+  ConsumerState<GameScreenWrapper> createState() => _GameScreenWrapperState();
+}
+
+class _GameScreenWrapperState extends ConsumerState<GameScreenWrapper> {
+  bool _hasStartedTurn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start a new turn if dice haven't been rolled yet
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final gameState = ref.read(gameProvider);
+      if (!_hasStartedTurn && !gameState.hasRolled) {
+        setState(() => _hasStartedTurn = true);
+        final gameNotifier = ref.read(gameProvider.notifier);
+        gameNotifier.startTurn();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const GameScreen();
   }
 }

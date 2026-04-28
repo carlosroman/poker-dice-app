@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Model representing a high score entry.
 ///
@@ -76,12 +76,16 @@ class HighScoreEntry {
 /// - Saving and retrieving high scores
 /// - Storing theme preferences
 /// - Managing local storage for the game
+/// - Saving and loading game state for continue functionality
 class StorageService {
   /// Storage key for high scores list.
   static const String _highScoresKey = 'high_scores_key';
 
   /// Storage key for dark mode theme preference.
   static const String _themeDarkModeKey = 'theme_dark_mode';
+
+  /// Storage key for game state.
+  static const String _gameStateKey = 'game_state';
 
   /// Maximum number of high scores to store.
   static const int _maxHighScores = 10;
@@ -118,6 +122,20 @@ class StorageService {
       await _instance!._init();
     }
     return _instance!;
+  }
+
+  /// Sets the singleton instance of [StorageService].
+  ///
+  /// This is useful for testing purposes to inject a mock instance.
+  static void setInstance(StorageService instance) {
+    _instance = instance;
+  }
+
+  /// Resets the singleton instance.
+  ///
+  /// This is useful for testing to clear the instance between tests.
+  static void resetInstance() {
+    _instance = null;
   }
 
   /// Gets the current SharedPreferences instance.
@@ -205,5 +223,38 @@ class StorageService {
   /// Useful for testing or resetting the game completely.
   Future<void> clearAll() async {
     await _preferences.clear();
+  }
+
+  /// Saves the current game state to storage.
+  ///
+  /// The [gameState] is serialized to JSON and persisted.
+  /// This is called whenever the game state changes.
+  Future<void> saveGameState(Map<String, dynamic> gameState) async {
+    final json = jsonEncode(gameState);
+    await _preferences.setString(_gameStateKey, json);
+  }
+
+  /// Loads the saved game state from storage.
+  ///
+  /// Returns null if no saved game exists or if parsing fails.
+  /// The returned map contains all game state fields.
+  Future<Map<String, dynamic>?> loadGameState() async {
+    try {
+      final json = _preferences.getString(_gameStateKey);
+      if (json == null || json.isEmpty) {
+        return null;
+      }
+      final Map<String, dynamic> state = jsonDecode(json);
+      return state;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Clears the saved game state from storage.
+  ///
+  /// Called when starting a new game or when the game ends.
+  Future<void> clearGameState() async {
+    await _preferences.remove(_gameStateKey);
   }
 }

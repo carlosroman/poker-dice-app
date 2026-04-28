@@ -8,6 +8,7 @@ import '../widgets/dice_container.dart';
 import '../widgets/scorecard.dart';
 import '../widgets/bonus_indicator.dart';
 import '../widgets/control_bar.dart';
+import 'welcome_screen.dart';
 
 /// The main game screen for the Poker Dice game.
 ///
@@ -110,7 +111,7 @@ class GameScreen extends ConsumerWidget {
         upperSectionScore ?? gameState?.upperSectionTotal ?? 0;
 
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, ref),
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -145,11 +146,27 @@ class GameScreen extends ConsumerWidget {
   }
 
   /// Builds the app bar for the screen.
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context, WidgetRef ref) {
     return AppBar(
       title: const Text('Poker Dice'),
       centerTitle: true,
       elevation: 2,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () async {
+          // Save game state before navigating back
+          final gameNotifier = ref.read(gameProvider.notifier);
+          await gameNotifier.saveGameState();
+
+          // Navigate to welcome screen
+          if (context.mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+            );
+          }
+        },
+      ),
     );
   }
 

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/game_state.dart';
 import '../providers/game_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/storage_service.dart';
 import '../widgets/high_scores_dialog.dart';
+import 'welcome_screen.dart';
 
 /// A screen displayed when the game is over.
 ///
@@ -553,7 +555,11 @@ class GameOverScreen extends ConsumerWidget {
       children: [
         // Play Again Button
         ElevatedButton.icon(
-          onPressed: () {
+          onPressed: () async {
+            // Clear saved game state
+            final storageService = await StorageService.getInstance();
+            await storageService.clearGameState();
+
             gameNotifier.startNewGame();
             gameNotifier.startTurn();
           },
@@ -573,7 +579,18 @@ class GameOverScreen extends ConsumerWidget {
 
         // Back to Home Button
         OutlinedButton.icon(
-          onPressed: () => Navigator.maybePop(context),
+          onPressed: () async {
+            // Clear saved game state
+            final storageService = await StorageService.getInstance();
+            await storageService.clearGameState();
+
+            if (context.mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+              );
+            }
+          },
           icon: const Icon(Icons.home),
           label: const Text('Back to Home'),
           style: OutlinedButton.styleFrom(

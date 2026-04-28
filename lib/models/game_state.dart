@@ -233,4 +233,26 @@ class GameState {
       totalScore: totalScore ?? this.totalScore,
     );
   }
+
+  /// Copies all fields from another GameState.
+  ///
+  /// Used for restoring saved game state.
+  GameState copyFrom(GameState other) {
+    return GameState(
+      diceRoll: other.diceRoll,
+      scores: Map.from(other.scores),
+      selectedCategory: other.selectedCategory,
+      remainingRolls: other.remainingRolls,
+      currentTurn: other.currentTurn,
+      isGameOver: other.isGameOver,
+      upperSectionTotal: other.upperSectionTotal,
+      bonusAwarded: other.bonusAwarded,
+      totalScore: other.totalScore,
+    );
+  }
+
+  /// Whether dice have been rolled in the current turn.
+  ///
+  /// Returns true if diceRoll is not null, false otherwise.
+  bool get hasRolled => diceRoll != null;
 }

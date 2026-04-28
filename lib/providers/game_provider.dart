@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod/legacy.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import '../models/category.dart';
 import '../models/dice_roll.dart';
+import '../models/die.dart';
 import '../models/game_state.dart';
 import '../services/scoring_service.dart';
+import '../services/storage_service.dart';
 
 /// StateNotifier that manages the game state for Poker Dice.
 ///
@@ -26,8 +28,19 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Starts a fresh game with no scores and 3 rolls remaining.
   ///
   /// Resets all game state including scores, turns, and dice.
+  /// Dice are null initially until first roll.
   void startNewGame() {
-    state = GameState();
+    state = GameState(
+      diceRoll: null,
+      scores: {},
+      selectedCategory: null,
+      remainingRolls: GameState.maxRollsPerTurn,
+      currentTurn: 1,
+      isGameOver: false,
+      upperSectionTotal: 0,
+      bonusAwarded: false,
+      totalScore: 0,
+    );
   }
 
   /// Starts a new turn by rolling dice and resetting rolls to 3.
@@ -123,6 +136,83 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Equivalent to [startNewGame].
   void resetGame() {
     startNewGame();
+  }
+
+  /// Restores game state from a saved state map.
+  ///
+  /// Used when continuing a previously saved game.
+  void restoreGameState(Map<String, dynamic> savedState) {
+    try {
+      // Parse dice roll if present
+      DiceRoll? diceRoll;
+      if (savedState['diceRoll'] != null) {
+        final diceList = savedState['diceRoll'] as List<dynamic>;
+        final dice = diceList
+            .map(
+              (d) => Die(value: d['value'] as int, isHeld: d['isHeld'] as bool),
+            )
+            .toList();
+        diceRoll = DiceRoll(dice);
+      }
+
+      // Parse scores
+      final scores = <Category, int>{};
+      if (savedState['scores'] != null) {
+        final scoresMap = savedState['scores'] as Map<String, dynamic>;
+        scoresMap.forEach((key, value) {
+          final categoryIndex = int.parse(key);
+          scores[Category.values[categoryIndex]] = value as int;
+        });
+      }
+
+      // Parse selected category
+      Category? selectedCategory;
+      if (savedState['selectedCategory'] != null) {
+        selectedCategory =
+            Category.values[savedState['selectedCategory'] as int];
+      }
+
+      state = GameState(
+        diceRoll: diceRoll,
+        scores: scores,
+        selectedCategory: selectedCategory,
+        remainingRolls: savedState['remainingRolls'] as int? ?? 3,
+        currentTurn: savedState['currentTurn'] as int? ?? 1,
+        isGameOver: savedState['isGameOver'] as bool? ?? false,
+        upperSectionTotal: savedState['upperSectionTotal'] as int? ?? 0,
+        bonusAwarded: savedState['bonusAwarded'] as bool? ?? false,
+        totalScore: savedState['totalScore'] as int? ?? 0,
+      );
+    } catch (e) {
+      // If restoration fails, start a new game
+      startNewGame();
+    }
+  }
+
+  /// Saves the current game state to storage.
+  ///
+  /// This should be called whenever the game state changes.
+  Future<void> saveGameState() async {
+    final storageService = await StorageService.getInstance();
+    final scoresMap = <String, dynamic>{};
+    state.scores.forEach((key, value) {
+      scoresMap['${key.index}'] = value;
+    });
+    final diceList = state.diceRoll?.dice
+        .map((d) => {'value': d.value, 'isHeld': d.isHeld})
+        .toList();
+    final stateMap = {
+      'diceRoll': diceList,
+      'scores': scoresMap,
+      'selectedCategory': state.selectedCategory?.index,
+      'remainingRolls': state.remainingRolls,
+      'currentTurn': state.currentTurn,
+      'isGameOver': state.isGameOver,
+      'upperSectionTotal': state.upperSectionTotal,
+      'bonusAwarded': state.bonusAwarded,
+      'totalScore': state.totalScore,
+    };
+    await storageService.saveGameState(stateMap);
   }
 }
 

@@ -300,4 +300,94 @@ void main() {
       expect(service.getThemePreference(), completion(isA<bool>()));
     });
   });
+
+  group('StorageService Game State Tests', () {
+    test('testLoadGameStateReturnsNullWhenEmpty', () async {
+      final state = await storageService.loadGameState();
+      expect(state, isNull);
+    });
+
+    test('testSaveAndLoadGameState', () async {
+      final gameState = {
+        'diceRoll': [
+          {'value': 1, 'isHeld': false},
+          {'value': 2, 'isHeld': false},
+          {'value': 3, 'isHeld': false},
+          {'value': 4, 'isHeld': false},
+          {'value': 5, 'isHeld': false},
+        ],
+        'scores': {'0': 1},
+        'selectedCategory': 0,
+        'remainingRolls': 2,
+        'currentTurn': 2,
+        'isGameOver': false,
+        'upperSectionTotal': 1,
+        'bonusAwarded': false,
+        'totalScore': 1,
+      };
+
+      await storageService.saveGameState(gameState);
+
+      final loadedState = await storageService.loadGameState();
+
+      expect(loadedState, isNotNull);
+      expect(loadedState!['remainingRolls'], 2);
+      expect(loadedState['currentTurn'], 2);
+      expect(loadedState['isGameOver'], false);
+    });
+
+    test('testClearGameState', () async {
+      final gameState = {
+        'diceRoll': null,
+        'scores': {},
+        'selectedCategory': null,
+        'remainingRolls': 3,
+        'currentTurn': 1,
+        'isGameOver': false,
+        'upperSectionTotal': 0,
+        'bonusAwarded': false,
+        'totalScore': 0,
+      };
+
+      await storageService.saveGameState(gameState);
+      expect(await storageService.loadGameState(), isNotNull);
+
+      await storageService.clearGameState();
+      expect(await storageService.loadGameState(), isNull);
+    });
+
+    test('testLoadGameStateWithInvalidData', () async {
+      // Save invalid data
+      await storageService.saveGameState({'invalid': 'data'});
+
+      final loadedState = await storageService.loadGameState();
+
+      // Should return the invalid data (parsing doesn't fail)
+      expect(loadedState, isNotNull);
+      expect(loadedState!['invalid'], 'data');
+    });
+
+    test('testGameStatePersistsAcrossCalls', () async {
+      final gameState = {
+        'diceRoll': null,
+        'scores': {'1': 2},
+        'selectedCategory': 1,
+        'remainingRolls': 3,
+        'currentTurn': 1,
+        'isGameOver': false,
+        'upperSectionTotal': 2,
+        'bonusAwarded': false,
+        'totalScore': 2,
+      };
+
+      await storageService.saveGameState(gameState);
+
+      // Load multiple times
+      final loaded1 = await storageService.loadGameState();
+      final loaded2 = await storageService.loadGameState();
+
+      expect(loaded1!['remainingRolls'], 3);
+      expect(loaded2!['remainingRolls'], 3);
+    });
+  });
 }

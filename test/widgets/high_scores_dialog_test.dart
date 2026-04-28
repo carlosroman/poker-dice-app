@@ -441,4 +441,13 @@ class _MockStorageService implements StorageService {
 
   @override
   Future<void> clearAll() async {}
+
+  @override
+  Future<void> saveGameState(Map<String, dynamic> gameState) async {}
+
+  @override
+  Future<Map<String, dynamic>?> loadGameState() async => null;
+
+  @override
+  Future<void> clearGameState() async {}
 }

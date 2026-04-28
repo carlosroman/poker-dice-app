@@ -539,4 +539,137 @@ void main() {
       expect(state.bonusAwarded, upperTotal >= 63);
     });
   });
+
+  group('Welcome Screen Flow Tests', () {
+    late ScoringService testScoringService;
+
+    setUp(() {
+      testScoringService = ScoringService();
+    });
+
+    /// Tests that roll counter starts at 3 on new game.
+    test('test_rollCounter_startsAt3', () {
+      final notifier = GameNotifier(scoringService: testScoringService);
+
+      notifier.startNewGame();
+
+      var state = notifier.state;
+
+      // Verify rolls start at 3
+      expect(state.remainingRolls, 3);
+      expect(state.diceRoll, isNull); // No dice rolled yet
+    });
+
+    /// Tests that dice are blank before first roll.
+    test('test_diceBlankBeforeFirstRoll', () {
+      final notifier = GameNotifier(scoringService: testScoringService);
+
+      notifier.startNewGame();
+
+      var state = notifier.state;
+
+      // Dice should be null before first roll
+      expect(state.diceRoll, isNull);
+      expect(state.hasRolled, false);
+
+      // After startTurn, dice should be rolled
+      notifier.startTurn();
+      state = notifier.state;
+
+      expect(state.diceRoll, isNotNull);
+      expect(state.hasRolled, true);
+    });
+
+    /// Tests that game state can be restored from saved state.
+    test('test_gameStatePersistence_acrossAppRestart', () {
+      final notifier = GameNotifier(scoringService: testScoringService);
+
+      // Create a game state
+      notifier.startNewGame();
+      notifier.startTurn();
+      notifier.rollDice();
+      notifier.toggleDieHeld(0);
+      notifier.selectCategory(Category.chance);
+
+      final savedState = notifier.state;
+
+      // Simulate app restart by creating new notifier
+      final restoredNotifier = GameNotifier(scoringService: testScoringService);
+
+      // Create saved state map
+      final savedStateMap = <String, dynamic>{
+        'diceRoll': savedState.diceRoll?.dice
+            .map((d) => {'value': d.value, 'isHeld': d.isHeld})
+            .toList(),
+        'scores': <String, dynamic>{},
+        'selectedCategory': savedState.selectedCategory?.index,
+        'remainingRolls': savedState.remainingRolls,
+        'currentTurn': savedState.currentTurn,
+        'isGameOver': savedState.isGameOver,
+        'upperSectionTotal': savedState.upperSectionTotal,
+        'bonusAwarded': savedState.bonusAwarded,
+        'totalScore': savedState.totalScore,
+      };
+
+      // Restore state
+      restoredNotifier.restoreGameState(savedStateMap);
+
+      final restoredState = restoredNotifier.state;
+
+      // Verify restored state
+      expect(restoredState.remainingRolls, savedState.remainingRolls);
+      expect(restoredState.currentTurn, savedState.currentTurn);
+      expect(restoredState.selectedCategory, savedState.selectedCategory);
+    });
+
+    /// Tests that new game starts fresh state.
+    test('test_newGameStartsFresh', () {
+      final notifier = GameNotifier(scoringService: testScoringService);
+
+      // Play part of a game
+      notifier.startNewGame();
+      notifier.startTurn();
+      notifier.rollDice();
+      notifier.selectCategory(Category.ones);
+      notifier.scoreCategory(Category.ones);
+
+      var state = notifier.state;
+      expect(state.scores.length, 1);
+
+      // Start completely new game
+      notifier.startNewGame();
+      state = notifier.state;
+
+      // All state should be reset
+      expect(state.scores.isEmpty, true);
+      expect(state.diceRoll, isNull);
+      expect(state.remainingRolls, 3);
+      expect(state.currentTurn, 1);
+      expect(state.hasRolled, false);
+    });
+
+    /// Tests that dice cannot be held before first roll.
+    test('test_diceNotSelectableBeforeFirstRoll', () {
+      final notifier = GameNotifier(scoringService: testScoringService);
+
+      notifier.startNewGame();
+
+      var state = notifier.state;
+
+      // Try to toggle die before roll - should do nothing
+      notifier.toggleDieHeld(0);
+
+      state = notifier.state;
+      expect(state.diceRoll, isNull);
+
+      // Start turn to get dice
+      notifier.startTurn();
+      state = notifier.state;
+
+      // Now can toggle
+      notifier.toggleDieHeld(0);
+      state = notifier.state;
+      expect(state.diceRoll!.dice[0].isHeld, true);
+    });
+  });
 }
