@@ -277,7 +277,11 @@ class GameScreen extends ConsumerWidget {
     return ControlBar(
       remainingRolls: remainingRolls,
       onRollPressed: onRollPressed,
-      onPlayPressed: onPlayPressed,
+      onPlayPressed:
+          onPlayPressed ??
+          (selectedCategory != null && gameNotifier != null
+              ? () => gameNotifier.scoreCategory(selectedCategory!)
+              : null),
       isPlayEnabled:
           selectedCategory != null && !scores.containsKey(selectedCategory),
       gameNotifier: gameNotifier,
