@@ -32,12 +32,19 @@ class ControlBar extends ConsumerWidget {
   /// If null, calculated from gameProvider state.
   final bool? isPlayEnabled;
 
+  /// Game notifier for Riverpod-based callbacks.
+  ///
+  /// When provided, used to create roll/play callbacks if explicit
+  /// onRollPressed/onPlayPressed are not provided.
+  final GameNotifier? gameNotifier;
+
   const ControlBar({
     super.key,
     this.remainingRolls,
     this.onRollPressed,
     this.onPlayPressed,
     this.isPlayEnabled,
+    this.gameNotifier,
   });
 
   @override
@@ -49,7 +56,9 @@ class ControlBar extends ConsumerWidget {
         isPlayEnabled == null;
 
     final gameState = useRiverpod ? ref.watch(gameProvider) : null;
-    final gameNotifier = useRiverpod ? ref.read(gameProvider.notifier) : null;
+    // Use provided gameNotifier, or read from Riverpod if in full Riverpod mode
+    final effectiveGameNotifier =
+        gameNotifier ?? (useRiverpod ? ref.read(gameProvider.notifier) : null);
 
     final rolls = remainingRolls ?? (gameState?.remainingRolls ?? 0);
     final isRollEnabled = rolls > 0;
@@ -64,17 +73,20 @@ class ControlBar extends ConsumerWidget {
     VoidCallback? rollCallback;
     if (onRollPressed != null) {
       rollCallback = isRollEnabled ? onRollPressed : null;
-    } else if (gameNotifier != null) {
-      rollCallback = isRollEnabled ? () => gameNotifier.rollDice() : null;
+    } else if (effectiveGameNotifier != null) {
+      rollCallback = isRollEnabled
+          ? () => effectiveGameNotifier.rollDice()
+          : null;
     }
 
     // Determine play button callback
     VoidCallback? playCallback;
     if (onPlayPressed != null) {
       playCallback = playEnabled ? onPlayPressed : null;
-    } else if (gameNotifier != null && gameState != null) {
+    } else if (effectiveGameNotifier != null && gameState != null) {
       playCallback = playEnabled && gameState.selectedCategory != null
-          ? () => gameNotifier.scoreCategory(gameState.selectedCategory!)
+          ? () =>
+                effectiveGameNotifier.scoreCategory(gameState.selectedCategory!)
           : null;
     }
 

@@ -270,11 +270,12 @@ class GameScreen extends ConsumerWidget {
     final onPlayPressed = this.onPlayPressed;
 
     return ControlBar(
-      remainingRolls: null, // Use Riverpod
+      remainingRolls: remainingRolls,
       onRollPressed: onRollPressed,
       onPlayPressed: onPlayPressed,
       isPlayEnabled:
           selectedCategory != null && !scores.containsKey(selectedCategory),
+      gameNotifier: gameNotifier,
     );
   }
 }
