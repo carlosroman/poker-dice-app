@@ -30,6 +30,12 @@ class ScoreCategoryRow extends StatefulWidget {
   /// If 0, the category was scored as zero.
   final int? score;
 
+  /// The potential score for this category based on current dice.
+  ///
+  /// Shown when the category has not been scored yet and dice are available.
+  /// If null, shows '---' for unscored categories.
+  final int? previewScore;
+
   /// Whether this category is currently selected.
   final bool isSelected;
 
@@ -43,6 +49,7 @@ class ScoreCategoryRow extends StatefulWidget {
     super.key,
     required this.category,
     required this.score,
+    this.previewScore,
     required this.isSelected,
     this.onTap,
     required this.isUpperSection,
@@ -194,9 +201,14 @@ class _ScoreCategoryRowState extends State<ScoreCategoryRow> {
   /// Builds the score display box.
   Widget _buildScoreBox(BuildContext context, ThemeData theme, bool isDark) {
     final bool isScored = widget.score != null;
-    final String scoreText = widget.score != null
-        ? widget.score.toString()
-        : '---';
+    final String scoreText;
+    if (widget.score != null) {
+      scoreText = widget.score.toString();
+    } else if (widget.previewScore != null) {
+      scoreText = widget.previewScore.toString();
+    } else {
+      scoreText = '---';
+    }
 
     return Container(
       width: 60,
@@ -233,6 +245,11 @@ class _ScoreCategoryRowState extends State<ScoreCategoryRow> {
       return theme.colorScheme.secondary.withValues(alpha: 0.1);
     }
 
+    // Preview score - subtle highlight
+    if (widget.previewScore != null) {
+      return theme.colorScheme.primary.withValues(alpha: 0.05);
+    }
+
     return theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
   }
 
@@ -251,6 +268,11 @@ class _ScoreCategoryRowState extends State<ScoreCategoryRow> {
       return theme.colorScheme.secondary;
     }
 
+    // Preview score - subtle border
+    if (widget.previewScore != null) {
+      return theme.colorScheme.primary.withValues(alpha: 0.3);
+    }
+
     return theme.dividerColor.withValues(alpha: 0.2);
   }
 
@@ -267,6 +289,10 @@ class _ScoreCategoryRowState extends State<ScoreCategoryRow> {
       return 1.5;
     }
 
+    if (widget.previewScore != null) {
+      return 1.0;
+    }
+
     return 1.0;
   }
 
@@ -276,14 +302,30 @@ class _ScoreCategoryRowState extends State<ScoreCategoryRow> {
     ThemeData theme,
     bool isScored,
   ) {
+    if (isScored) {
+      return TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: widget.score == 0
+            ? theme.colorScheme.error
+            : theme.colorScheme.onSurface,
+      );
+    }
+
+    // Preview score (not yet committed) - use lighter style
+    if (widget.previewScore != null) {
+      return TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+        color: theme.colorScheme.primary,
+      );
+    }
+
+    // No score, no preview
     return TextStyle(
       fontSize: 18,
-      fontWeight: isScored ? FontWeight.w700 : FontWeight.w400,
-      color: isScored
-          ? (widget.score == 0
-                ? theme.colorScheme.error
-                : theme.colorScheme.onSurface)
-          : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+      fontWeight: FontWeight.w400,
+      color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
     );
   }
 }

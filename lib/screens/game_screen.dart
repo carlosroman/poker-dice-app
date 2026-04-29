@@ -204,7 +204,7 @@ class GameScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Scorecard
-          _buildScorecard(context, scores, selectedCategory, ref),
+          _buildScorecard(context, diceRoll, scores, selectedCategory, ref),
         ],
       ),
     );
@@ -245,6 +245,7 @@ class GameScreen extends ConsumerWidget {
   /// Builds the scorecard widget.
   Widget _buildScorecard(
     BuildContext context,
+    DiceRoll? diceRoll,
     Map<Category, int> scores,
     Category? selectedCategory,
     WidgetRef ref,
@@ -254,7 +255,11 @@ class GameScreen extends ConsumerWidget {
     return Scorecard(
       scores: scores,
       selectedCategory: selectedCategory,
-      onCategoryTapped: onCategoryTapped,
+      diceRoll: diceRoll,
+      onCategoryTapped:
+          onCategoryTapped ??
+          ((Category category) =>
+              ref.read(gameProvider.notifier).selectCategory(category)),
     );
   }
 

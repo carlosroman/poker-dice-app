@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/category.dart';
+import '../models/dice_roll.dart';
+import '../services/scoring_service.dart';
 import 'score_category_row.dart';
 
 /// A widget that displays the Yatzy scorecard with Upper and Lower sections.
@@ -22,6 +24,11 @@ class Scorecard extends StatelessWidget {
   /// If null, no category is currently selected.
   final Category? selectedCategory;
 
+  /// The current dice roll for calculating preview scores.
+  ///
+  /// If null, no preview scores are shown.
+  final DiceRoll? diceRoll;
+
   /// Callback invoked when a category row is tapped.
   ///
   /// Only callable for categories that have not been scored yet.
@@ -31,6 +38,7 @@ class Scorecard extends StatelessWidget {
     super.key,
     required this.scores,
     this.selectedCategory,
+    required this.diceRoll,
     this.onCategoryTapped,
   });
 
@@ -124,9 +132,15 @@ class Scorecard extends StatelessWidget {
     Category category, {
     required bool isUpperSection,
   }) {
-    final score = scores[category];
-    final isSelected = selectedCategory == category;
-    final isScored = score != null;
+    final int? score = scores[category];
+    final bool isSelected = selectedCategory == category;
+    final bool isScored = score != null;
+
+    // Calculate preview score for unscored categories
+    int? previewScore;
+    if (!isScored && diceRoll != null && category != Category.bonus) {
+      previewScore = ScoringService().score(category, diceRoll!);
+    }
 
     return ScoreCategoryRow(
       category: category,
@@ -134,6 +148,7 @@ class Scorecard extends StatelessWidget {
       isSelected: isSelected,
       onTap: isScored ? null : () => onCategoryTapped?.call(category),
       isUpperSection: isUpperSection,
+      previewScore: previewScore,
     );
   }
 
