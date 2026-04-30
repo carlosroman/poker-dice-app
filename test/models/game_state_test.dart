@@ -545,9 +545,9 @@ void main() {
       final state = GameState();
       final remaining = state.getRemainingCategories();
 
-      expect(remaining.length, 14);
+      expect(remaining.length, 13);
       expect(remaining.contains(Category.ones), true);
-      expect(remaining.contains(Category.bonus), true);
+      expect(remaining.contains(Category.bonus), false);
     });
 
     test('returns categories excluding scored ones', () {
@@ -555,7 +555,7 @@ void main() {
       final state = GameState(scores: scores);
       final remaining = state.getRemainingCategories();
 
-      expect(remaining.length, 12);
+      expect(remaining.length, 11);
       expect(remaining.contains(Category.ones), false);
       expect(remaining.contains(Category.twos), false);
       expect(remaining.contains(Category.threes), true);
@@ -588,7 +588,7 @@ void main() {
       final state = GameState();
       final scores = {Category.ones: 5};
 
-      expect(state.getRemainingCategoriesWithScores(scores).length, 13);
+      expect(state.getRemainingCategoriesWithScores(scores).length, 12);
     });
   });
 

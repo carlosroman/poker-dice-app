@@ -105,9 +105,9 @@ void main() {
         notifier.scoreCategory(category);
       }
 
-      // Verify all non-bonus categories scored
+      // Verify all non-bonus categories scored plus bonus auto-scored
       state = notifier.state;
-      expect(state.scores.length, 13); // 13 non-bonus categories
+      expect(state.scores.length, 14); // 13 non-bonus + 1 bonus auto-scored
 
       // Bonus should be auto-calculated
       expect(state.bonusAwarded, state.upperSectionTotal >= 63);
@@ -115,8 +115,8 @@ void main() {
       // Verify total score
       expect(state.totalScore, state.calculateTotalScore());
 
-      // Game should not be over yet (bonus not manually scored)
-      expect(state.isGameOver, false);
+      // Game should be over since all categories including bonus are scored
+      expect(state.isGameOver, true);
     });
 
     /// Tests game state persistence across turns.
@@ -182,7 +182,7 @@ void main() {
       }
 
       state = notifier.state;
-      expect(state.scores.length, 13); // All non-bonus categories
+      expect(state.scores.length, 14); // All non-bonus + bonus auto-scored
     });
 
     /// Tests game reset functionality.
@@ -296,7 +296,7 @@ void main() {
       }
 
       var state = notifier.state;
-      expect(state.scores.length, 6);
+      expect(state.scores.length, 7); // 6 upper + 1 bonus auto-scored
 
       // Test lower section categories
       final lowerCategories = [
@@ -317,7 +317,7 @@ void main() {
       }
 
       state = notifier.state;
-      expect(state.scores.length, 13);
+      expect(state.scores.length, 14); // 13 manual + 1 bonus auto-scored
 
       // Verify bonus calculation
       expect(state.bonusAwarded, state.upperSectionTotal >= 63);
@@ -529,7 +529,7 @@ void main() {
       }
 
       var state = notifier.state;
-      expect(state.scores.length, 6);
+      expect(state.scores.length, 7); // 6 upper + 1 bonus auto-scored
 
       // Calculate upper section total
       final upperTotal = state.calculateUpperSectionTotal();

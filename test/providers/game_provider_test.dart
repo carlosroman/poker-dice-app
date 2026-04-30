@@ -180,7 +180,7 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      // Score all 13 scoring categories (bonus is calculated automatically)
+      // Score all 13 scoring categories (bonus is auto-scored when upper section completes)
       final categoriesToScore = Category.values.where(
         (c) => c != Category.bonus,
       );
@@ -190,12 +190,10 @@ void main() {
         container.read(gameProvider.notifier).scoreCategory(category);
       }
 
-      // After scoring 13 categories, there should be 1 remaining (bonus)
-      expect(container.read(remainingCategoriesProvider).length, 1);
-      expect(container.read(remainingCategoriesProvider).first, Category.bonus);
-
-      // Game is not over until bonus is also scored
-      expect(container.read(isGameOverProvider), false);
+      // After scoring all 13 non-bonus categories, bonus is auto-scored
+      // so game should be over
+      expect(container.read(remainingCategoriesProvider).length, 0);
+      expect(container.read(isGameOverProvider), true);
     });
   });
 
@@ -303,7 +301,7 @@ void main() {
 
       expect(container.read(isGameOverProvider), false);
 
-      // Score all 13 scoring categories (bonus is calculated automatically)
+      // Score all 13 scoring categories (bonus is auto-scored when upper section completes)
       final categoriesToScore = Category.values.where(
         (c) => c != Category.bonus,
       );
@@ -313,24 +311,25 @@ void main() {
         container.read(gameProvider.notifier).scoreCategory(category);
       }
 
-      // Game is not over until bonus is scored (which requires special handling)
-      expect(container.read(isGameOverProvider), false);
+      // After scoring all 13 non-bonus categories, bonus is auto-scored
+      // so game should be over
+      expect(container.read(isGameOverProvider), true);
 
-      // After scoring 13 categories, only bonus remains
-      expect(container.read(remainingCategoriesProvider).length, 1);
+      // No remaining categories
+      expect(container.read(remainingCategoriesProvider).length, 0);
     });
 
     test('testRemainingCategoriesProvider', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      expect(container.read(remainingCategoriesProvider).length, 14);
+      expect(container.read(remainingCategoriesProvider).length, 13);
 
       container.read(gameProvider.notifier).startTurn();
       container.read(gameProvider.notifier).selectCategory(Category.ones);
       container.read(gameProvider.notifier).scoreCategory(Category.ones);
 
-      expect(container.read(remainingCategoriesProvider).length, 13);
+      expect(container.read(remainingCategoriesProvider).length, 12);
     });
   });
 
@@ -477,7 +476,7 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      // Score all 13 scoring categories
+      // Score all 13 scoring categories (bonus is auto-scored)
       final categoriesToScore = Category.values.where(
         (c) => c != Category.bonus,
       );
@@ -487,16 +486,13 @@ void main() {
         container.read(gameProvider.notifier).scoreCategory(category);
       }
 
-      // Game is not over yet (bonus remains)
-      expect(container.read(isGameOverProvider), false);
+      // Game is now over (bonus auto-scored when upper section completed)
+      expect(container.read(isGameOverProvider), true);
+      expect(container.read(remainingCategoriesProvider).length, 0);
 
-      // Start another turn to score bonus
+      // Start turn should do nothing when game is over
       container.read(gameProvider.notifier).startTurn();
-      container.read(gameProvider.notifier).selectCategory(Category.bonus);
-
-      // Note: bonus scoring requires special handling not implemented in GameNotifier
-      // For now, we just verify the game state after scoring 13 categories
-      expect(container.read(remainingCategoriesProvider).length, 1);
+      expect(container.read(isGameOverProvider), true);
     });
 
     test('testToggleDieHeldDoesNothingWhenNoDiceRoll', () {

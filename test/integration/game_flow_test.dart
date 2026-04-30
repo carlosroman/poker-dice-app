@@ -45,10 +45,10 @@ void main() {
         notifier.startTurn();
       }
 
-      // Verify all 13 categories are scored
+      // Verify all 13 categories are scored plus bonus auto-scored
       state = notifier.state;
-      expect(state.scores.length, 13);
-      // Bonus is auto-calculated, not manually scored
+      expect(state.scores.length, 14);
+      // Bonus is auto-calculated when upper section is complete
       expect(state.bonusAwarded, state.upperSectionTotal >= 63);
     });
 
@@ -202,14 +202,11 @@ void main() {
         notifier.scoreCategory(category);
       }
 
-      // After scoring all non-bonus categories, bonus should be auto-calculated
+      // After scoring all non-bonus categories, bonus is auto-scored
       var state = notifier.state;
-      expect(
-        state.scores.length,
-        13,
-      ); // 13 categories scored (bonus is auto-calculated)
-      // Game should not be over yet since bonus is not manually scored
-      expect(state.isGameOver, false);
+      expect(state.scores.length, 14); // 13 manual + 1 bonus auto-scored
+      // Game should be over since all categories including bonus are scored
+      expect(state.isGameOver, true);
     });
 
     test('test_final_score_calculation', () {
@@ -280,9 +277,9 @@ void main() {
         notifier.startTurn();
       }
 
-      // All non-bonus categories should be scored (13 categories)
+      // All non-bonus categories should be scored (13 + bonus auto-scored = 14)
       var state = notifier.state;
-      expect(state.scores.length, 13);
+      expect(state.scores.length, 14);
     });
 
     test('test_toggleDieHold_onlyDuringActiveTurn', () {

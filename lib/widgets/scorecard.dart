@@ -146,7 +146,9 @@ class Scorecard extends StatelessWidget {
       category: category,
       score: score,
       isSelected: isSelected,
-      onTap: isScored ? null : () => onCategoryTapped?.call(category),
+      onTap: (isScored || category == Category.bonus)
+          ? null
+          : () => onCategoryTapped?.call(category),
       isUpperSection: isUpperSection,
       previewScore: previewScore,
     );

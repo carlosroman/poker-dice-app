@@ -138,6 +138,18 @@ class GameState {
     final newScores = Map<Category, int>.from(scores);
     newScores[category] = score;
 
+    // Auto-score bonus if all 6 upper section categories are now scored
+    final allUpperScored = Category.values
+        .where((cat) => cat.index < 6) // ones through sixes
+        .every((cat) => newScores.containsKey(cat));
+
+    if (allUpperScored && !newScores.containsKey(Category.bonus)) {
+      final upperTotal = calculateUpperSectionTotalWithScores(newScores);
+      newScores[Category.bonus] = upperTotal >= upperSectionTarget
+          ? bonusPoints
+          : 0;
+    }
+
     final newUpperSectionTotal = calculateUpperSectionTotalWithScores(
       newScores,
     );
@@ -204,7 +216,9 @@ class GameState {
     Map<Category, int> currentScores,
   ) {
     return Category.values
-        .where((cat) => !currentScores.containsKey(cat))
+        .where(
+          (cat) => cat != Category.bonus && !currentScores.containsKey(cat),
+        )
         .toList();
   }
 
