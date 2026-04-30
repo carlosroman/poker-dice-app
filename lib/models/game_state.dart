@@ -72,6 +72,7 @@ class GameState {
       upperSectionTotal: upperSectionTotal,
       bonusAwarded: bonusAwarded,
       totalScore: totalScore,
+      isGameStarted: isGameStarted,
     );
   }
 
@@ -93,6 +94,7 @@ class GameState {
       upperSectionTotal: upperSectionTotal,
       bonusAwarded: bonusAwarded,
       totalScore: totalScore,
+      isGameStarted: isGameStarted,
     );
   }
 
@@ -111,6 +113,7 @@ class GameState {
       upperSectionTotal: upperSectionTotal,
       bonusAwarded: bonusAwarded,
       totalScore: totalScore,
+      isGameStarted: isGameStarted,
     );
   }
 
@@ -128,6 +131,7 @@ class GameState {
       upperSectionTotal: upperSectionTotal,
       bonusAwarded: bonusAwarded,
       totalScore: totalScore,
+      isGameStarted: isGameStarted,
     );
   }
 
@@ -171,6 +175,7 @@ class GameState {
       upperSectionTotal: newUpperSectionTotal,
       bonusAwarded: newBonusAwarded,
       totalScore: newTotalScore,
+      isGameStarted: isGameStarted,
     );
   }
 
@@ -238,6 +243,7 @@ class GameState {
     int? upperSectionTotal,
     bool? bonusAwarded,
     int? totalScore,
+    bool? isGameStarted,
   }) {
     return GameState(
       diceRoll: diceRoll ?? this.diceRoll,
@@ -249,6 +255,7 @@ class GameState {
       upperSectionTotal: upperSectionTotal ?? this.upperSectionTotal,
       bonusAwarded: bonusAwarded ?? this.bonusAwarded,
       totalScore: totalScore ?? this.totalScore,
+      isGameStarted: isGameStarted ?? this.isGameStarted,
     );
   }
 
@@ -266,6 +273,7 @@ class GameState {
       upperSectionTotal: other.upperSectionTotal,
       bonusAwarded: other.bonusAwarded,
       totalScore: other.totalScore,
+      isGameStarted: other.isGameStarted,
     );
   }
 

@@ -59,6 +59,7 @@ class GameNotifier extends StateNotifier<GameState> {
       upperSectionTotal: state.upperSectionTotal,
       bonusAwarded: state.bonusAwarded,
       totalScore: state.totalScore,
+      isGameStarted: state.isGameStarted,
     );
   }
 
@@ -78,6 +79,7 @@ class GameNotifier extends StateNotifier<GameState> {
       upperSectionTotal: state.upperSectionTotal,
       bonusAwarded: state.bonusAwarded,
       totalScore: state.totalScore,
+      isGameStarted: state.isGameStarted,
     );
   }
 
@@ -97,6 +99,7 @@ class GameNotifier extends StateNotifier<GameState> {
       upperSectionTotal: state.upperSectionTotal,
       bonusAwarded: state.bonusAwarded,
       totalScore: state.totalScore,
+      isGameStarted: state.isGameStarted,
     );
   }
 
@@ -116,6 +119,7 @@ class GameNotifier extends StateNotifier<GameState> {
       upperSectionTotal: state.upperSectionTotal,
       bonusAwarded: state.bonusAwarded,
       totalScore: state.totalScore,
+      isGameStarted: state.isGameStarted,
     );
   }
 
