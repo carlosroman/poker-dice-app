@@ -13,6 +13,7 @@ permission:
   question: allow
   "dart-mcp-server_*": allow
   bash:
+    "*": deny
     "git *": allow
     "grep *": allow
     "rtk git *": allow
