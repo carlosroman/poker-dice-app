@@ -1,16 +1,21 @@
 ---
 name: quality-reviewer
-description: Code review and quality assurance subagent. The main coding agent should delegate here whenever a codebase needs auditing, bug detection, security review, performance analysis, or best-practice validation across any programming language or framework.
 mode: all
-tools:
-  read: true
-  grep: true
-  glob: true
-  write: false
-  list: true
+description: Code review and quality assurance subagent. The main coding agent should delegate here whenever a codebase needs auditing, bug detection, security review, performance analysis, or best-practice validation across any programming language or framework.
+disable: false
 permission:
-  edit: deny
+  "dart-mcp-server_*": allow
   bash: deny
+  doom_loop: allow
+  edit: deny
+  external_directory: deny
+  grep: allow
+  list: allow
+  lsp: allow
+  question: deny
+  read: allow
+  task: allow
+  todowrite: allow
 ---
 
 You are the QA agent for this Flutter project.
