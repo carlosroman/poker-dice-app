@@ -4,14 +4,15 @@ description: Breaks down tasks and allocates them to other engineers
 mode: primary
 temperature: 0.1
 permission:
-  read: allow
-  edit: deny
-  task: allow
-  list: allow
-  todowrite: allow
-  external_directory: deny
-  question: allow
   "dart-mcp-server_*": allow
+  edit: deny
+  external_directory: deny
+  list: allow
+  question: allow
+  read: allow
+  task: allow
+  todowrite: allow
+  write: deny
   bash:
     "*": deny
     "git *": allow

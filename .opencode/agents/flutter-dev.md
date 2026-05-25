@@ -17,6 +17,7 @@ permission:
   read: allow
   task: allow
   todowrite: allow
+  write: allow
 enable_thinking: false
 model: "llamacpp/qwen3-27b-MTP-coder"
 ---
