@@ -117,11 +117,11 @@ The Dart MCP server is the **primary interface** for Flutter/Dart projects.
 
 ### Priority
 
-1. **Testing:** Use `dart-mcp-server_run_tests` (not `flutter test`)
-2. **Analysis:** Use `dart-mcp-server_analyze_files` (not `flutter analyze`)
+1. **Testing:** Use `dart-mcp-server_run_tests`
+2. **Analysis:** Use `dart-mcp-server_analyze_files`
 3. **Formatting:** Use `dart-mcp-server_dart_format` before commits
 4. **Dependencies:** Use `dart-mcp-server_pub` for all pub commands
-5. **Runtime:** Use `dart-mcp-server_launch_app`, not `flutter run`
+5. **Runtime:** Use `dart-mcp-server_launch_app`
 
 Only use shell commands when MCP tools cannot perform the task.
 
