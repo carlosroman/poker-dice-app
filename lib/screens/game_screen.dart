@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:poker_dice/providers/game_provider.dart';
+import 'package:poker_dice/screens/game_over_screen.dart';
 import 'package:poker_dice/widgets/control_bar.dart';
 import 'package:poker_dice/widgets/dice_container.dart';
 import 'package:poker_dice/widgets/header_bar.dart';
@@ -16,13 +18,25 @@ class GameScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final gameState = ref.watch(gameStateProvider);
+    final notifier = ref.watch(gameNotifierProvider.notifier);
+
+    // Navigate to game over screen when game ends
+    if (gameState.isGameOver) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const GameOverScreen()),
+        );
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Yatzy'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: null, // TODO: New game
+            onPressed: () => notifier.newGame(),
             tooltip: 'New Game',
           ),
         ],

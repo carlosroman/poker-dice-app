@@ -74,6 +74,7 @@ class GameState {
   /// Records a [score] for the given [category].
   /// Returns a new [GameState] with the updated scores.
   GameState addScore(Category category, int score) {
+    if (scores[category] != null) return this;
     final newScores = Map<Category, int?>.from(scores);
     newScores[category] = score;
     return copyWith(scores: newScores);
