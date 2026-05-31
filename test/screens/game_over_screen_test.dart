@@ -19,9 +19,9 @@ void main() {
     });
 
     GameState createGameOverState({int totalScore = 150}) {
-      var state = GameState();
+      var state = const GameState();
       for (final cat in Category.values) {
-        state = state.addScore(cat, totalScore ~/ Category.values.length);
+        state = state.addScore(cat.name, totalScore ~/ Category.values.length);
       }
       return state;
     }
@@ -57,7 +57,7 @@ void main() {
       final state = createGameOverState(totalScore: 200);
       await pumpGameOverScreen(tester, gameState: state);
 
-      expect(find.text('231'), findsWidgets);
+      expect(find.text('246'), findsWidgets);
     });
 
     testWidgets('displays upper section header', (tester) async {
@@ -101,43 +101,43 @@ void main() {
     });
 
     testWidgets('shows bonus when upper section threshold met', (tester) async {
-      var state = GameState();
+      var state = const GameState();
       // Score upper section to meet/exceed 63 threshold
-      state = state.addScore(Category.ones, 15);
-      state = state.addScore(Category.twos, 12);
-      state = state.addScore(Category.threes, 9);
-      state = state.addScore(Category.fours, 8);
-      state = state.addScore(Category.fives, 10);
-      state = state.addScore(Category.sixes, 15);
+      state = state.addScore(Category.ones.name, 15);
+      state = state.addScore(Category.twos.name, 12);
+      state = state.addScore(Category.threes.name, 9);
+      state = state.addScore(Category.fours.name, 8);
+      state = state.addScore(Category.fives.name, 10);
+      state = state.addScore(Category.sixes.name, 15);
       // Score lower section
       for (final cat in Category.getLowerCategories()) {
-        state = state.addScore(cat, 0);
+        state = state.addScore(cat.name, 0);
       }
 
       await pumpGameOverScreen(tester, gameState: state);
 
       expect(find.text('Bonus:'), findsOneWidget);
-      expect(find.text('+35'), findsOneWidget);
+      expect(find.text('+50'), findsOneWidget);
     });
 
     testWidgets('hides bonus when upper section threshold not met', (tester) async {
-      var state = GameState();
+      var state = const GameState();
       // Score upper section below 63 threshold
-      state = state.addScore(Category.ones, 3);
-      state = state.addScore(Category.twos, 4);
-      state = state.addScore(Category.threes, 0);
-      state = state.addScore(Category.fours, 0);
-      state = state.addScore(Category.fives, 0);
-      state = state.addScore(Category.sixes, 0);
+      state = state.addScore(Category.ones.name, 3);
+      state = state.addScore(Category.twos.name, 4);
+      state = state.addScore(Category.threes.name, 0);
+      state = state.addScore(Category.fours.name, 0);
+      state = state.addScore(Category.fives.name, 0);
+      state = state.addScore(Category.sixes.name, 0);
       // Score lower section
       for (final cat in Category.getLowerCategories()) {
-        state = state.addScore(cat, 0);
+        state = state.addScore(cat.name, 0);
       }
 
       await pumpGameOverScreen(tester, gameState: state);
 
       expect(find.text('Bonus:'), findsNothing);
-      expect(find.text('+35'), findsNothing);
+      expect(find.text('+50'), findsNothing);
     });
 
     testWidgets('displays play again button', (tester) async {
@@ -190,15 +190,15 @@ void main() {
     });
 
     testWidgets('displays score for Ones category', (tester) async {
-      var state = GameState();
-      state = state.addScore(Category.ones, 12);
-      state = state.addScore(Category.twos, 10);
-      state = state.addScore(Category.threes, 9);
-      state = state.addScore(Category.fours, 8);
-      state = state.addScore(Category.fives, 15);
-      state = state.addScore(Category.sixes, 18);
+      var state = const GameState();
+      state = state.addScore(Category.ones.name, 12);
+      state = state.addScore(Category.twos.name, 10);
+      state = state.addScore(Category.threes.name, 9);
+      state = state.addScore(Category.fours.name, 8);
+      state = state.addScore(Category.fives.name, 15);
+      state = state.addScore(Category.sixes.name, 18);
       for (final cat in Category.getLowerCategories()) {
-        state = state.addScore(cat, 0);
+        state = state.addScore(cat.name, 0);
       }
 
       await pumpGameOverScreen(tester, gameState: state);

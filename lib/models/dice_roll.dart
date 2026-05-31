@@ -13,6 +13,21 @@ class DiceRoll {
               List<Die>.generate(_diceCount, (_) => Die()),
             );
 
+  /// Creates a [DiceRoll] from a list of integer values.
+  ///
+  /// Each value must be between 1 and 6.
+  /// Throws an [ArgumentError] if the list does not contain exactly 5 values.
+  factory DiceRoll.fromValues(List<int> values) {
+    if (values.length != _diceCount) {
+      throw ArgumentError(
+        'DiceRoll requires exactly $_diceCount values, got ${values.length}',
+      );
+    }
+    return DiceRoll(
+      dice: values.map((v) => Die(value: v)).toList(),
+    );
+  }
+
   /// Returns a new list of dice sorted by value (ascending).
   List<Die> get sortedDice {
     final sorted = List<Die>.from(dice);

@@ -18,7 +18,7 @@ class BonusIndicator extends ConsumerWidget {
     final theme = Theme.of(context);
 
     final upperTotal = gameState.upperSectionTotal;
-    final isAwarded = gameState.bonusAwarded;
+    final isAwarded = gameState.bonusAwarded != 0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

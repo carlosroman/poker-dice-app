@@ -4,14 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/models/category.dart';
 import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/providers/game_provider.dart';
-import 'package:poker_dice/services/scoring_service.dart';
 import 'package:poker_dice/widgets/scorecard.dart';
 import 'package:poker_dice/widgets/score_category_row.dart';
 
 void main() {
   group('Scorecard', () {
     testWidgets('renders all 14 category rows', (tester) async {
-      final state = GameState();
+      final state = const GameState();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [gameStateProvider.overrideWithValue(state)],
@@ -23,7 +22,7 @@ void main() {
     });
 
     testWidgets('renders upper section categories', (tester) async {
-      final state = GameState();
+      final state = const GameState();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [gameStateProvider.overrideWithValue(state)],
@@ -37,7 +36,7 @@ void main() {
     });
 
     testWidgets('renders lower section categories', (tester) async {
-      final state = GameState();
+      final state = const GameState();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [gameStateProvider.overrideWithValue(state)],
@@ -51,7 +50,7 @@ void main() {
     });
 
     testWidgets('renders bonus indicator', (tester) async {
-      final state = GameState();
+      final state = const GameState();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [gameStateProvider.overrideWithValue(state)],
@@ -63,7 +62,7 @@ void main() {
     });
 
     testWidgets('renders upper total', (tester) async {
-      final state = GameState();
+      final state = const GameState();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [gameStateProvider.overrideWithValue(state)],
@@ -75,7 +74,7 @@ void main() {
     });
 
     testWidgets('renders two columns side by side', (tester) async {
-      final state = GameState();
+      final state = const GameState();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [gameStateProvider.overrideWithValue(state)],
@@ -88,8 +87,8 @@ void main() {
     });
 
     testWidgets('selects category on tap', (tester) async {
-      final state = GameState();
-      final notifier = GameNotifier(ScoringService());
+      final state = const GameState();
+      final notifier = GameNotifier(initialState: state);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -104,12 +103,12 @@ void main() {
       await tester.tap(find.text('Ones'));
       await tester.pumpAndSettle();
 
-      expect(notifier.state.selectedCategory, Category.ones);
+      expect(notifier.state.selectedCategory, 'ones');
     });
 
     testWidgets('shows score when scored', (tester) async {
-      final state = GameState();
-      final stateWithScore = state.copyWith(scores: {Category.ones: 3});
+      final state = const GameState();
+      final stateWithScore = state.copyWith(scores: {'ones': 3});
 
       await tester.pumpWidget(
         ProviderScope(

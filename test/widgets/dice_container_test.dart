@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_dice/models/die.dart';
-import 'package:poker_dice/models/dice_roll.dart';
-import 'package:poker_dice/providers/game_provider.dart';
+import 'package:poker_dice/animations/dice_roll_animation.dart';
 import 'package:poker_dice/widgets/dice_container.dart';
 import 'package:poker_dice/widgets/die_widget.dart';
 
@@ -17,14 +15,17 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    Widget buildDiceContainer({DiceRoll? diceRoll, bool isInteractive = true}) {
+    Widget buildDiceContainer({
+      List<int>? diceRoll,
+      bool? isRolling,
+    }) {
       return UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
           home: Scaffold(
             body: DiceContainer(
               diceRoll: diceRoll,
-              isInteractive: isInteractive,
+              isRolling: isRolling,
             ),
           ),
         ),
@@ -32,16 +33,9 @@ void main() {
     }
 
     testWidgets('renders 5 DieWidgets when dice roll provided', (tester) async {
-      final dice = DiceRoll(
-        dice: [
-          Die(value: 1),
-          Die(value: 2),
-          Die(value: 3),
-          Die(value: 4),
-          Die(value: 5),
-        ],
+      await tester.pumpWidget(
+        buildDiceContainer(diceRoll: [1, 2, 3, 4, 5]),
       );
-      await tester.pumpWidget(buildDiceContainer(diceRoll: dice));
       expect(find.byType(DieWidget), findsNWidgets(5));
     });
 
@@ -51,60 +45,31 @@ void main() {
       await tester.pumpWidget(buildDiceContainer());
       // Should find 5 SizedBox placeholders instead of DieWidgets
       expect(find.byType(DieWidget), findsNothing);
+      expect(find.text('?'), findsNWidgets(5));
     });
 
-    testWidgets('calls toggleDieHold on tap when interactive', (tester) async {
-      // Pre-populate notifier state with dice
-      final notifier = container.read(gameNotifierProvider.notifier);
-      notifier.rollDice();
-
-      final dice = DiceRoll(
-        dice: [
-          Die(value: 1),
-          Die(value: 2),
-          Die(value: 3),
-          Die(value: 4),
-          Die(value: 5),
-        ],
-      );
-      await tester.pumpWidget(buildDiceContainer(diceRoll: dice));
-
-      // Tap the first die
-      await tester.tap(find.byType(DieWidget).first);
-      await tester.pumpAndSettle();
-
-      // Verify the notifier state was updated
-      final state = container.read(gameNotifierProvider);
-      expect(state.currentDiceRoll?.dice[0].isHeld, isTrue);
-    });
-
-    testWidgets('does not call toggleDieHold when not interactive', (
-      tester,
-    ) async {
-      // Pre-populate notifier state with dice
-      final notifier = container.read(gameNotifierProvider.notifier);
-      notifier.rollDice();
-
-      final dice = DiceRoll(
-        dice: [
-          Die(value: 1),
-          Die(value: 2),
-          Die(value: 3),
-          Die(value: 4),
-          Die(value: 5),
-        ],
-      );
+    testWidgets('wraps each die in DieRollAnimation', (tester) async {
       await tester.pumpWidget(
-        buildDiceContainer(diceRoll: dice, isInteractive: false),
+        buildDiceContainer(diceRoll: [1, 2, 3, 4, 5]),
       );
+      expect(find.byType(DieRollAnimation), findsNWidgets(5));
+    });
 
-      // Tap the first die
-      await tester.tap(find.byType(DieWidget).first);
-      await tester.pumpAndSettle();
+    testWidgets('shows rolling animation state', (tester) async {
+      await tester.pumpWidget(
+        buildDiceContainer(diceRoll: [1, 2, 3, 4, 5], isRolling: true),
+      );
+      // All DieRollAnimations should be present with isRolling true
+      final animations = find.byType(DieRollAnimation);
+      expect(animations, findsNWidgets(5));
+    });
 
-      // Verify the notifier state was NOT updated
-      final state = container.read(gameNotifierProvider);
-      expect(state.currentDiceRoll?.dice[0].isHeld, isFalse);
+    testWidgets('shows non-rolling state when not rolling', (tester) async {
+      await tester.pumpWidget(
+        buildDiceContainer(diceRoll: [1, 2, 3, 4, 5], isRolling: false),
+      );
+      final animations = find.byType(DieRollAnimation);
+      expect(animations, findsNWidgets(5));
     });
   });
 }

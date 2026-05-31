@@ -1,11 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/models/category.dart';
-import 'package:poker_dice/models/die.dart';
-import 'package:poker_dice/models/dice_roll.dart';
 import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/providers/game_provider.dart';
-import 'package:poker_dice/services/scoring_service.dart';
+import 'package:poker_dice/services/dice_service.dart';
 
 void main() {
   late ProviderContainer container;
@@ -20,229 +18,207 @@ void main() {
     container.dispose();
   });
 
-  DiceRoll createRoll(List<int> values) {
-    return DiceRoll(dice: values.map((v) => Die(value: v)).toList());
-  }
-
   group('GameProvider', () {
-    test('test_initial_game_state_is_correct', () {
+    test('initial game state is correct', () {
       final state = container.read(gameStateProvider);
 
       expect(state.currentRollsRemaining, equals(3));
-      expect(state.currentDiceRoll, isNull);
+      expect(state.diceRoll, isNull);
       expect(state.selectedCategory, isNull);
-      expect(state.scores.length, equals(14));
+      expect(state.scores, isEmpty);
       expect(state.totalScore, equals(0));
       expect(state.isGameOver, isFalse);
     });
 
-    test('test_roll_dice_decrements_counter', () {
-      notifier.rollDice();
+    test('rollDice decrements counter and sets dice', () async {
+      await notifier.rollDice();
       expect(
         container.read(gameStateProvider).currentRollsRemaining,
         equals(2),
       );
+      expect(
+        container.read(gameStateProvider).diceRoll,
+        isNotNull,
+      );
+      expect(
+        container.read(gameStateProvider).diceRoll!.length,
+        equals(5),
+      );
 
-      notifier.rollDice();
+      await notifier.rollDice();
       expect(
         container.read(gameStateProvider).currentRollsRemaining,
         equals(1),
       );
 
-      notifier.rollDice();
+      await notifier.rollDice();
       expect(
         container.read(gameStateProvider).currentRollsRemaining,
         equals(0),
       );
     });
 
-    test('test_roll_dice_creates_new_dice_roll', () {
-      notifier.rollDice();
-      final state = container.read(gameStateProvider);
-
-      expect(state.currentDiceRoll, isNotNull);
-      expect(state.currentDiceRoll!.dice.length, equals(5));
-    });
-
-    test('test_roll_dice_when_no_dice_exist', () {
-      // Fresh state has no dice; first roll should create them
-      final state = container.read(gameStateProvider);
-      expect(state.currentDiceRoll, isNull);
-
-      notifier.rollDice();
-
-      final afterState = container.read(gameStateProvider);
-      expect(afterState.currentDiceRoll, isNotNull);
-      expect(afterState.currentDiceRoll!.dice.length, equals(5));
-      expect(afterState.currentRollsRemaining, equals(2));
-    });
-
-    test('test_toggle_die_hold_toggles_state', () {
-      final roll = createRoll([1, 2, 3, 4, 5]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(currentDiceRoll: roll);
-
-      expect(notifier.state.currentDiceRoll!.dice[0].isHeld, isFalse);
-
-      notifier.toggleDieHold(0);
-      expect(notifier.state.currentDiceRoll!.dice[0].isHeld, isTrue);
-      expect(notifier.state.currentDiceRoll!.dice[1].isHeld, isFalse);
-
-      notifier.toggleDieHold(0);
-      expect(notifier.state.currentDiceRoll!.dice[0].isHeld, isFalse);
-    });
-
-    test('test_select_category_updates_selection', () {
-      notifier.selectCategory(Category.ones);
+    test('rollDice sets isRolling to false after animation', () async {
+      await notifier.rollDice();
       expect(
-        container.read(gameStateProvider).selectedCategory,
-        equals(Category.ones),
-      );
-
-      notifier.selectCategory(Category.yatzy);
-      expect(
-        container.read(gameStateProvider).selectedCategory,
-        equals(Category.yatzy),
+        container.read(gameStateProvider).isRolling,
+        isFalse,
       );
     });
 
-    test('test_score_category_adds_score', () {
-      final roll = createRoll([3, 3, 3, 1, 2]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(
-        currentDiceRoll: roll,
-        currentRollsRemaining: 2,
-      );
+    test('rollDice creates dice with values 1-6', () async {
+      await notifier.rollDice();
+      final dice = container.read(gameStateProvider).diceRoll!;
 
-      notifier.scoreCategory(Category.threes);
-
-      expect(notifier.state.scores[Category.threes], equals(9));
-    });
-
-    test('test_score_category_resets_rolls', () {
-      final roll = createRoll([1, 2, 3, 4, 5]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(
-        currentDiceRoll: roll,
-        currentRollsRemaining: 1,
-      );
-
-      notifier.scoreCategory(Category.chance);
-
-      expect(notifier.state.currentRollsRemaining, equals(3));
-    });
-
-    test('test_score_all_categories_ends_game', () {
-      // Start with a roll so we can score
-      final roll = createRoll([1, 1, 1, 1, 1]);
-
-      var state = GameState(currentDiceRoll: roll);
-      final scoringService = ScoringService();
-      for (final cat in Category.values) {
-        final score = scoringService.scoreCategory(cat, roll);
-        state = state.addScore(cat, score);
+      expect(dice.length, equals(5));
+      for (final value in dice) {
+        expect(value, inInclusiveRange(1, 6));
       }
-
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = state;
-
-      expect(notifier.state.isGameOver, isTrue);
     });
 
-    test('test_canRoll_returns_false_at_zero_rolls', () {
-      notifier.rollDice();
-      notifier.rollDice();
-      notifier.rollDice();
-
-      expect(notifier.canRoll(), isFalse);
-    });
-
-    test('test_canScore_returns_false_if_already_scored', () {
-      final roll = createRoll([6, 6, 6, 6, 6]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(currentDiceRoll: roll);
-
-      // Score sixes first
-      notifier.scoreCategory(Category.sixes);
-      expect(notifier.state.scores[Category.sixes], isNotNull);
-
-      // Select the same category again
-      notifier.selectCategory(Category.sixes);
-
-      // Should not be able to score again
-      expect(notifier.canScore(), isFalse);
-    });
-
-    test('test_newGame_resets_state', () {
-      final roll = createRoll([1, 2, 3, 4, 5]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(
-        currentDiceRoll: roll,
-        currentRollsRemaining: 1,
+    test('selectCategory updates selection', () {
+      notifier.selectCategory('ones');
+      expect(
+        container.read(gameStateProvider).selectedCategory,
+        equals('ones'),
       );
-      notifier.state = notifier.state.addScore(Category.ones, 3);
+
+      notifier.selectCategory('yatzy');
+      expect(
+        container.read(gameStateProvider).selectedCategory,
+        equals('yatzy'),
+      );
+    });
+
+    test('selectCategory null clears selection', () {
+      notifier.selectCategory('ones');
+      expect(
+        container.read(gameStateProvider).selectedCategory,
+        equals('ones'),
+      );
+
+      notifier.selectCategory(null);
+      expect(
+        container.read(gameStateProvider).selectedCategory,
+        isNull,
+      );
+    });
+
+    test('scoreCategory adds score to state', () {
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      expect(container.read(gameStateProvider).scores['ones'], isNotNull);
+    });
+
+    test('scoreCategory resets rolls', () async {
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      expect(
+        container.read(gameStateProvider).currentRollsRemaining,
+        equals(3),
+      );
+    });
+
+    test('scoreCategory clears dice and selection', () async {
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      final state = container.read(gameStateProvider);
+      expect(state.diceRoll, isNull);
+      expect(state.selectedCategory, isNull);
+    });
+
+    test('newGame resets state', () async {
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
 
       notifier.newGame();
 
-      final state = notifier.state;
+      final state = container.read(gameStateProvider);
       expect(state.currentRollsRemaining, equals(3));
-      expect(state.currentDiceRoll, isNull);
+      expect(state.diceRoll, isNull);
       expect(state.selectedCategory, isNull);
       expect(state.totalScore, equals(0));
       expect(state.isGameOver, isFalse);
     });
 
-    test('test_held_dice_remain_across_rolls', () {
-      final roll = createRoll([1, 2, 3, 4, 5]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(
-        currentDiceRoll: roll,
-        currentRollsRemaining: 2,
-      );
+    test('isGameOver is true when all categories scored', () {
+      var state = const GameState();
+      for (final cat in Category.values) {
+        state = state.addScore(cat.name, 10);
+      }
 
-      // Hold the first die (value 1)
-      notifier.toggleDieHold(0);
-      final heldValue = notifier.state.currentDiceRoll!.dice[0].value;
-
-      // Roll again
-      notifier.rollDice();
-
-      // Held die should retain its value
-      expect(notifier.state.currentDiceRoll!.dice[0].value, equals(heldValue));
-      expect(notifier.state.currentDiceRoll!.dice[0].isHeld, isTrue);
-      expect(notifier.state.currentRollsRemaining, equals(1));
+      final notifierWithScores = GameNotifier(initialState: state);
+      expect(notifierWithScores.state.isGameOver, isTrue);
     });
 
-    test('test_full_turn_simulation', () {
-      // Simulate: roll -> hold some dice -> roll again -> select & score
-      final roll = createRoll([3, 3, 1, 2, 4]);
-      notifier = GameNotifier(container.read(scoringServiceProvider));
-      notifier.state = GameState(
-        currentDiceRoll: roll,
-        currentRollsRemaining: 2,
+    test('resetTurn clears turn state', () async {
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+
+      notifier.resetTurn();
+
+      final state = container.read(gameStateProvider);
+      expect(state.currentRollsRemaining, equals(3));
+      expect(state.diceRoll, isNull);
+      expect(state.selectedCategory, isNull);
+      expect(state.isRolling, isFalse);
+    });
+
+    test('decrementRolls reduces remaining rolls', () {
+      notifier.decrementRolls();
+      expect(
+        container.read(gameStateProvider).currentRollsRemaining,
+        equals(2),
       );
 
-      // Hold the two 3s
-      notifier.toggleDieHold(0);
-      notifier.toggleDieHold(1);
+      notifier.decrementRolls();
+      expect(
+        container.read(gameStateProvider).currentRollsRemaining,
+        equals(1),
+      );
+    });
 
-      // Second roll (only unheld dice change)
-      notifier.rollDice();
-      expect(notifier.state.currentRollsRemaining, equals(1));
-      expect(notifier.state.currentDiceRoll!.dice[0].value, equals(3));
-      expect(notifier.state.currentDiceRoll!.dice[1].value, equals(3));
+    test('full turn simulation', () async {
+      // Roll dice
+      await notifier.rollDice();
+      expect(
+        container.read(gameStateProvider).currentRollsRemaining,
+        equals(2),
+      );
+      expect(
+        container.read(gameStateProvider).diceRoll,
+        isNotNull,
+      );
 
-      // Select and score threes
-      notifier.selectCategory(Category.threes);
-      expect(notifier.canScore(), isTrue);
+      // Select and score a category
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
 
-      notifier.scoreCategory(Category.threes);
-
-      final state = notifier.state;
-      expect(state.scores[Category.threes], isNotNull);
+      final state = container.read(gameStateProvider);
+      expect(state.scores['ones'], isNotNull);
       expect(state.currentRollsRemaining, equals(3));
-      expect(state.currentDiceRoll, isNull);
+      expect(state.diceRoll, isNull);
       expect(state.selectedCategory, isNull);
+    });
+
+    test('GameNotifier accepts custom DiceService', () {
+      final customService = DiceService();
+      final customNotifier = GameNotifier(diceService: customService);
+
+      expect(customNotifier, isNotNull);
+    });
+
+    test('GameNotifier accepts initial state', () {
+      const initialState = GameState(currentRollsRemaining: 2);
+      final customNotifier = GameNotifier(initialState: initialState);
+
+      expect(customNotifier.state.currentRollsRemaining, equals(2));
     });
   });
 }

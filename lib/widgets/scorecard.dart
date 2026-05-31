@@ -65,11 +65,11 @@ class Scorecard extends ConsumerWidget {
                     child: index < upperCategories.length
                         ? ScoreCategoryRow(
                             category: upperCategories[index],
-                            score: gameState.scores[upperCategories[index]],
+                            score: gameState.scores[upperCategories[index].name],
                             isSelected:
                                 gameState.selectedCategory ==
-                                upperCategories[index],
-                            onTap: notifier.selectCategory,
+                                upperCategories[index].name,
+                            onTap: (c) => notifier.selectCategory(c.name),
                           )
                         : const SizedBox.shrink(),
                   ),
@@ -77,9 +77,9 @@ class Scorecard extends ConsumerWidget {
                   Expanded(
                     child: ScoreCategoryRow(
                       category: lowerCategory,
-                      score: gameState.scores[lowerCategory],
-                      isSelected: gameState.selectedCategory == lowerCategory,
-                      onTap: notifier.selectCategory,
+                      score: gameState.scores[lowerCategory.name],
+                      isSelected: gameState.selectedCategory == lowerCategory.name,
+                      onTap: (c) => notifier.selectCategory(c.name),
                     ),
                   ),
                 ],

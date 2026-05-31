@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:poker_dice/animations/score_increment_animation.dart';
 import 'package:poker_dice/models/category.dart';
 import 'package:poker_dice/widgets/score_category_row.dart';
 
@@ -36,8 +37,10 @@ void main() {
       expect(find.text('-'), findsOneWidget);
     });
 
-    testWidgets('shows score for scored category', (tester) async {
+    testWidgets('shows AnimatedScoreWidget for scored category', (tester) async {
       await tester.pumpWidget(buildCategoryRow(score: 15, onTap: (_) {}));
+      await tester.pumpAndSettle();
+      expect(find.byType(AnimatedScoreWidget), findsOneWidget);
       expect(find.text('15'), findsOneWidget);
     });
 

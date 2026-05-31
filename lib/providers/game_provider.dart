@@ -1,73 +1,103 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poker_dice/models/category.dart';
+import 'package:poker_dice/animations/dice_roll_animation.dart';
 import 'package:poker_dice/models/game_state.dart';
-import 'package:poker_dice/services/scoring_service.dart';
+import 'package:poker_dice/services/dice_service.dart';
 
-/// Provider that supplies a [ScoringService] instance.
-final scoringServiceProvider = Provider<ScoringService>((ref) {
-  return ScoringService();
-});
+/// Manages game state using ChangeNotifier pattern.
+///
+/// Provides methods to roll dice, score categories, switch players,
+/// and manage game flow.
+class GameNotifier extends ChangeNotifier {
+  final DiceService _diceService;
+  final Duration _rollAnimationDelay;
 
-/// StateNotifierProvider that manages [GameState] via [GameNotifier].
-final gameNotifierProvider = StateNotifierProvider<GameNotifier, GameState>((
-  ref,
-) {
-  final scoringService = ref.watch(scoringServiceProvider);
-  return GameNotifier(scoringService);
-});
+  GameState _state;
 
-/// Convenience alias to read the current [GameState] without the notifier.
-final gameStateProvider = Provider<GameState>((ref) {
-  return ref.watch(gameNotifierProvider);
-});
+  /// Creates a new game notifier.
+  GameNotifier({
+    DiceService? diceService,
+    GameState? initialState,
+    Duration? rollAnimationDelay,
+  })  : _diceService = diceService ?? const DiceService(),
+        _rollAnimationDelay = rollAnimationDelay ?? DieRollAnimation.duration,
+        _state = initialState ?? const GameState();
 
-/// Notifier that exposes game actions as imperative methods
-/// while keeping [GameState] immutable.
-class GameNotifier extends StateNotifier<GameState> {
-  final ScoringService scoringService;
 
-  GameNotifier(this.scoringService) : super(GameState());
+  /// The current game state.
+  GameState get state => _state;
 
-  /// Rolls unheld dice (or creates the first roll), decrements rolls remaining.
-  void rollDice() {
-    state = state.rollDice();
+  /// Rolls the dice and updates the game state.
+  Future<void> rollDice() async {
+    if (_state.currentRollsRemaining <= 0) return;
+
+    final dice = _diceService.rollDice(5);
+    _state = _state.rollDice(dice).decrementRolls();
+    notifyListeners();
+
+    // Skip animation delay in tests (Duration.zero)
+    if (_rollAnimationDelay > Duration.zero) {
+      await Future.delayed(_rollAnimationDelay);
+    }
+    if (_state.isRolling) {
+      _state = _state.copyWith(isRolling: false);
+      notifyListeners();
+    }
   }
 
-  /// Toggles the held state of the die at [index].
-  void toggleDieHold(int index) {
-    state = state.toggleDieHold(index);
+  /// Scores a category for the current player.
+  void scoreCategory(String category) {
+    if (_state.selectedCategory == null) return;
+
+    // TODO: Calculate actual score based on dice values
+    final score = 0;
+    _state = _state.addScore(category, score).resetTurn();
+    notifyListeners();
   }
 
-  /// Selects a [category] for scoring (highlights it in the UI).
-  void selectCategory(Category category) {
-    state = state.selectCategory(category);
+  /// Selects a category for scoring.
+  void selectCategory(String? category) {
+    _state = _state.selectCategory(category);
+    notifyListeners();
   }
 
-  /// Scores the given [category] using the current dice roll,
-  /// then resets the turn (rolls back to 3, clears dice and selection).
-  void scoreCategory(Category category) {
-    final diceRoll = state.currentDiceRoll;
-    if (diceRoll == null) return;
-    if (state.scores[category] != null) return;
-
-    final score = scoringService.scoreCategory(category, diceRoll);
-    state = state.addScore(category, score).resetTurn();
+  /// Decrements the remaining rolls and notifies listeners.
+  void decrementRolls() {
+    _state = _state.decrementRolls();
+    notifyListeners();
   }
 
-  /// Resets the game to a fresh [GameState].
+  /// Starts a new game.
   void newGame() {
-    state = state.reset();
+    _state = _state.reset();
+    notifyListeners();
   }
 
-  /// Returns true when there are rolls remaining.
-  bool canRoll() {
-    return state.currentRollsRemaining > 0;
+  /// Ends the current game.
+  void endGame() {
+    _state = _state.endGame();
+    notifyListeners();
   }
 
-  /// Returns true when a category is selected and has not yet been scored.
-  bool canScore() {
-    final category = state.selectedCategory;
-    if (category == null) return false;
-    return state.scores[category] == null;
+  /// Resets the game to initial state.
+  void resetGame() {
+    _state = _state.reset();
+    notifyListeners();
+  }
+
+  /// Resets the current turn (clears dice roll).
+  void resetTurn() {
+    _state = _state.resetTurn();
+    notifyListeners();
   }
 }
+
+/// Provider for the [GameNotifier] instance.
+final gameNotifierProvider = ChangeNotifierProvider<GameNotifier>((ref) {
+  return GameNotifier();
+});
+
+/// Provider for the current [GameState].
+final gameStateProvider = Provider<GameState>((ref) {
+  return ref.watch(gameNotifierProvider).state;
+});

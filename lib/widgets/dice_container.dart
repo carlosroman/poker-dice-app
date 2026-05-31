@@ -1,72 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poker_dice/models/dice_roll.dart';
+import 'package:poker_dice/animations/dice_roll_animation.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/widgets/die_widget.dart';
 
-/// Displays 5 dice in a horizontal row.
+/// Displays a container of dice with roll animations.
 ///
-/// Watches the [gameNotifierProvider] for dice state and allows tapping
-/// individual dice to toggle their held state.
+/// Shows 5 dice or placeholders when no dice are rolled.
+/// Wraps each die in [DieRollAnimation] for smooth roll effects.
 class DiceContainer extends ConsumerWidget {
-  /// The current dice roll to display.
-  final DiceRoll? diceRoll;
+  /// The dice values to display.
+  final List<int>? diceRoll;
 
-  /// Whether tapping dice to toggle hold is enabled.
-  final bool isInteractive;
+  /// Whether dice are currently rolling.
+  final bool? isRolling;
 
-  /// The size of each die face. Defaults to 56.
-  final double dieSize;
-
+  /// Creates a dice container.
   const DiceContainer({
     super.key,
     this.diceRoll,
-    this.isInteractive = true,
-    this.dieSize = 56,
+    this.isRolling,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.watch(gameNotifierProvider.notifier);
+    // Use provider state when params are null
+    final gameState = ref.watch(gameStateProvider);
+    final effectiveDiceRoll = diceRoll ?? gameState.diceRoll;
+    final effectiveIsRolling = isRolling ?? gameState.isRolling;
 
-    final dice = diceRoll?.dice;
-
-    return Card(
-      child: SizedBox(
-        width: 5 * dieSize + 24,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List<Widget>.generate(5, (index) {
-              if (dice == null || index >= dice.length) {
-                return SizedBox(
-                  width: dieSize,
-                  height: dieSize,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(dieSize * 0.15),
-                    ),
-                  ),
-                );
-              }
-
-              final die = dice[index];
-
-              return DieWidget(
-                value: die.value,
-                isHeld: die.isHeld,
-                size: dieSize,
-                onTap: isInteractive
-                    ? () => notifier.toggleDieHold(index)
-                    : null,
-              );
-            }),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-        ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(5, (index) {
+          final dieValue = effectiveDiceRoll?.elementAt(index);
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: DieRollAnimation(
+              index: index,
+              isRolling: effectiveIsRolling,
+              child: dieValue != null
+                  ? DieWidget(value: dieValue)
+                  : const SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Center(
+                        child: Text(
+                          '?',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+          );
+        }),
       ),
     );
   }

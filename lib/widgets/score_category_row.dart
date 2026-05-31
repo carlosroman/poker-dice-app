@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:poker_dice/animations/score_increment_animation.dart';
 import 'package:poker_dice/models/category.dart';
 
 /// Displays a single scoring category row in the scorecard.
@@ -7,7 +8,7 @@ import 'package:poker_dice/models/category.dart';
 /// Shows three visual states:
 /// - **Available**: empty score slot, tappable to select.
 /// - **Selected**: highlighted background, indicates current pick.
-/// - **Scored**: displays the recorded score, not tappable.
+/// - **Scored**: displays the recorded score with animation, not tappable.
 class ScoreCategoryRow extends ConsumerWidget {
   /// The scoring category this row represents.
   final Category category;
@@ -63,16 +64,24 @@ class ScoreCategoryRow extends ConsumerWidget {
             ),
             SizedBox(
               width: 40,
-              child: Text(
-                score?.toString() ?? '-',
-                textAlign: TextAlign.end,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: isScored
-                      ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onSurfaceVariant,
-                  fontWeight: isScored ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
+              child: isScored
+                  ? AnimatedScoreWidget(
+                      key: ValueKey('${category.name}_$score'),
+                      score: score!,
+                      previousScore: 0,
+                      textStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : Text(
+                      '-',
+                      textAlign: TextAlign.end,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
             ),
           ],
         ),

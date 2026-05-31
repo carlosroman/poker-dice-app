@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:poker_dice/models/category.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/providers/settings_provider.dart';
 import 'package:poker_dice/widgets/high_scores_dialog.dart';
@@ -49,6 +50,9 @@ class _GameOverScreenState extends ConsumerState<GameOverScreen> {
     final gameState = ref.watch(gameStateProvider);
     final notifier = ref.watch(gameNotifierProvider.notifier);
 
+    final upperCategories = Category.getUpperCategories();
+    final lowerCategories = Category.getLowerCategories();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Game Over'),
@@ -60,68 +64,153 @@ class _GameOverScreenState extends ConsumerState<GameOverScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.emoji_events,
-                size: 80,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Game Complete!',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Final Score',
-                        style: Theme.of(context).textTheme.titleMedium,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Icon(
+              Icons.emoji_events,
+              size: 80,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Game Complete!',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Upper Section
+                    Text(
+                      'UPPER SECTION',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    ...upperCategories.map(
+                      (cat) => _buildCategoryRow(
+                        context,
+                        cat.displayName,
+                        gameState.scores[cat.name],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        gameState.totalScore.toString(),
-                        style: Theme.of(context).textTheme.displayMedium,
-                      ),
-                      if (_isSaved) ...[
-                        const SizedBox(height: 8),
+                    ),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
-                          'Score saved!',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          'Upper Total:',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          gameState.upperSectionTotal.toString(),
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
+                    ),
+                    if (gameState.bonusAwarded > 0) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Bonus:'),
+                          Text(
+                            '+${gameState.bonusAwarded}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: 16),
+                    // Lower Section
+                    Text(
+                      'LOWER SECTION',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    ...lowerCategories.map(
+                      (cat) => _buildCategoryRow(
+                        context,
+                        cat.displayName,
+                        gameState.scores[cat.name],
+                      ),
+                    ),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'TOTAL',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          gameState.totalScore.toString(),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ],
+                    ),
+                    if (_isSaved) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Score saved!',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => notifier.newGame(),
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Play Again'),
-                  ),
-                  const SizedBox(width: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => _showHighScores(context),
-                    icon: const Icon(Icons.leaderboard),
-                    label: const Text('High Scores'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Final Score',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(
+              gameState.totalScore.toString(),
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => notifier.newGame(),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('PLAY AGAIN'),
+                ),
+                const SizedBox(width: 16),
+                OutlinedButton.icon(
+                  onPressed: () => _showHighScores(context),
+                  icon: const Icon(Icons.leaderboard),
+                  label: const Text('VIEW STATISTICS'),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryRow(
+    BuildContext context,
+    String categoryName,
+    int? score,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(categoryName),
+          Text(score?.toString() ?? '-'),
+        ],
       ),
     );
   }

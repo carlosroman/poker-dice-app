@@ -16,8 +16,8 @@ class ControlBar extends ConsumerWidget {
     final notifier = ref.watch(gameNotifierProvider.notifier);
     final theme = Theme.of(context);
 
-    final canRoll = notifier.canRoll();
-    final canScore = notifier.canScore();
+    final canRoll = gameState.currentRollsRemaining > 0 && !gameState.isGameOver;
+    final canScore = gameState.selectedCategory != null && gameState.diceRoll != null && !gameState.isGameOver;
     final rollsRemaining = gameState.currentRollsRemaining;
 
     return Padding(
@@ -46,7 +46,7 @@ class ControlBar extends ConsumerWidget {
           Expanded(
             child: ElevatedButton(
               onPressed: canScore
-                  ? () => notifier.scoreCategory(gameState.selectedCategory!)
+                  ? () => notifier.scoreCategory(gameState.selectedCategory ?? '')
                   : null,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
