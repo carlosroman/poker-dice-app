@@ -28,11 +28,32 @@ class GameNotifier extends ChangeNotifier {
   GameState get state => _state;
 
   /// Rolls the dice and updates the game state.
+  ///
+  /// Preserves held dice values and only re-rolls the non-held dice.
   Future<void> rollDice() async {
     if (_state.currentRollsRemaining <= 0) return;
 
-    final dice = _diceService.rollDice(5);
-    _state = _state.rollDice(dice).decrementRolls();
+    final currentDice = _state.diceRoll;
+    final held = _state.effectiveHeldDice;
+
+    List<int> newDice;
+    if (currentDice != null && currentDice.length == 5) {
+      // Re-roll only non-held dice, preserving held values
+      final nonHeldCount = held.where((h) => !h).length;
+      final rolled = _diceService.rollDice(nonHeldCount);
+      var rollIndex = 0;
+      newDice = List<int>.generate(5, (i) {
+        if (held[i]) {
+          return currentDice[i];
+        }
+        return rolled[rollIndex++];
+      });
+    } else {
+      // First roll or no previous dice — roll all 5
+      newDice = _diceService.rollDice(5);
+    }
+
+    _state = _state.rollDice(newDice).decrementRolls();
     notifyListeners();
 
     // Skip animation delay in tests (Duration.zero)

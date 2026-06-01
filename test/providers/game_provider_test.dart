@@ -5,6 +5,20 @@ import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/services/dice_service.dart';
 
+// -- Fake DiceService for deterministic testing --
+class FakeDiceService implements DiceService {
+  final List<List<int>> _responses;
+  int _callIndex = 0;
+
+  FakeDiceService(this._responses);
+
+  @override
+  List<int> rollDice(int count) {
+    final response = _responses[_callIndex++];
+    return response.take(count).toList();
+  }
+}
+
 void main() {
   late ProviderContainer container;
   late GameNotifier notifier;
@@ -219,6 +233,127 @@ void main() {
       final customNotifier = GameNotifier(initialState: initialState);
 
       expect(customNotifier.state.currentRollsRemaining, equals(2));
+    });
+  });
+
+  group('GameProvider held dice', () {
+    test('rollDice preserves held dice values on second roll', () async {
+      // First roll returns [1, 3, 5, 2, 6], second roll returns [4, 4, 1]
+      final fakeService = FakeDiceService([
+        [1, 3, 5, 2, 6],
+        [4, 4, 1],
+      ]);
+      final notifier = GameNotifier(
+        diceService: fakeService,
+        rollAnimationDelay: Duration.zero,
+      );
+
+      // First roll: all 5 dice
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([1, 3, 5, 2, 6]));
+
+      // Hold dice at index 0 and 4
+      notifier.toggleHeldDice(0);
+      notifier.toggleHeldDice(4);
+      expect(notifier.state.effectiveHeldDice, equals([true, false, false, false, true]));
+
+      // Second roll: only 3 non-held dice are rolled
+      await notifier.rollDice();
+      final result = notifier.state.diceRoll!;
+
+      // Held dice (index 0 and 4) should preserve original values
+      expect(result[0], equals(1), reason: 'die at index 0 should be held (value 1)');
+      expect(result[4], equals(6), reason: 'die at index 4 should be held (value 6)');
+      // Non-held dice should have new values
+      expect(result[1], equals(4));
+      expect(result[2], equals(4));
+      expect(result[3], equals(1));
+    });
+
+    test('rollDice rolls all 5 dice when none are held', () async {
+      final fakeService = FakeDiceService([
+        [1, 2, 3, 4, 5],
+        [6, 5, 4, 3, 2],
+      ]);
+      final notifier = GameNotifier(
+        diceService: fakeService,
+        rollAnimationDelay: Duration.zero,
+      );
+
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([1, 2, 3, 4, 5]));
+
+      // No dice held
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([6, 5, 4, 3, 2]));
+    });
+
+    test('rollDice preserves all dice when all are held', () async {
+      // First roll returns [1, 2, 3, 4, 5], second roll returns [9, 9, 9] (won't be used)
+      final fakeService = FakeDiceService([
+        [1, 2, 3, 4, 5],
+        [9, 9, 9],
+      ]);
+      final notifier = GameNotifier(
+        diceService: fakeService,
+        rollAnimationDelay: Duration.zero,
+      );
+
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([1, 2, 3, 4, 5]));
+
+      // Hold all dice
+      for (var i = 0; i < 5; i++) {
+        notifier.toggleHeldDice(i);
+      }
+      expect(notifier.state.effectiveHeldDice, equals([true, true, true, true, true]));
+
+      // Second roll: no non-held dice, all values preserved
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([1, 2, 3, 4, 5]));
+    });
+
+    test('rollDice preserves single held die', () async {
+      final fakeService = FakeDiceService([
+        [3, 3, 3, 3, 3],
+        [1, 2, 4, 5, 6],
+      ]);
+      final notifier = GameNotifier(
+        diceService: fakeService,
+        rollAnimationDelay: Duration.zero,
+      );
+
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([3, 3, 3, 3, 3]));
+
+      // Hold only die at index 2
+      notifier.toggleHeldDice(2);
+
+      await notifier.rollDice();
+      final result = notifier.state.diceRoll!;
+
+      expect(result[2], equals(3), reason: 'die at index 2 should be held (value 3)');
+      expect(result[0], equals(1));
+      expect(result[1], equals(2));
+      expect(result[3], equals(4));
+      expect(result[4], equals(5));
+    });
+
+    test('rollDice rolls all 5 on first roll regardless of held state', () async {
+      final fakeService = FakeDiceService([
+        [2, 4, 6, 1, 3],
+      ]);
+      final notifier = GameNotifier(
+        diceService: fakeService,
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(
+          heldDice: [true, true, false, false, false],
+        ),
+      );
+
+      // First roll with no previous dice should roll all 5
+      await notifier.rollDice();
+      expect(notifier.state.diceRoll, equals([2, 4, 6, 1, 3]));
     });
   });
 }
