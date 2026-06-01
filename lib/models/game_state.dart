@@ -12,6 +12,7 @@ class GameState {
     this.isRolling = false,
     this.selectedCategory,
     this.currentRollsRemaining = 3,
+    this.heldDice,
   });
 
   /// Default empty game state.
@@ -31,6 +32,17 @@ class GameState {
 
   /// Number of rolls remaining in the current turn.
   final int currentRollsRemaining;
+
+  /// Which dice are held (frozen). One entry per die, defaults to all false.
+  final List<bool>? heldDice;
+
+  /// Returns the effective held dice list (5 values, defaulting to false).
+  List<bool> get effectiveHeldDice {
+    if (heldDice != null && heldDice!.length == 5) {
+      return List<bool>.unmodifiable(heldDice!);
+    }
+    return const [false, false, false, false, false];
+  }
 
   /// Whether the game is over (computed from scored categories).
   bool get isGameOver => scores.length >= Category.values.length;
@@ -64,6 +76,7 @@ class GameState {
     bool? isRolling,
     String? selectedCategory,
     int? currentRollsRemaining,
+    List<bool>? heldDice,
   }) {
     return GameState(
       scores: scores ?? this.scores,
@@ -71,6 +84,7 @@ class GameState {
       isRolling: isRolling ?? this.isRolling,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       currentRollsRemaining: currentRollsRemaining ?? this.currentRollsRemaining,
+      heldDice: heldDice ?? this.heldDice,
     );
   }
 
@@ -87,6 +101,7 @@ class GameState {
       isRolling: false,
       selectedCategory: null,
       currentRollsRemaining: 3,
+      heldDice: const [false, false, false, false, false],
     );
   }
 
@@ -103,6 +118,7 @@ class GameState {
       isRolling: isRolling,
       selectedCategory: null,
       currentRollsRemaining: 3,
+      heldDice: const [false, false, false, false, false],
     );
   }
 
@@ -117,6 +133,7 @@ class GameState {
         isRolling: isRolling,
         selectedCategory: null,
         currentRollsRemaining: currentRollsRemaining,
+        heldDice: heldDice,
       );
     }
     return copyWith(selectedCategory: category);
@@ -139,5 +156,19 @@ class GameState {
   /// Resets the game to initial state.
   GameState reset() {
     return const GameState();
+  }
+
+  /// Toggles the held state of the die at [index].
+  ///
+  /// Returns a new [GameState] with the held state flipped for the
+  /// die at the given index. The index must be between 0 and 4.
+  GameState toggleHeldDie(int index) {
+    if (index < 0 || index > 4) {
+      throw ArgumentError.value(index, 'index', 'Must be between 0 and 4');
+    }
+    final current = effectiveHeldDice;
+    final newHeld = List<bool>.from(current);
+    newHeld[index] = !newHeld[index];
+    return copyWith(heldDice: newHeld);
   }
 }

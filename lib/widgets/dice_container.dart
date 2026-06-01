@@ -29,6 +29,11 @@ class DiceContainer extends ConsumerWidget {
     final effectiveDiceRoll = diceRoll ?? gameState.diceRoll;
     final effectiveIsRolling = isRolling ?? gameState.isRolling;
 
+    // Dice can only be held when rolled, not rolling, and rolls remain
+    final canHoldDice = effectiveDiceRoll != null &&
+        !effectiveIsRolling &&
+        gameState.currentRollsRemaining > 0;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -46,13 +51,27 @@ class DiceContainer extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(5, (index) {
           final dieValue = effectiveDiceRoll?.elementAt(index);
+          final isHeld = canHoldDice &&
+              gameState.effectiveHeldDice[index] == true;
+          final onTap = canHoldDice
+              ? () {
+                  final notifier =
+                      ref.read(gameNotifierProvider.notifier);
+                  notifier.toggleHeldDice(index);
+                }
+              : null;
+
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: DieRollAnimation(
               index: index,
               isRolling: effectiveIsRolling,
               child: dieValue != null
-                  ? DieWidget(value: dieValue)
+                  ? DieWidget(
+                      value: dieValue,
+                      isHeld: isHeld,
+                      onTap: onTap,
+                    )
                   : const SizedBox(
                       width: 60,
                       height: 60,

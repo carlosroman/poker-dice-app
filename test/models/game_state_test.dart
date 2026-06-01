@@ -203,5 +203,115 @@ void main() {
 
       expect(newState.isRolling, isTrue);
     });
+
+    // -- Held dice tests --
+
+    test('heldDice defaults to null, effectiveHeldDice returns all false', () {
+      final state = const GameState();
+
+      expect(state.heldDice, isNull);
+      expect(state.effectiveHeldDice, equals([false, false, false, false, false]));
+    });
+
+    test('heldDice can be set via constructor', () {
+      final state = const GameState(
+        heldDice: [true, false, true, false, false],
+      );
+
+      expect(state.heldDice, equals([true, false, true, false, false]));
+      expect(state.effectiveHeldDice, equals([true, false, true, false, false]));
+    });
+
+    test('toggleHeldDie flips the held state at index', () {
+      final state = const GameState();
+      final toggled = state.toggleHeldDie(0);
+
+      expect(toggled.effectiveHeldDice, equals([true, false, false, false, false]));
+      expect(state.effectiveHeldDice, equals([false, false, false, false, false]));
+    });
+
+    test('toggleHeldDie is idempotent (toggle twice returns to original)', () {
+      final state = const GameState();
+      final toggledOnce = state.toggleHeldDie(2);
+      final toggledTwice = toggledOnce.toggleHeldDie(2);
+
+      expect(toggledOnce.effectiveHeldDice, equals([false, false, true, false, false]));
+      expect(toggledTwice.effectiveHeldDice, equals([false, false, false, false, false]));
+    });
+
+    test('toggleHeldDie preserves other dice held state', () {
+      final state = const GameState(
+        heldDice: [true, false, false, true, false],
+      );
+      final toggled = state.toggleHeldDie(1);
+
+      expect(toggled.effectiveHeldDice, equals([true, true, false, true, false]));
+    });
+
+    test('toggleHeldDie throws on negative index', () {
+      final state = const GameState();
+
+      expect(() => state.toggleHeldDie(-1), throwsA(isA<ArgumentError>()));
+    });
+
+    test('toggleHeldDie throws on index >= 5', () {
+      final state = const GameState();
+
+      expect(() => state.toggleHeldDie(5), throwsA(isA<ArgumentError>()));
+    });
+
+    test('resetTurn clears held dice', () {
+      final state = const GameState(
+        heldDice: [true, true, false, true, false],
+        diceRoll: [1, 2, 3, 4, 5],
+      );
+      final reset = state.resetTurn();
+
+      expect(reset.effectiveHeldDice, equals([false, false, false, false, false]));
+    });
+
+    test('addScore clears held dice', () {
+      final state = const GameState(
+        heldDice: [true, false, true, false, false],
+      );
+      final scored = state.addScore('ones', 6);
+
+      expect(scored.effectiveHeldDice, equals([false, false, false, false, false]));
+    });
+
+    test('copyWith preserves held dice when not provided', () {
+      final state = const GameState(
+        heldDice: [true, false, true, false, false],
+      );
+      final copied = state.copyWith(currentRollsRemaining: 2);
+
+      expect(copied.heldDice, equals([true, false, true, false, false]));
+      expect(copied.currentRollsRemaining, equals(2));
+    });
+
+    test('copyWith updates held dice when provided', () {
+      final state = const GameState(
+        heldDice: [true, false, true, false, false],
+      );
+      final copied = state.copyWith(heldDice: const [false, true, false, true, false]);
+
+      expect(copied.heldDice, equals([false, true, false, true, false]));
+    });
+
+    test('rollDice preserves held dice', () {
+      final state = const GameState(
+        heldDice: [true, false, false, true, false],
+      );
+      final rolled = state.rollDice([3, 5, 1, 2, 6]);
+
+      expect(rolled.diceRoll, equals([3, 5, 1, 2, 6]));
+      expect(rolled.heldDice, equals([true, false, false, true, false]));
+    });
+
+    test('effectiveHeldDice returns defaults for invalid heldDice length', () {
+      final state = GameState(heldDice: const [true, false]);
+
+      expect(state.effectiveHeldDice, equals([false, false, false, false, false]));
+    });
   });
 }

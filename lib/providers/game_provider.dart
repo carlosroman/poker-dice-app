@@ -90,6 +90,17 @@ class GameNotifier extends ChangeNotifier {
     _state = _state.resetTurn();
     notifyListeners();
   }
+
+  /// Toggles the held state of a die at the given index.
+  ///
+  /// Dice can only be held when:
+  /// - Dice have been rolled ([GameState.diceRoll] is not null)
+  /// - Not currently rolling ([GameState.isRolling] is false)
+  /// - Rolls remain ([GameState.currentRollsRemaining] > 0)
+  void toggleHeldDice(int index) {
+    _state = _state.toggleHeldDie(index);
+    notifyListeners();
+  }
 }
 
 /// Provider for the [GameNotifier] instance.
