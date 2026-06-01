@@ -233,4 +233,122 @@ void main() {
       expect(notifier.state.effectiveHeldDice[4], isFalse);
     });
   });
+
+  group('held dice animation behavior', () {
+    late GameNotifier notifier;
+
+    setUp(() {
+      notifier = GameNotifier(rollAnimationDelay: Duration.zero);
+    });
+
+    testWidgets('held dice skip animation transforms during roll',
+        (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gameNotifierProvider.overrideWith((_) => notifier),
+          ],
+          child: MaterialApp(home: DiceContainer()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Roll dice
+      notifier.rollDice();
+      await tester.pump();
+
+      // Hold first die
+      await tester.tap(find.byType(DieWidget).at(0));
+      await tester.pump();
+      expect(notifier.state.effectiveHeldDice[0], isTrue);
+
+      // Re-roll - first die is held, others roll
+      notifier.rollDice();
+      await tester.pump();
+
+      // Verify held die (index 0) has no animation transforms
+      final firstDieFinder = find.byType(DieWidget).at(0);
+      final firstDieWidget = tester.widget<DieWidget>(firstDieFinder);
+      expect(firstDieWidget.isHeld, isTrue);
+
+      // Non-held dice should not have isHeld set
+      final secondDieFinder = find.byType(DieWidget).at(1);
+      final secondDieWidget = tester.widget<DieWidget>(secondDieFinder);
+      expect(secondDieWidget.isHeld, isFalse);
+    });
+
+    testWidgets('all dice animate when none are held', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gameNotifierProvider.overrideWith((_) => notifier),
+          ],
+          child: MaterialApp(home: DiceContainer()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Roll dice
+      notifier.rollDice();
+      await tester.pump();
+
+      // All dice should not be held
+      for (int i = 0; i < 5; i++) {
+        expect(notifier.state.effectiveHeldDice[i], isFalse);
+      }
+
+      // All DieWidgets should have isHeld = false
+      final dieWidgets = find.byType(DieWidget);
+      expect(dieWidgets, findsNWidgets(5));
+
+      for (int i = 0; i < 5; i++) {
+        final dieWidget = tester.widget<DieWidget>(dieWidgets.at(i));
+        expect(dieWidget.isHeld, isFalse);
+      }
+    });
+
+    testWidgets('mixed held and non-held dice during roll', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gameNotifierProvider.overrideWith((_) => notifier),
+          ],
+          child: MaterialApp(home: DiceContainer()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Roll dice
+      notifier.rollDice();
+      await tester.pump();
+
+      // Hold dice at indices 0, 2, 4
+      await tester.tap(find.byType(DieWidget).at(0));
+      await tester.pump();
+      await tester.tap(find.byType(DieWidget).at(2));
+      await tester.pump();
+      await tester.tap(find.byType(DieWidget).at(4));
+      await tester.pump();
+
+      // Re-roll
+      notifier.rollDice();
+      await tester.pump();
+
+      // Verify held pattern
+      final dieWidgets = find.byType(DieWidget);
+      expect(dieWidgets, findsNWidgets(5));
+
+      // Check each die's held state
+      for (int i = 0; i < 5; i++) {
+        final dieWidget = tester.widget<DieWidget>(dieWidgets.at(i));
+        if (i == 0 || i == 2 || i == 4) {
+          expect(dieWidget.isHeld, isTrue,
+              reason: 'Die $i should be held');
+        } else {
+          expect(dieWidget.isHeld, isFalse,
+              reason: 'Die $i should not be held');
+        }
+      }
+    });
+  });
 }

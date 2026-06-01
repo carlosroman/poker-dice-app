@@ -9,12 +9,18 @@ import 'package:flutter/material.dart';
 /// The animation runs for [DieRollAnimation.duration] and uses
 /// [Curves.easeInOut] for natural motion. When [isRolling] changes from
 /// false to true, the animation restarts.
+///
+/// If [isHeld] is true, the die is skipped and returned as-is without
+/// any animation transforms.
 class DieRollAnimation extends StatefulWidget {
   /// The index of this die within the roll (0-4), used for stagger delay.
   final int index;
 
   /// Whether the die is currently rolling.
   final bool isRolling;
+
+  /// Whether this die is held (frozen). Held dice do not animate.
+  final bool isHeld;
 
   /// The die widget to animate.
   final Widget child;
@@ -29,6 +35,7 @@ class DieRollAnimation extends StatefulWidget {
     super.key,
     required this.index,
     required this.isRolling,
+    this.isHeld = false,
     required this.child,
   });
 
@@ -107,7 +114,7 @@ class _DieRollAnimationState extends State<DieRollAnimation>
   @override
   void didUpdateWidget(DieRollAnimation oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isRolling && !oldWidget.isRolling) {
+    if (widget.isRolling && !oldWidget.isRolling && !widget.isHeld) {
       _startAnimation();
     }
   }
@@ -140,6 +147,11 @@ class _DieRollAnimationState extends State<DieRollAnimation>
 
   @override
   Widget build(BuildContext context) {
+    // Held dice skip animation entirely
+    if (widget.isHeld) {
+      return widget.child;
+    }
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {

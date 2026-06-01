@@ -8,6 +8,7 @@ import 'package:poker_dice/widgets/die_widget.dart';
 ///
 /// Shows 5 dice or placeholders when no dice are rolled.
 /// Wraps each die in [DieRollAnimation] for smooth roll effects.
+/// Held dice are excluded from animation.
 class DiceContainer extends ConsumerWidget {
   /// The dice values to display.
   final List<int>? diceRoll;
@@ -66,6 +67,7 @@ class DiceContainer extends ConsumerWidget {
             child: DieRollAnimation(
               index: index,
               isRolling: effectiveIsRolling,
+              isHeld: isHeld,
               child: dieValue != null
                   ? DieWidget(
                       value: dieValue,
