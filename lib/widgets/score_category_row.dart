@@ -16,6 +16,10 @@ class ScoreCategoryRow extends ConsumerWidget {
   /// The score already recorded for this category, or null if unscored.
   final int? score;
 
+  /// The potential score from the current dice roll, or null if not
+  /// available (no dice rolled or category already scored).
+  final int? potentialScore;
+
   /// Whether this category is currently selected by the player.
   final bool isSelected;
 
@@ -26,6 +30,7 @@ class ScoreCategoryRow extends ConsumerWidget {
     super.key,
     required this.category,
     this.score,
+    this.potentialScore,
     this.isSelected = false,
     required this.onTap,
   });
@@ -75,11 +80,18 @@ class ScoreCategoryRow extends ConsumerWidget {
                       ),
                     )
                   : Text(
-                      '-',
+                      potentialScore != null ? '$potentialScore' : '-',
                       textAlign: TextAlign.end,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.normal,
+                        color: potentialScore != null
+                            ? theme.colorScheme.onSurface
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight: potentialScore != null
+                            ? FontWeight.w500
+                            : FontWeight.normal,
+                        fontStyle: potentialScore != null
+                            ? FontStyle.italic
+                            : FontStyle.normal,
                       ),
                     ),
             ),

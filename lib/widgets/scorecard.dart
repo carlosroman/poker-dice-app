@@ -66,6 +66,9 @@ class Scorecard extends ConsumerWidget {
                         ? ScoreCategoryRow(
                             category: upperCategories[index],
                             score: gameState.scores[upperCategories[index].name],
+                            potentialScore: gameState.getPotentialScore(
+                              upperCategories[index].name,
+                            ),
                             isSelected:
                                 gameState.selectedCategory ==
                                 upperCategories[index].name,
@@ -78,6 +81,7 @@ class Scorecard extends ConsumerWidget {
                     child: ScoreCategoryRow(
                       category: lowerCategory,
                       score: gameState.scores[lowerCategory.name],
+                      potentialScore: gameState.getPotentialScore(lowerCategory.name),
                       isSelected: gameState.selectedCategory == lowerCategory.name,
                       onTap: (c) => notifier.selectCategory(c.name),
                     ),

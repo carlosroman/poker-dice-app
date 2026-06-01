@@ -3,6 +3,8 @@
 /// This immutable model tracks all game state including player scores,
 /// dice rolls, and game progress.
 import 'package:poker_dice/models/category.dart';
+import 'package:poker_dice/models/dice_roll.dart';
+import 'package:poker_dice/services/scoring_service.dart';
 
 class GameState {
   /// Creates a new game state.
@@ -63,6 +65,23 @@ class GameState {
   /// Calculates the total score including all categories and bonus.
   int get totalScore {
     return scores.values.fold(0, (sum, score) => sum + score) + bonusAwarded;
+  }
+
+  /// Returns the potential score for a category if it were scored now.
+  ///
+  /// Returns `null` if the category has already been scored or no dice
+  /// have been rolled yet.
+  int? getPotentialScore(String category) {
+    if (scores.containsKey(category)) return null;
+    if (diceRoll == null) return null;
+
+    final categoryEnum = Category.values.firstWhere(
+      (c) => c.name == category,
+      orElse: () => throw ArgumentError('Invalid category: $category'),
+    );
+
+    final roll = DiceRoll.fromValues(diceRoll!);
+    return ScoringService().scoreCategory(categoryEnum, roll);
   }
 
   /// Creates a copy of this state with the given fields replaced.

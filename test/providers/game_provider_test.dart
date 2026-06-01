@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/models/category.dart';
+import 'package:poker_dice/models/dice_roll.dart';
 import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/services/dice_service.dart';
+import 'package:poker_dice/services/scoring_service.dart';
 
 // -- Fake DiceService for deterministic testing --
 class FakeDiceService implements DiceService {
@@ -17,6 +19,59 @@ class FakeDiceService implements DiceService {
     final response = _responses[_callIndex++];
     return response.take(count).toList();
   }
+}
+
+// -- Fake ScoringService for deterministic testing --
+class FakeScoringService implements ScoringService {
+  final Map<String, int> _responses;
+  FakeScoringService(this._responses);
+
+  @override
+  int scoreCategory(Category category, DiceRoll roll) {
+    return _responses[category.name] ?? 0;
+  }
+
+  @override
+  int scoreOnes(DiceRoll roll) => 0;
+
+  @override
+  int scoreTwos(DiceRoll roll) => 0;
+
+  @override
+  int scoreThrees(DiceRoll roll) => 0;
+
+  @override
+  int scoreFours(DiceRoll roll) => 0;
+
+  @override
+  int scoreFives(DiceRoll roll) => 0;
+
+  @override
+  int scoreSixes(DiceRoll roll) => 0;
+
+  @override
+  int scoreThreeOfAKind(DiceRoll roll) => 0;
+
+  @override
+  int scoreFourOfAKind(DiceRoll roll) => 0;
+
+  @override
+  int scoreFullHouse(DiceRoll roll) => 0;
+
+  @override
+  int scoreSmallStraight(DiceRoll roll) => 0;
+
+  @override
+  int scoreLargeStraight(DiceRoll roll) => 0;
+
+  @override
+  int scoreYatzy(DiceRoll roll) => 0;
+
+  @override
+  int scoreChance(DiceRoll roll) => 0;
+
+  @override
+  int calculateBonus(int upperSectionTotal) => 0;
 }
 
 void main() {
@@ -33,7 +88,7 @@ void main() {
   });
 
   group('GameProvider', () {
-    test('initial game state is correct', () {
+    test('initial game state is correct', () async {
       final state = container.read(gameStateProvider);
 
       expect(state.currentRollsRemaining, equals(3));
@@ -90,7 +145,7 @@ void main() {
       }
     });
 
-    test('selectCategory updates selection', () {
+    test('selectCategory updates selection', () async {
       notifier.selectCategory('ones');
       expect(
         container.read(gameStateProvider).selectedCategory,
@@ -104,7 +159,7 @@ void main() {
       );
     });
 
-    test('selectCategory null clears selection', () {
+    test('selectCategory null clears selection', () async {
       notifier.selectCategory('ones');
       expect(
         container.read(gameStateProvider).selectedCategory,
@@ -118,7 +173,7 @@ void main() {
       );
     });
 
-    test('scoreCategory adds score to state', () {
+    test('scoreCategory adds score to state', () async {
       notifier.selectCategory('ones');
       notifier.scoreCategory('ones');
 
@@ -161,7 +216,7 @@ void main() {
       expect(state.isGameOver, isFalse);
     });
 
-    test('isGameOver is true when all categories scored', () {
+    test('isGameOver is true when all categories scored', () async {
       var state = const GameState();
       for (final cat in Category.values) {
         state = state.addScore(cat.name, 10);
@@ -184,7 +239,7 @@ void main() {
       expect(state.isRolling, isFalse);
     });
 
-    test('decrementRolls reduces remaining rolls', () {
+    test('decrementRolls reduces remaining rolls', () async {
       notifier.decrementRolls();
       expect(
         container.read(gameStateProvider).currentRollsRemaining,
@@ -221,14 +276,14 @@ void main() {
       expect(state.selectedCategory, isNull);
     });
 
-    test('GameNotifier accepts custom DiceService', () {
+    test('GameNotifier accepts custom DiceService', () async {
       final customService = DiceService();
       final customNotifier = GameNotifier(diceService: customService);
 
       expect(customNotifier, isNotNull);
     });
 
-    test('GameNotifier accepts initial state', () {
+    test('GameNotifier accepts initial state', () async {
       const initialState = GameState(currentRollsRemaining: 2);
       final customNotifier = GameNotifier(initialState: initialState);
 
@@ -354,6 +409,254 @@ void main() {
       // First roll with no previous dice should roll all 5
       await notifier.rollDice();
       expect(notifier.state.diceRoll, equals([2, 4, 6, 1, 3]));
+    });
+  });
+
+  group('GameNotifier scoring integration', () {
+    test('scoreCategory calculates correct score with fake service', () async {
+      final fakeService = FakeScoringService({'ones': 2});
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[1, 1, 2, 3, 4]]),
+        scoringService: fakeService,
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      expect(notifier.state.scores['ones'], equals(2));
+    });
+
+    test('scoreCategory calculates correct score for yatzy with fake', () async {
+      final fakeService = FakeScoringService({'yatzy': 50});
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[5, 5, 5, 5, 5]]),
+        scoringService: fakeService,
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('yatzy');
+      notifier.scoreCategory('yatzy');
+
+      expect(notifier.state.scores['yatzy'], equals(50));
+    });
+
+    test('scoreCategory returns 0 when no dice rolled', () {
+      final notifier = GameNotifier(
+        scoringService: FakeScoringService({'ones': 10}),
+        rollAnimationDelay: Duration.zero,
+      );
+
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      expect(notifier.state.scores['ones'], equals(0));
+    });
+
+    test('scoreCategory with real ScoringService - ones', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[1, 1, 2, 3, 4]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      expect(notifier.state.scores['ones'], equals(2));
+    });
+
+    test('scoreCategory with real ScoringService - sixes', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[6, 6, 6, 3, 4]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('sixes');
+      notifier.scoreCategory('sixes');
+
+      expect(notifier.state.scores['sixes'], equals(18));
+    });
+
+    test('scoreCategory with real ScoringService - yatzy', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[3, 3, 3, 3, 3]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('yatzy');
+      notifier.scoreCategory('yatzy');
+
+      expect(notifier.state.scores['yatzy'], equals(50));
+    });
+
+    test('scoreCategory with real ScoringService - full house', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[2, 2, 5, 5, 5]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('fullHouse');
+      notifier.scoreCategory('fullHouse');
+
+      expect(notifier.state.scores['fullHouse'], equals(25));
+    });
+
+    test('scoreCategory with real ScoringService - small straight', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[1, 2, 3, 4, 5]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('smallStraight');
+      notifier.scoreCategory('smallStraight');
+
+      expect(notifier.state.scores['smallStraight'], equals(30));
+    });
+
+    test('scoreCategory with real ScoringService - large straight', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[2, 3, 4, 5, 6]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('largeStraight');
+      notifier.scoreCategory('largeStraight');
+
+      expect(notifier.state.scores['largeStraight'], equals(40));
+    });
+
+    test('scoreCategory with real ScoringService - three of a kind', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[4, 4, 4, 2, 3]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('threeOfAKind');
+      notifier.scoreCategory('threeOfAKind');
+
+      expect(notifier.state.scores['threeOfAKind'], equals(17));
+    });
+
+    test('scoreCategory with real ScoringService - four of a kind', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[2, 2, 2, 2, 5]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('fourOfAKind');
+      notifier.scoreCategory('fourOfAKind');
+
+      expect(notifier.state.scores['fourOfAKind'], equals(13));
+    });
+
+    test('scoreCategory with real ScoringService - chance', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[3, 4, 5, 6, 2]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('chance');
+      notifier.scoreCategory('chance');
+
+      expect(notifier.state.scores['chance'], equals(20));
+    });
+
+    test('scoreCategory with real ScoringService - house', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[3, 3, 1, 1, 3]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('house');
+      notifier.scoreCategory('house');
+
+      expect(notifier.state.scores['house'], equals(25));
+    });
+
+    test('scoreCategory returns 0 for non-matching patterns', () async {
+      // No three of a kind in [1, 2, 3, 4, 5]
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[1, 2, 3, 4, 5]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('threeOfAKind');
+      notifier.scoreCategory('threeOfAKind');
+
+      expect(notifier.state.scores['threeOfAKind'], equals(0));
+    });
+
+    test('scoreCategory updates total score correctly', () async {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[1, 1, 2, 3, 4]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      await notifier.rollDice();
+      notifier.selectCategory('ones');
+      notifier.scoreCategory('ones');
+
+      expect(notifier.state.totalScore, equals(2));
+    });
+
+    test('scoreCategory does nothing when no category selected', () {
+      final notifier = GameNotifier(
+        diceService: FakeDiceService([[1, 1, 2, 3, 4]]),
+        scoringService: ScoringService(),
+        rollAnimationDelay: Duration.zero,
+        initialState: const GameState(currentRollsRemaining: 2),
+      );
+
+      // Don't select a category
+      notifier.scoreCategory('ones');
+
+      expect(notifier.state.scores, isEmpty);
+    });
+
+    test('GameNotifier accepts custom ScoringService', () {
+      final customService = ScoringService();
+      final customNotifier = GameNotifier(scoringService: customService);
+
+      expect(customNotifier, isNotNull);
     });
   });
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poker_dice/animations/dice_roll_animation.dart';
+import 'package:poker_dice/models/category.dart' as game;
+import 'package:poker_dice/models/dice_roll.dart';
 import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/services/dice_service.dart';
+import 'package:poker_dice/services/scoring_service.dart';
 
 /// Manages game state using ChangeNotifier pattern.
 ///
@@ -10,6 +13,7 @@ import 'package:poker_dice/services/dice_service.dart';
 /// and manage game flow.
 class GameNotifier extends ChangeNotifier {
   final DiceService _diceService;
+  final ScoringService _scoringService;
   final Duration _rollAnimationDelay;
 
   GameState _state;
@@ -17,12 +21,13 @@ class GameNotifier extends ChangeNotifier {
   /// Creates a new game notifier.
   GameNotifier({
     DiceService? diceService,
+    ScoringService? scoringService,
     GameState? initialState,
     Duration? rollAnimationDelay,
   })  : _diceService = diceService ?? const DiceService(),
+        _scoringService = scoringService ?? ScoringService(),
         _rollAnimationDelay = rollAnimationDelay ?? DieRollAnimation.duration,
         _state = initialState ?? const GameState();
-
 
   /// The current game state.
   GameState get state => _state;
@@ -70,10 +75,21 @@ class GameNotifier extends ChangeNotifier {
   void scoreCategory(String category) {
     if (_state.selectedCategory == null) return;
 
-    // TODO: Calculate actual score based on dice values
-    final score = 0;
+    final score = _calculateScore(category);
     _state = _state.addScore(category, score).resetTurn();
     notifyListeners();
+  }
+
+  /// Calculates the score for a given category based on current dice.
+  int _calculateScore(String categoryName) {
+    final dice = _state.diceRoll;
+    if (dice == null || dice.length != 5) {
+      return 0;
+    }
+
+    final category = game.Category.values.byName(categoryName);
+    final roll = DiceRoll.fromValues(dice);
+    return _scoringService.scoreCategory(category, roll);
   }
 
   /// Selects a category for scoring.

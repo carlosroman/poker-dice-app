@@ -313,5 +313,79 @@ void main() {
 
       expect(state.effectiveHeldDice, equals([false, false, false, false, false]));
     });
+
+    // -- Potential score tests --
+
+    test('getPotentialScore returns null when no dice rolled', () {
+      final state = const GameState();
+
+      expect(state.getPotentialScore('ones'), isNull);
+    });
+
+    test('getPotentialScore returns null for already scored category', () {
+      final state = const GameState(
+        scores: {'ones': 6},
+        diceRoll: [1, 1, 2, 3, 4],
+      );
+
+      expect(state.getPotentialScore('ones'), isNull);
+    });
+
+    test('getPotentialScore calculates score for ones', () {
+      final state = const GameState(diceRoll: [1, 1, 2, 3, 4]);
+
+      expect(state.getPotentialScore('ones'), equals(2));
+    });
+
+    test('getPotentialScore calculates score for twos', () {
+      final state = const GameState(diceRoll: [2, 2, 2, 3, 4]);
+
+      expect(state.getPotentialScore('twos'), equals(6));
+    });
+
+    test('getPotentialScore returns 0 when no matching dice', () {
+      final state = const GameState(diceRoll: [2, 3, 4, 5, 6]);
+
+      expect(state.getPotentialScore('ones'), equals(0));
+    });
+
+    test('getPotentialScore calculates score for six of a kind (Yatzy)', () {
+      final state = const GameState(diceRoll: [5, 5, 5, 5, 5]);
+
+      expect(state.getPotentialScore('yatzy'), equals(50));
+    });
+
+    test('getPotentialScore returns 0 for Yatzy when not all same', () {
+      final state = const GameState(diceRoll: [1, 2, 3, 4, 5]);
+
+      expect(state.getPotentialScore('yatzy'), equals(0));
+    });
+
+    test('getPotentialScore calculates full house score', () {
+      final state = const GameState(diceRoll: [3, 3, 3, 5, 5]);
+
+      expect(state.getPotentialScore('fullHouse'), equals(25));
+    });
+
+    test('getPotentialScore returns 0 for full house when not matching', () {
+      final state = const GameState(diceRoll: [1, 2, 3, 4, 5]);
+
+      expect(state.getPotentialScore('fullHouse'), equals(0));
+    });
+
+    test('getPotentialScore calculates chance score', () {
+      final state = const GameState(diceRoll: [3, 4, 5, 6, 1]);
+
+      expect(state.getPotentialScore('chance'), equals(19));
+    });
+
+    test('getPotentialScore throws for invalid category name', () {
+      final state = const GameState(diceRoll: [1, 2, 3, 4, 5]);
+
+      expect(
+        () => state.getPotentialScore('invalid_category'),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
   });
 }
