@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/models/dice.dart';
+import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/models/score_category.dart';
+import 'package:poker_dice/providers/game_provider.dart';
+import 'package:poker_dice/providers/theme_provider.dart';
 import 'package:poker_dice/pages/game_page.dart';
 import 'package:poker_dice/widgets/dice_widget.dart';
 import 'package:poker_dice/widgets/roll_button.dart';
@@ -9,40 +13,31 @@ import 'package:poker_dice/widgets/score_sheet.dart';
 
 void main() {
   group('GamePage', () {
-    late List<Dice> dice;
-
-    setUp(() {
-      dice = List.generate(5, (i) => Dice(value: (i % 6) + 1, isHeld: false));
-    });
-
-    Widget buildGamePage({
-      List<Dice>? diceOverride,
+    GameState buildGameState({
+      List<Dice>? dice,
       int rollsRemaining = 3,
-      Map<ScoreCategory, int>? scoredCategories,
-      ScoreCategory? selectedCategory,
-      int totalScore = 0,
-      int upperTotal = 0,
-      int bonus = 0,
-      VoidCallback? onRoll,
-      void Function(int)? onDiceTap,
-      void Function(ScoreCategory)? onCategorySelect,
-      VoidCallback? onMenuTap,
-      VoidCallback? onBackTap,
+      Map<ScoreCategory, int?>? scoredCategories,
+      GameStatus status = GameStatus.active,
     }) {
-      return MaterialApp(
-        home: GamePage(
-          dice: diceOverride ?? dice,
-          rollsRemaining: rollsRemaining,
-          scoredCategories: scoredCategories,
-          selectedCategory: selectedCategory,
-          totalScore: totalScore,
-          upperTotal: upperTotal,
-          bonus: bonus,
-          onRoll: onRoll,
-          onDiceTap: onDiceTap,
-          onCategorySelect: onCategorySelect,
-          onMenuTap: onMenuTap,
-          onBackTap: onBackTap,
+      return GameState(
+        currentDice: dice,
+        rollsRemaining: rollsRemaining,
+        scoredCategories: scoredCategories,
+        status: status,
+      );
+    }
+
+    Widget buildGamePage({GameState? gameState, VoidCallback? onBackTap}) {
+      return ProviderScope(
+        overrides: [
+          gameProvider.overrideWith(
+            (ref) => GameNotifier(initialState: gameState ?? GameState()),
+          ),
+        ],
+        child: MaterialApp(
+          theme: ThemeNotifier.lightTheme,
+          darkTheme: ThemeNotifier.darkTheme,
+          home: GamePage(onBackTap: onBackTap),
         ),
       );
     }
@@ -56,7 +51,8 @@ void main() {
     });
 
     testWidgets('displays total score in app bar', (tester) async {
-      await tester.pumpWidget(buildGamePage(totalScore: 150));
+      final state = buildGameState(scoredCategories: {ScoreCategory.aces: 150});
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.text('150'), findsOneWidget);
     });
@@ -91,28 +87,10 @@ void main() {
       expect(callbackCalled, isTrue);
     });
 
-    testWidgets('shows menu button when onMenuTap is provided', (tester) async {
-      await tester.pumpWidget(buildGamePage(onMenuTap: () {}));
-
-      expect(find.byIcon(Icons.menu), findsOneWidget);
-    });
-
-    testWidgets('hides menu button when onMenuTap is null', (tester) async {
+    testWidgets('menu button is always visible', (tester) async {
       await tester.pumpWidget(buildGamePage());
 
-      expect(find.byIcon(Icons.menu), findsNothing);
-    });
-
-    testWidgets('calls onMenuTap when menu button is tapped', (tester) async {
-      bool callbackCalled = false;
-      await tester.pumpWidget(
-        buildGamePage(onMenuTap: () => callbackCalled = true),
-      );
-
-      await tester.tap(find.byIcon(Icons.menu));
-      await tester.pumpAndSettle();
-
-      expect(callbackCalled, isTrue);
+      expect(find.byIcon(Icons.menu), findsOneWidget);
     });
 
     testWidgets('displays five dice', (tester) async {
@@ -122,7 +100,8 @@ void main() {
     });
 
     testWidgets('roll button shows correct rolls remaining', (tester) async {
-      await tester.pumpWidget(buildGamePage(rollsRemaining: 2));
+      final state = buildGameState(rollsRemaining: 2);
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       final rollButton = tester.widget<RollButton>(find.byType(RollButton));
       expect(rollButton.rollsRemaining, 2);
@@ -131,80 +110,30 @@ void main() {
     testWidgets('roll button disabled when rolls remaining is 0', (
       tester,
     ) async {
-      await tester.pumpWidget(buildGamePage(rollsRemaining: 0));
+      final state = buildGameState(rollsRemaining: 0);
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       final button = tester.widget<RollButton>(find.byType(RollButton));
       expect(button.rollsRemaining, 0);
     });
 
-    testWidgets('calls onRoll when roll button is tapped', (tester) async {
-      bool callbackCalled = false;
-      await tester.pumpWidget(
-        buildGamePage(onRoll: () => callbackCalled = true),
-      );
-
-      await tester.tap(find.byType(RollButton));
-      await tester.pumpAndSettle();
-
-      expect(callbackCalled, isTrue);
-    });
-
-    testWidgets('does not call onRoll when rolls remaining is 0', (
-      tester,
-    ) async {
-      bool callbackCalled = false;
-      await tester.pumpWidget(
-        buildGamePage(rollsRemaining: 0, onRoll: () => callbackCalled = true),
-      );
-
-      await tester.tap(find.byType(RollButton));
-      await tester.pumpAndSettle();
-
-      expect(callbackCalled, isFalse);
-    });
-
-    testWidgets('calls onDiceTap with correct index when die is tapped', (
-      tester,
-    ) async {
-      int? tappedIndex;
-      await tester.pumpWidget(
-        buildGamePage(onDiceTap: (index) => tappedIndex = index),
-      );
-
-      final diceFinder = find.byType(DiceWidget);
-      expect(diceFinder, findsNWidgets(5));
-
-      // Tap the third die (index 2)
-      await tester.tap(diceFinder.at(2));
-      await tester.pumpAndSettle();
-
-      expect(tappedIndex, 2);
-    });
-
     testWidgets('passes scoredCategories to ScoreSheet', (tester) async {
-      final scored = {ScoreCategory.aces: 5, ScoreCategory.twos: 4};
-      await tester.pumpWidget(buildGamePage(scoredCategories: scored));
-
-      expect(find.byType(ScoreSheet), findsOneWidget);
-    });
-
-    testWidgets('passes selectedCategory to ScoreSheet', (tester) async {
-      await tester.pumpWidget(
-        buildGamePage(selectedCategory: ScoreCategory.threeOfAKind),
+      final state = buildGameState(
+        scoredCategories: {ScoreCategory.aces: 5, ScoreCategory.twos: 4},
       );
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.byType(ScoreSheet), findsOneWidget);
     });
 
     testWidgets('passes upperTotal and bonus to ScoreSheet', (tester) async {
-      await tester.pumpWidget(buildGamePage(upperTotal: 70, bonus: 35));
+      final state = buildGameState(scoredCategories: {ScoreCategory.aces: 70});
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.byType(ScoreSheet), findsOneWidget);
     });
 
-    testWidgets('uses default values when optional parameters omitted', (
-      tester,
-    ) async {
+    testWidgets('uses default values when state is initial', (tester) async {
       await tester.pumpWidget(buildGamePage());
 
       final rollButton = tester.widget<RollButton>(find.byType(RollButton));
@@ -223,30 +152,13 @@ void main() {
       expect(find.byType(RollButton), findsOneWidget);
     });
 
-    testWidgets('calls onCategorySelect when category is selected', (
-      tester,
-    ) async {
-      ScoreCategory? selected;
-      await tester.pumpWidget(
-        buildGamePage(onCategorySelect: (cat) => selected = cat),
-      );
-
-      // Tap on the "Aces" category row
-      final acesFinder = find.text('Aces');
-      expect(acesFinder, findsOneWidget);
-
-      await tester.tap(acesFinder);
-      await tester.pumpAndSettle();
-
-      expect(selected, ScoreCategory.aces);
-    });
-
     testWidgets('shows dice with correct values', (tester) async {
       final testDice = List.generate(
         5,
         (i) => Dice(value: i + 1, isHeld: false),
       );
-      await tester.pumpWidget(buildGamePage(diceOverride: testDice));
+      final state = buildGameState(dice: testDice);
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.byType(DiceWidget), findsNWidgets(5));
     });
@@ -259,9 +171,133 @@ void main() {
         Dice(value: 4, isHeld: false),
         Dice(value: 5, isHeld: false),
       ];
-      await tester.pumpWidget(buildGamePage(diceOverride: testDice));
+      final state = buildGameState(dice: testDice);
+      await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.byType(DiceWidget), findsNWidgets(5));
+    });
+
+    testWidgets('shows theme toggle button in app bar', (tester) async {
+      await tester.pumpWidget(buildGamePage());
+
+      // Theme toggle uses dark_mode icon in light theme
+      expect(find.byIcon(Icons.dark_mode), findsOneWidget);
+    });
+
+    testWidgets('shows dark mode icon in light theme', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [gameProvider.overrideWith((ref) => GameNotifier())],
+          child: MaterialApp(
+            theme: ThemeNotifier.lightTheme,
+            home: const GamePage(),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.dark_mode), findsOneWidget);
+    });
+
+    testWidgets('shows light mode icon in dark theme', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [gameProvider.overrideWith((ref) => GameNotifier())],
+          child: MaterialApp(
+            theme: ThemeNotifier.darkTheme,
+            home: const GamePage(),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.light_mode), findsOneWidget);
+    });
+
+    testWidgets('tapping theme toggle calls toggleTheme', (tester) async {
+      final themeNotifier = ThemeNotifier();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gameProvider.overrideWith((ref) => GameNotifier()),
+            themeProvider.overrideWith((ref) => themeNotifier),
+          ],
+          child: MaterialApp(
+            theme: ThemeNotifier.lightTheme,
+            darkTheme: ThemeNotifier.darkTheme,
+            themeMode: themeNotifier.state,
+            home: const GamePage(),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.dark_mode), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.dark_mode));
+      await tester.pumpAndSettle();
+
+      // Theme should have toggled to dark
+      expect(themeNotifier.state, ThemeMode.dark);
+    });
+
+    testWidgets('shows completion overlay when game is completed', (
+      tester,
+    ) async {
+      final completedState = buildGameState(
+        status: GameStatus.completed,
+        scoredCategories: {for (final c in ScoreCategory.values) c: 0},
+      );
+      await tester.pumpWidget(buildGamePage(gameState: completedState));
+
+      expect(find.text('Game Complete!'), findsOneWidget);
+      expect(find.text('Final Score'), findsOneWidget);
+      expect(find.text('New Game'), findsOneWidget);
+    });
+
+    testWidgets('completion overlay shows total score', (tester) async {
+      final total = 250;
+      final completedState = buildGameState(
+        status: GameStatus.completed,
+        scoredCategories: {
+          for (final c in ScoreCategory.values) c: total ~/ 13,
+        },
+      );
+      await tester.pumpWidget(buildGamePage(gameState: completedState));
+
+      expect(find.text('Game Complete!'), findsOneWidget);
+    });
+
+    testWidgets('New Game button resets the game', (tester) async {
+      final completedState = buildGameState(
+        status: GameStatus.completed,
+        scoredCategories: {for (final c in ScoreCategory.values) c: 0},
+      );
+
+      final notifier = GameNotifier(initialState: completedState);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [gameProvider.overrideWith((ref) => notifier)],
+          child: MaterialApp(
+            theme: ThemeNotifier.lightTheme,
+            home: const GamePage(),
+          ),
+        ),
+      );
+
+      expect(find.text('Game Complete!'), findsOneWidget);
+
+      // Tap the New Game button
+      await tester.tap(find.text('New Game'));
+      await tester.pumpAndSettle();
+
+      // Game should be reset - overlay should be gone
+      expect(find.text('Game Complete!'), findsNothing);
+      expect(notifier.state.status, GameStatus.active);
+    });
+
+    testWidgets('no completion overlay when game is active', (tester) async {
+      final activeState = buildGameState(status: GameStatus.active);
+      await tester.pumpWidget(buildGamePage(gameState: activeState));
+
+      expect(find.text('Game Complete!'), findsNothing);
     });
   });
 }

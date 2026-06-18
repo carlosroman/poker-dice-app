@@ -1,33 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:poker_dice/models/dice.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:poker_dice/pages/game_page.dart';
+import 'package:poker_dice/pages/scoreboard_page.dart';
+import 'package:poker_dice/providers/theme_provider.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+/// GoRouter configuration for the app.
+final _router = GoRouter(
+  routes: [
+    GoRoute(path: '/', builder: (context, state) => const GamePage()),
+    GoRoute(
+      path: '/scoreboard',
+      builder: (context, state) => const ScoreboardPage(gameResults: []),
+    ),
+  ],
+);
+
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+
+    return MaterialApp.router(
       title: 'Poker Dice',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      themeMode: ThemeMode.system,
-      home: GamePage(
-        dice: List.generate(5, (i) => Dice(value: (i % 6) + 1, isHeld: false)),
-      ),
+      theme: ThemeNotifier.lightTheme,
+      darkTheme: ThemeNotifier.darkTheme,
+      themeMode: themeMode,
+      routerConfig: _router,
     );
   }
 }
