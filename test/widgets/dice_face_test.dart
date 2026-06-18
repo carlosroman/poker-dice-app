@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:poker_dice/widgets/dice_face.dart';
+
+void main() {
+  group('DiceFace', () {
+    testWidgets('renders with default properties', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: DiceFace(value: 1)));
+
+      expect(find.byType(DiceFace), findsOneWidget);
+    });
+
+    testWidgets('renders with correct size', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: DiceFace(value: 3, size: 64.0)),
+      );
+
+      final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+      expect(sizedBox.width, 64.0);
+      expect(sizedBox.height, 64.0);
+    });
+
+    testWidgets('uses default size of 48.0', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: DiceFace(value: 1)));
+
+      final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+      expect(sizedBox.width, 48.0);
+      expect(sizedBox.height, 48.0);
+    });
+
+    testWidgets('throws assertion for value less than 1', (tester) async {
+      expect(() => DiceFace(value: 0), throwsA(isA<AssertionError>()));
+      expect(() => DiceFace(value: -5), throwsA(isA<AssertionError>()));
+    });
+
+    testWidgets('throws assertion for value greater than 6', (tester) async {
+      expect(() => DiceFace(value: 7), throwsA(isA<AssertionError>()));
+      expect(() => DiceFace(value: 100), throwsA(isA<AssertionError>()));
+    });
+
+    testWidgets('throws assertion for non-positive size', (tester) async {
+      expect(() => DiceFace(value: 1, size: 0), throwsA(isA<AssertionError>()));
+      expect(
+        () => DiceFace(value: 1, size: -10),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    group('all valid values render', () {
+      for (final value in Iterable<int>.generate(6, (i) => i + 1)) {
+        testWidgets('value $value renders without error', (tester) async {
+          await tester.pumpWidget(MaterialApp(home: DiceFace(value: value)));
+
+          expect(find.byType(DiceFace), findsOneWidget);
+        });
+      }
+    });
+
+    testWidgets('accepts custom pip color', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(home: DiceFace(value: 4, pipColor: Colors.amber)),
+      );
+
+      expect(find.byType(DiceFace), findsOneWidget);
+    });
+
+    testWidgets('accepts custom pip radius fraction', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(home: DiceFace(value: 2, pipRadiusFraction: 0.15)),
+      );
+
+      expect(find.byType(DiceFace), findsOneWidget);
+    });
+
+    testWidgets('supports const constructor', (tester) async {
+      // Verify the widget can be declared const.
+      const DiceFace dice = DiceFace(value: 1);
+      expect(dice.value, 1);
+      expect(dice.size, 48.0);
+      expect(dice.pipColor, Colors.white);
+      expect(dice.pipRadiusFraction, 0.12);
+    });
+
+    testWidgets('renders within a center layout', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: Center(child: DiceFace(value: 5, size: 80.0))),
+        ),
+      );
+
+      expect(find.byType(DiceFace), findsOneWidget);
+      final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+      expect(sizedBox.width, 80.0);
+      expect(sizedBox.height, 80.0);
+    });
+
+    testWidgets('renders multiple dice faces', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              DiceFace(value: 1),
+              SizedBox(width: 8),
+              DiceFace(value: 3),
+              SizedBox(width: 8),
+              DiceFace(value: 5),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.byType(DiceFace), findsNWidgets(3));
+    });
+  });
+}
