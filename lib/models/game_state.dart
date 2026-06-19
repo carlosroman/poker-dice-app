@@ -28,6 +28,9 @@ class GameState {
   /// The overall status of the game.
   final GameStatus status;
 
+  /// Category currently selected for preview (pending confirmation).
+  final ScoreCategory? selectedCategory;
+
   /// Creates a [GameState] with the given values.
   ///
   /// Throws an [ArgumentError] if [currentDice] does not contain exactly 5 dice.
@@ -36,6 +39,7 @@ class GameState {
     this.rollsRemaining = 3,
     Map<ScoreCategory, int?>? scoredCategories,
     this.status = GameStatus.active,
+    this.selectedCategory,
   }) : currentDice = currentDice ?? List.generate(5, (_) => Dice(value: 1)),
        scoredCategories =
            scoredCategories ??
@@ -133,12 +137,17 @@ class GameState {
     int? rollsRemaining,
     Map<ScoreCategory, int?>? scoredCategories,
     GameStatus? status,
+    ScoreCategory? selectedCategory,
+    bool clearSelectedCategory = false,
   }) {
     return GameState(
       currentDice: currentDice ?? this.currentDice,
       rollsRemaining: rollsRemaining ?? this.rollsRemaining,
       scoredCategories: scoredCategories ?? this.scoredCategories,
       status: status ?? this.status,
+      selectedCategory: clearSelectedCategory
+          ? null
+          : (selectedCategory ?? this.selectedCategory),
     );
   }
 }

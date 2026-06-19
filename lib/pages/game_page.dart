@@ -74,8 +74,9 @@ class GamePage extends ConsumerWidget {
                     scoredCategories: gameState.scoredCategories.map(
                       (k, v) => MapEntry(k, v ?? 0),
                     ),
+                    selectedCategory: gameState.selectedCategory,
                     onCategorySelect: (ScoreCategory category) =>
-                        notifier.selectCategory(category),
+                        notifier.selectCategoryForPreview(category),
                     upperTotal: gameState.upperSectionTotal,
                     bonus: gameState.bonus,
                   ),
@@ -84,6 +85,11 @@ class GamePage extends ConsumerWidget {
                 // Dice area
                 _buildDiceArea(context, gameState.currentDice, notifier),
                 const SizedBox(height: 16),
+                // Score confirmation button
+                if (gameState.selectedCategory != null)
+                  _buildScoreButton(context, notifier),
+                if (gameState.selectedCategory != null)
+                  const SizedBox(height: 8),
                 // Roll button
                 _buildRollButton(context, gameState.rollsRemaining, notifier),
               ],
@@ -120,22 +126,49 @@ class GamePage extends ConsumerWidget {
     );
   }
 
-  /// Builds the horizontal row of five dice.
+  /// Builds the horizontal row of five dice on a darker background.
   Widget _buildDiceArea(
     BuildContext context,
     List<Dice> dice,
     GameNotifier notifier,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        dice.length,
-        (index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: DiceWidget(
-            dice: dice[index],
-            size: 56.0,
-            onTap: () => notifier.toggleHold(index),
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          dice.length,
+          (index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: DiceWidget(
+              dice: dice[index],
+              size: 56.0,
+              onTap: () => notifier.toggleHold(index),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the confirmation button to score the selected category.
+  Widget _buildScoreButton(BuildContext context, GameNotifier notifier) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: notifier.confirmScore,
+        icon: const Icon(Icons.check),
+        label: const Text('Score'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

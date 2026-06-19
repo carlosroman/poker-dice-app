@@ -85,8 +85,25 @@ class GameNotifier extends StateNotifier<GameState> {
     }
   }
 
-  /// Scores the [category] with the current dice and advances the turn.
+  /// Selects a category for preview without scoring.
   ///
+  /// The selected category shows its preview score in the score sheet.
+  /// Does nothing if the category is already scored or the game is completed.
+  void selectCategoryForPreview(ScoreCategory category) {
+    if (state.status == GameStatus.completed) {
+      return;
+    }
+
+    if (state.scoredCategories[category] != null) {
+      return;
+    }
+
+    state = state.copyWith(selectedCategory: category);
+  }
+
+  /// Selects a category for preview, or confirms the score if already selected.
+  ///
+  /// Tapping a category twice (select then confirm) scores it.
   /// Does nothing if the category is already scored or the game is completed.
   void selectCategory(ScoreCategory category) {
     if (state.status == GameStatus.completed) {
@@ -97,18 +114,49 @@ class GameNotifier extends StateNotifier<GameState> {
       return;
     }
 
+    if (state.selectedCategory == category) {
+      confirmScore();
+    } else {
+      selectCategoryForPreview(category);
+    }
+  }
+
+  /// Scores the currently selected category and advances the turn.
+  ///
+  /// Does nothing if no category is selected or the game is completed.
+  void confirmScore() {
+    final category = state.selectedCategory;
+    if (category == null) {
+      return;
+    }
+
+    if (state.status == GameStatus.completed) {
+      return;
+    }
+
+    if (state.scoredCategories[category] != null) {
+      state = state.copyWith(clearSelectedCategory: true);
+      return;
+    }
+
     final score = _scoringService.calculateScore(state.currentDice, category);
 
     try {
-      state = state.scoreCategory(category, score);
+      state = state
+          .scoreCategory(category, score)
+          .copyWith(clearSelectedCategory: true);
       _autoSave(state);
-      // Reset turn after scoring
       if (state.status == GameStatus.active) {
         _resetTurn();
       }
     } on StateError {
       // Category already scored, ignore.
     }
+  }
+
+  /// Clears the selected category without scoring.
+  void clearSelection() {
+    state = state.copyWith(clearSelectedCategory: true);
   }
 
   /// Resets the game to a fresh state.

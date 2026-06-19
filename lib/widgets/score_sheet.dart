@@ -69,9 +69,17 @@ class ScoreSheet extends StatelessWidget {
         if (useTwoColumns) {
           return Row(
             children: [
-              Expanded(child: _buildSection(context, 'Minor', upperCategories)),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: _buildSection(context, 'Minor', upperCategories),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildSection(context, 'Major', lowerCategories)),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: _buildSection(context, 'Major', lowerCategories),
+                ),
+              ),
             ],
           );
         }
@@ -98,6 +106,7 @@ class ScoreSheet extends StatelessWidget {
     final isUpper = categories.isNotEmpty && categories.first.isUpper;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildSectionHeader(context, title),

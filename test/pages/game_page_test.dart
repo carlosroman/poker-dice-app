@@ -18,12 +18,14 @@ void main() {
       int rollsRemaining = 3,
       Map<ScoreCategory, int?>? scoredCategories,
       GameStatus status = GameStatus.active,
+      ScoreCategory? selectedCategory,
     }) {
       return GameState(
         currentDice: dice,
         rollsRemaining: rollsRemaining,
         scoredCategories: scoredCategories,
         status: status,
+        selectedCategory: selectedCategory,
       );
     }
 
@@ -317,6 +319,70 @@ void main() {
       await tester.pumpWidget(buildGamePage(gameState: activeState));
 
       expect(find.text('View Scoreboard'), findsNothing);
+    });
+
+    // -----------------------------------------------------------------------
+    // Score Button
+    // -----------------------------------------------------------------------
+
+    testWidgets('score button is invisible when no category selected',
+        (tester) async {
+      final state = buildGameState(status: GameStatus.active);
+      await tester.pumpWidget(buildGamePage(gameState: state));
+
+      expect(find.text('Score'), findsNothing);
+    });
+
+    testWidgets('score button is visible when category is selected',
+        (tester) async {
+      final state = buildGameState(
+        status: GameStatus.active,
+        selectedCategory: ScoreCategory.aces,
+      );
+      await tester.pumpWidget(buildGamePage(gameState: state));
+
+      expect(find.text('Score'), findsOneWidget);
+    });
+
+    testWidgets('score button shows selected category name', (tester) async {
+      final state = buildGameState(
+        status: GameStatus.active,
+        selectedCategory: ScoreCategory.fullHouse,
+      );
+      await tester.pumpWidget(buildGamePage(gameState: state));
+
+      expect(find.text('Full House'), findsOneWidget);
+    });
+
+    testWidgets('tapping score button confirms the score', (tester) async {
+      final notifier = GameNotifier(
+        initialState: buildGameState(
+          status: GameStatus.active,
+          selectedCategory: ScoreCategory.aces,
+        ),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [gameProvider.overrideWith((ref) => notifier)],
+          child: MaterialApp(
+            theme: ThemeNotifier.lightTheme,
+            home: const GamePage(),
+          ),
+        ),
+      );
+
+      // Score button should be visible
+      expect(find.text('Score'), findsOneWidget);
+
+      // Tap the score button
+      await tester.tap(find.text('Score'));
+      await tester.pumpAndSettle();
+
+      // Category should now be scored and selection cleared
+      final state = notifier.state;
+      expect(state.scoredCategories[ScoreCategory.aces], isNotNull);
+      expect(state.selectedCategory, isNull);
+      expect(find.text('Score'), findsNothing);
     });
   });
 }
