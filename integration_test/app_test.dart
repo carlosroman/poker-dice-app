@@ -10,11 +10,11 @@ import 'package:poker_dice/widgets/dice_widget.dart';
 /// Validates:
 /// 1. Dice are blank on start
 /// 2. Roll dice
-/// 3. Hold middle dice (index 2)
+/// 3. Hold middle dice (key 'die-2')
 /// 4. Roll again - middle dice unchanged
-/// 5. Hold last dice (index 4)
+/// 5. Hold last dice (key 'die-4')
 /// 6. Roll again - middle and last dice unchanged
-/// 7. Hold first dice (index 0)
+/// 7. Hold first dice (key 'die-0')
 /// 8. Roll again - first, middle, and last dice unchanged
 /// 9. Chance section shows score preview
 /// 10. Select "Chance" and score it
@@ -28,8 +28,9 @@ void main() {
     // 1. Check dice blank on start
     expect(find.byType(DiceWidget), findsNWidgets(5));
     for (int i = 0; i < 5; i++) {
+      final dieFinder = find.byKey(ValueKey('die-$i'));
       expect(
-        tester.getSemantics(find.byType(DiceWidget).at(i)).label,
+        tester.getSemantics(dieFinder).label,
         contains('Die showing 0'),
         reason: 'Die $i should be blank on start',
       );
@@ -39,8 +40,9 @@ void main() {
     await tester.tap(find.text('Roll'));
     await tester.pumpAndSettle();
 
-    // 3. Hold middle dice (index 2)
-    final middleFinder = find.byType(DiceWidget).at(2);
+    // 3. Hold middle dice (die-2)
+    const middleKey = ValueKey('die-2');
+    final middleFinder = find.byKey(middleKey);
     final middleValue = _dieValueFromSemantics(
       tester.getSemantics(middleFinder),
     );
@@ -66,8 +68,9 @@ void main() {
       reason: 'Middle die should not change when held',
     );
 
-    // 5. Hold last dice (index 4)
-    final lastFinder = find.byType(DiceWidget).at(4);
+    // 5. Hold last dice (die-4)
+    const lastKey = ValueKey('die-4');
+    final lastFinder = find.byKey(lastKey);
     final lastValue = _dieValueFromSemantics(tester.getSemantics(lastFinder));
     expect(lastValue >= 1 && lastValue <= 6, isTrue, reason: 'Last die should have a value');
 
@@ -96,8 +99,9 @@ void main() {
       reason: 'Last die should not change when held',
     );
 
-    // 7. Hold first dice (index 0)
-    final firstFinder = find.byType(DiceWidget).at(0);
+    // 7. Hold first dice (die-0)
+    const firstKey = ValueKey('die-0');
+    final firstFinder = find.byKey(firstKey);
     final firstValue = _dieValueFromSemantics(tester.getSemantics(firstFinder));
     expect(firstValue >= 1 && firstValue <= 6, isTrue, reason: 'First die should have a value');
 

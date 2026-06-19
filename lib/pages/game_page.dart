@@ -147,6 +147,7 @@ class GamePage extends ConsumerWidget {
           (index) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: DiceWidget(
+              key: ValueKey('die-$index'),
               dice: dice[index],
               size: 56.0,
               onTap: () => notifier.toggleHold(index),
