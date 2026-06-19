@@ -7,8 +7,10 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poker_dice/models/dice.dart';
+import 'package:poker_dice/models/game_history.dart';
 import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/models/score_category.dart';
+import 'package:poker_dice/providers/storage_provider.dart';
 import 'package:poker_dice/services/dice_roller.dart';
 import 'package:poker_dice/services/scoring_service.dart';
 
@@ -17,16 +19,20 @@ import 'package:poker_dice/services/scoring_service.dart';
 /// The notifier holds a single [GameState] instance and exposes
 /// imperative methods to mutate that state in a controlled way.
 final gameProvider = StateNotifierProvider<GameNotifier, GameState>(
-  (ref) => GameNotifier(),
+  (ref) => GameNotifier(ref: ref),
 );
 
 /// StateNotifier responsible for all game state mutations.
 ///
 /// Delegates dice rolling to [DiceRoller] and scoring to
-/// [ScoringService]. On every state change, [autoSave] is
-/// invoked (currently a no-op stub).
+/// [ScoringService]. On game completion, the result is saved
+/// to [StorageService] via [scoreboardProvider].
 class GameNotifier extends StateNotifier<GameState> {
-  GameNotifier({GameState? initialState}) : super(initialState ?? GameState()) {
+  /// Optional Riverpod reference for accessing providers.
+  final Ref? ref;
+
+  GameNotifier({this.ref, GameState? initialState})
+      : super(initialState ?? GameState()) {
     // Only reset turn when creating a fresh game, not when an initial state
     // is explicitly provided (e.g. for testing).
     if (initialState == null) {
@@ -131,11 +137,21 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
-  /// Placeholder for persistence layer.
+  /// Saves completed game results to persistent storage.
   ///
-  /// Currently a no-op; will be replaced with shared_preferences or
-  /// local database integration in a future iteration.
+  /// When the game status is [GameStatus.completed], creates a
+  /// [GameResult] and adds it to [ScoreboardNotifier] which
+  /// persists via [StorageService].
   void _autoSave(GameState gameState) {
-    // Stub: persist gameState to local storage.
+    if (gameState.status != GameStatus.completed || ref == null) return;
+
+    ref!.read(scoreboardProvider.notifier).addResult(
+          GameResult(
+            totalScore: gameState.totalScore,
+            upperSectionTotal: gameState.upperSectionTotal,
+            bonus: gameState.bonus,
+            completedAt: DateTime.now(),
+          ),
+        );
   }
 }

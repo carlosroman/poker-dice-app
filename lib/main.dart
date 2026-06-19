@@ -15,7 +15,7 @@ final _router = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const GamePage()),
     GoRoute(
       path: '/scoreboard',
-      builder: (context, state) => const ScoreboardPage(gameResults: []),
+      builder: (context, state) => const ScoreboardPage(),
     ),
   ],
 );

@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:poker_dice/models/game_history.dart';
 import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/models/score_category.dart';
 import 'package:poker_dice/providers/game_provider.dart';
+import 'package:poker_dice/providers/storage_provider.dart';
 
 void main() {
   late ProviderContainer container;
@@ -223,4 +225,73 @@ void main() {
       expect(container.read(gameProvider).currentDice[0].isHeld, isTrue);
     });
   });
+
+  // -----------------------------------------------------------------------
+  // Auto-save on game completion
+  // -----------------------------------------------------------------------
+
+  group('auto-save', () {
+    test('calls addResult when game is completed', () {
+      // Track addResult calls
+      List<GameResult>? resultsAdded;
+
+      container = ProviderContainer(overrides: [
+        scoreboardProvider.overrideWith((ref) {
+          return _TestScoreboardNotifier(
+            ref: ref,
+            onAddResult: (result) => resultsAdded = [result],
+          );
+        }),
+      ]);
+      notifier = container.read(gameProvider.notifier);
+
+      // Score all 13 categories to complete the game
+      for (final category in ScoreCategory.values) {
+        notifier.selectCategory(category);
+      }
+
+      expect(notifier.state.status, GameStatus.completed);
+      expect(resultsAdded, isNotNull);
+      expect(resultsAdded!.length, 1);
+      expect(resultsAdded![0].totalScore, notifier.state.totalScore);
+      expect(
+        resultsAdded![0].upperSectionTotal,
+        notifier.state.upperSectionTotal,
+      );
+      expect(resultsAdded![0].bonus, notifier.state.bonus);
+    });
+
+    test('does not call addResult when game is not completed', () {
+      // Track addResult calls
+      bool addResultCalled = false;
+
+      container = ProviderContainer(overrides: [
+        scoreboardProvider.overrideWith((ref) {
+          return _TestScoreboardNotifier(
+            ref: ref,
+            onAddResult: (result) => addResultCalled = true,
+          );
+        }),
+      ]);
+      notifier = container.read(gameProvider.notifier);
+
+      // Score only one category - game is not complete
+      notifier.selectCategory(ScoreCategory.aces);
+
+      expect(notifier.state.status, GameStatus.active);
+      expect(addResultCalled, isFalse);
+    });
+  });
+}
+
+/// Test double for [ScoreboardNotifier] that tracks addResult calls.
+class _TestScoreboardNotifier extends ScoreboardNotifier {
+  final void Function(GameResult)? onAddResult;
+
+  _TestScoreboardNotifier({required super.ref, this.onAddResult});
+
+  @override
+  Future<void> addResult(GameResult result) async {
+    onAddResult?.call(result);
+  }
 }

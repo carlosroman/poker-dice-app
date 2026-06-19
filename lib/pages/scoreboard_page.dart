@@ -2,21 +2,29 @@
 ///
 /// Shows a list of completed game results, high score, and games played count.
 /// Provides a clear history action and navigation back to the game.
+///
+/// State is managed by [scoreboardProvider] via Riverpod. When data is passed
+/// directly through the constructor, it takes precedence over the provider.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:poker_dice/models/game_history.dart';
+import 'package:poker_dice/providers/storage_provider.dart';
 
 /// Displays the game history and statistics.
 ///
 /// Receives a list of [GameResult] objects and displays them in a
 /// scrollable list with summary statistics at the top.
-class ScoreboardPage extends StatelessWidget {
+class ScoreboardPage extends ConsumerWidget {
   /// The list of completed game results to display.
-  final List<GameResult> gameResults;
+  ///
+  /// If provided, takes precedence over the provider state.
+  final List<GameResult>? gameResults;
 
   /// The total number of games played.
-  final int gamesPlayed;
+  final int? gamesPlayed;
 
   /// The highest score achieved.
   final int? highScore;
@@ -27,55 +35,87 @@ class ScoreboardPage extends StatelessWidget {
   /// Callback invoked when the user navigates back.
   final VoidCallback? onBackTap;
 
-  /// Creates a [ScoreboardPage] with the given data.
+  /// Creates a [ScoreboardPage] with optional data.
+  ///
+  /// When no data is provided, the page loads from [scoreboardProvider].
   const ScoreboardPage({
     super.key,
-    required this.gameResults,
-    this.gamesPlayed = 0,
+    this.gameResults,
+    this.gamesPlayed,
     this.highScore,
     this.onClearHistory,
     this.onBackTap,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final providerState = ref.watch(scoreboardProvider);
+
+    // Load data from storage if not already loaded (deferred to avoid
+    // modifying provider state during build)
+    if (providerState.gameResults.isEmpty && gameResults == null) {
+      Future.microtask(
+        () => ref.read(scoreboardProvider.notifier).loadData(),
+      );
+    }
+
+    // Use constructor data if provided, otherwise use provider state
+    final results = gameResults ?? providerState.gameResults;
+    final played = gamesPlayed ?? providerState.gamesPlayed;
+    final score = highScore ?? providerState.highScore;
+    final isLoading = providerState.isLoading && gameResults == null;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scoreboard'),
-        leading: onBackTap != null
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: onBackTap,
-                tooltip: 'Back',
-              )
-            : null,
-        actions: onClearHistory != null && gameResults.isNotEmpty
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: onBackTap ?? () => context.pop(),
+          tooltip: 'Back',
+        ),
+        actions: (onClearHistory != null || results.isNotEmpty)
             ? [
                 IconButton(
                   icon: const Icon(Icons.delete_sweep),
-                  onPressed: onClearHistory,
+                  onPressed: results.isNotEmpty
+                      ? () {
+                          onClearHistory?.call();
+                          if (onClearHistory == null) {
+                            ref
+                                .read(scoreboardProvider.notifier)
+                                .clearHistory();
+                          }
+                        }
+                      : null,
                   tooltip: 'Clear History',
                 ),
               ]
             : null,
       ),
-      body: gameResults.isEmpty
-          ? const Center(child: Text('No games played yet'))
-          : _buildContent(context),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : results.isEmpty
+              ? const Center(child: Text('No games played yet'))
+              : _buildContent(context, results, played, score),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(
+    BuildContext context,
+    List<GameResult> results,
+    int played,
+    int? score,
+  ) {
     return Column(
       children: [
-        _buildStats(context),
+        _buildStats(context, played, score),
         const Divider(height: 1),
-        Expanded(child: _buildGameList(context)),
+        Expanded(child: _buildGameList(context, results)),
       ],
     );
   }
 
-  Widget _buildStats(BuildContext context) {
+  Widget _buildStats(BuildContext context, int played, int? score) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -87,7 +127,7 @@ class ScoreboardPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      gamesPlayed.toString(),
+                      played.toString(),
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const Text('Games Played'),
@@ -104,7 +144,7 @@ class ScoreboardPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      highScore?.toString() ?? '-',
+                      score?.toString() ?? '-',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const Text('High Score'),
@@ -118,11 +158,11 @@ class ScoreboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGameList(BuildContext context) {
+  Widget _buildGameList(BuildContext context, List<GameResult> results) {
     return ListView.builder(
-      itemCount: gameResults.length,
+      itemCount: results.length,
       itemBuilder: (context, index) {
-        final result = gameResults[gameResults.length - 1 - index];
+        final result = results[results.length - 1 - index];
         return _GameResultTile(result: result);
       },
     );
@@ -138,7 +178,9 @@ class _GameResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(child: Text('#${result.totalScore > 0 ? '' : ''}')),
+      leading: CircleAvatar(
+        child: Text('${result.totalScore}'),
+      ),
       title: Text('Score: ${result.totalScore}'),
       subtitle: Text(
         'Upper: ${result.upperSectionTotal} | Bonus: ${result.bonus}',

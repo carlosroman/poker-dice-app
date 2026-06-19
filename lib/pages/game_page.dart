@@ -202,20 +202,35 @@ class GamePage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: notifier.resetGame,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('New Game'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
+                 SizedBox(
+                   width: double.infinity,
+                   child: ElevatedButton.icon(
+                     onPressed: notifier.resetGame,
+                     icon: const Icon(Icons.refresh),
+                     label: const Text('New Game'),
+                     style: ElevatedButton.styleFrom(
+                       padding: const EdgeInsets.symmetric(vertical: 16),
+                       shape: RoundedRectangleBorder(
+                         borderRadius: BorderRadius.circular(12),
+                       ),
+                     ),
+                   ),
+                 ),
+                 const SizedBox(height: 12),
+                 SizedBox(
+                   width: double.infinity,
+                   child: OutlinedButton.icon(
+                     onPressed: () => context.push('/scoreboard'),
+                     icon: const Icon(Icons.leaderboard),
+                     label: const Text('View Scoreboard'),
+                     style: OutlinedButton.styleFrom(
+                       padding: const EdgeInsets.symmetric(vertical: 16),
+                       shape: RoundedRectangleBorder(
+                         borderRadius: BorderRadius.circular(12),
+                       ),
+                     ),
+                   ),
+                 ),
               ],
             ),
           ),

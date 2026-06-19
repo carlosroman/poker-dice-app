@@ -299,5 +299,24 @@ void main() {
 
       expect(find.text('Game Complete!'), findsNothing);
     });
+
+    testWidgets('View Scoreboard button is visible when game is completed',
+        (tester) async {
+      final completedState = buildGameState(
+        status: GameStatus.completed,
+        scoredCategories: {for (final c in ScoreCategory.values) c: 0},
+      );
+      await tester.pumpWidget(buildGamePage(gameState: completedState));
+
+      expect(find.text('View Scoreboard'), findsOneWidget);
+    });
+
+    testWidgets('View Scoreboard button is hidden when game is active',
+        (tester) async {
+      final activeState = buildGameState(status: GameStatus.active);
+      await tester.pumpWidget(buildGamePage(gameState: activeState));
+
+      expect(find.text('View Scoreboard'), findsNothing);
+    });
   });
 }
