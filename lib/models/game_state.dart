@@ -14,6 +14,8 @@ enum GameStatus {
 ///
 /// Tracks the five dice, remaining rolls, scored categories, and derived
 /// totals (upper section, bonus, grand total).
+///
+/// Dice start blank (value 0) before the first roll.
 class GameState {
   /// The five dice currently on the table.
   final List<Dice> currentDice;
@@ -40,7 +42,7 @@ class GameState {
     Map<ScoreCategory, int?>? scoredCategories,
     this.status = GameStatus.active,
     this.selectedCategory,
-  }) : currentDice = currentDice ?? List.generate(5, (_) => Dice(value: 1)),
+  }) : currentDice = currentDice ?? List.generate(5, (_) => Dice(value: 0)),
        scoredCategories =
            scoredCategories ??
            {for (final category in ScoreCategory.values) category: null} {

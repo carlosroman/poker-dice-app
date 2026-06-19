@@ -24,12 +24,12 @@ void main() {
   // -----------------------------------------------------------------------
 
   group('initial state', () {
-    test('starts with 5 dice all showing 1 and unheld', () {
+    test('starts with 5 blank dice (value 0) and unheld', () {
       final state = container.read(gameProvider);
 
       expect(state.currentDice.length, 5);
       for (final die in state.currentDice) {
-        expect(die.value, 1);
+        expect(die.value, 0);
         expect(die.isHeld, isFalse);
       }
     });
@@ -226,16 +226,10 @@ void main() {
 
     test('switching selection updates selected category', () {
       notifier.selectCategoryForPreview(ScoreCategory.aces);
-      expect(
-        container.read(gameProvider).selectedCategory,
-        ScoreCategory.aces,
-      );
+      expect(container.read(gameProvider).selectedCategory, ScoreCategory.aces);
 
       notifier.selectCategoryForPreview(ScoreCategory.twos);
-      expect(
-        container.read(gameProvider).selectedCategory,
-        ScoreCategory.twos,
-      );
+      expect(container.read(gameProvider).selectedCategory, ScoreCategory.twos);
     });
   });
 
@@ -283,10 +277,7 @@ void main() {
   group('clearSelection', () {
     test('clears the selected category', () {
       notifier.selectCategoryForPreview(ScoreCategory.aces);
-      expect(
-        container.read(gameProvider).selectedCategory,
-        ScoreCategory.aces,
-      );
+      expect(container.read(gameProvider).selectedCategory, ScoreCategory.aces);
 
       notifier.clearSelection();
       expect(container.read(gameProvider).selectedCategory, isNull);
@@ -352,14 +343,16 @@ void main() {
       // Track addResult calls
       List<GameResult>? resultsAdded;
 
-      container = ProviderContainer(overrides: [
-        scoreboardProvider.overrideWith((ref) {
-          return _TestScoreboardNotifier(
-            ref: ref,
-            onAddResult: (result) => resultsAdded = [result],
-          );
-        }),
-      ]);
+      container = ProviderContainer(
+        overrides: [
+          scoreboardProvider.overrideWith((ref) {
+            return _TestScoreboardNotifier(
+              ref: ref,
+              onAddResult: (result) => resultsAdded = [result],
+            );
+          }),
+        ],
+      );
       notifier = container.read(gameProvider.notifier);
 
       // Score all 13 categories to complete the game
@@ -383,14 +376,16 @@ void main() {
       // Track addResult calls
       bool addResultCalled = false;
 
-      container = ProviderContainer(overrides: [
-        scoreboardProvider.overrideWith((ref) {
-          return _TestScoreboardNotifier(
-            ref: ref,
-            onAddResult: (result) => addResultCalled = true,
-          );
-        }),
-      ]);
+      container = ProviderContainer(
+        overrides: [
+          scoreboardProvider.overrideWith((ref) {
+            return _TestScoreboardNotifier(
+              ref: ref,
+              onAddResult: (result) => addResultCalled = true,
+            );
+          }),
+        ],
+      );
       notifier = container.read(gameProvider.notifier);
 
       // Score only one category - game is not complete

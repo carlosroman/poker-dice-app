@@ -29,6 +29,12 @@ class DiceWidget extends StatelessWidget {
   /// Defaults to 3.0.
   final double heldBorderWidth;
 
+  /// The background color of the dice face.
+  ///
+  /// Defaults to [ColorScheme.surface] from the current theme, providing
+  /// contrast against the dice area (typically [ColorScheme.surfaceContainerHighest]).
+  final Color? backgroundColor;
+
   /// Creates a [DiceWidget].
   const DiceWidget({
     super.key,
@@ -37,21 +43,27 @@ class DiceWidget extends StatelessWidget {
     this.size = 48.0,
     this.heldColor = Colors.amber,
     this.heldBorderWidth = 3.0,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bgColor = backgroundColor ?? theme.colorScheme.surface;
+    final borderRadius = BorderRadius.circular(size / 6);
+
     final widget = GestureDetector(
       onTap: onTap,
       child: Container(
         width: size,
         height: size,
-        decoration: dice.isHeld
-            ? BoxDecoration(
-                border: Border.all(color: heldColor, width: heldBorderWidth),
-                borderRadius: BorderRadius.circular(size / 6),
-              )
-            : null,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: borderRadius,
+          border: dice.isHeld
+              ? Border.all(color: heldColor, width: heldBorderWidth)
+              : null,
+        ),
         child: DiceFace(value: dice.value, size: size),
       ),
     );

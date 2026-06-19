@@ -72,7 +72,7 @@ void main() {
       expect(decoration.border!.top.width, 3.0);
     });
 
-    testWidgets('unheld die has no border decoration', (tester) async {
+    testWidgets('unheld die has no border but has background', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: DiceWidget(dice: const Dice(value: 3, isHeld: false)),
@@ -80,7 +80,44 @@ void main() {
       );
 
       final container = tester.widget<Container>(find.byType(Container));
-      expect(container.decoration, isNull);
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.border, isNull);
+      expect(decoration.color, isNotNull);
+    });
+
+    testWidgets('uses theme surface color as default background', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              surface: Colors.lightBlue,
+            ),
+          ),
+          home: DiceWidget(dice: const Dice(value: 2)),
+        ),
+      );
+
+      final container = tester.widget<Container>(find.byType(Container));
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.color, Colors.lightBlue);
+    });
+
+    testWidgets('custom background color is applied', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DiceWidget(
+            dice: const Dice(value: 4),
+            backgroundColor: Colors.green,
+          ),
+        ),
+      );
+
+      final container = tester.widget<Container>(find.byType(Container));
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.color, Colors.green);
     });
 
     testWidgets('custom held color is applied', (tester) async {
@@ -137,6 +174,7 @@ void main() {
       expect(dice.size, 48.0);
       expect(dice.heldColor, Colors.amber);
       expect(dice.heldBorderWidth, 3.0);
+      expect(dice.backgroundColor, isNull);
     });
   });
 }

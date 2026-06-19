@@ -17,8 +17,14 @@ void main() {
       expect(dice.isHeld, true);
     });
 
-    test('throws assertion error for value less than 1', () {
-      expect(() => Dice(value: 0), throwsA(isA<AssertionError>()));
+    test('creates blank die with value 0', () {
+      final dice = Dice(value: 0);
+
+      expect(dice.value, 0);
+      expect(dice.isHeld, false);
+    });
+
+    test('throws assertion error for value less than 0', () {
       expect(() => Dice(value: -1), throwsA(isA<AssertionError>()));
     });
 
@@ -27,8 +33,8 @@ void main() {
       expect(() => Dice(value: 100), throwsA(isA<AssertionError>()));
     });
 
-    test('accepts boundary values 1 and 6', () {
-      expect(() => Dice(value: 1), returnsNormally);
+    test('accepts boundary values 0 and 6', () {
+      expect(() => Dice(value: 0), returnsNormally);
       expect(() => Dice(value: 6), returnsNormally);
     });
 
@@ -66,10 +72,17 @@ void main() {
         expect(updated.isHeld, true);
       });
 
-      test('throws assertion error when copyWith value is invalid', () {
+      test('allows copyWith to blank value 0', () {
+        final dice = Dice(value: 3);
+        final blank = dice.copyWith(value: 0);
+
+        expect(blank.value, 0);
+      });
+
+      test('throws assertion error when copyWith value is out of range', () {
         final dice = Dice(value: 3);
 
-        expect(() => dice.copyWith(value: 0), throwsA(isA<AssertionError>()));
+        expect(() => dice.copyWith(value: -1), throwsA(isA<AssertionError>()));
         expect(() => dice.copyWith(value: 7), throwsA(isA<AssertionError>()));
       });
     });

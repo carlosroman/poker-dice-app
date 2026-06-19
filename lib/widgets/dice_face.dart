@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 /// A [CustomPainter] that draws the pips (dots) for a standard dice face.
 ///
-/// Supports values from 1 to 6 with standard pip positions.
+/// Supports values from 0 to 6. Value 0 renders a blank face (no pips).
 class _DiceFacePainter extends CustomPainter {
-  /// The face value to draw (1-6).
+  /// The face value to draw (0-6). Value 0 = blank (no pips).
   final int value;
 
   /// The color of the pips.
@@ -17,7 +17,7 @@ class _DiceFacePainter extends CustomPainter {
     required this.value,
     required this.pipColor,
     required this.pipRadius,
-  }) : assert(value >= 1 && value <= 6);
+  }) : assert(value >= 0 && value <= 6);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -56,6 +56,8 @@ class _DiceFacePainter extends CustomPainter {
     required Offset midRight,
   }) {
     switch (value) {
+      case 0:
+        return [];
       case 1:
         return [center];
       case 2:
@@ -83,7 +85,8 @@ class _DiceFacePainter extends CustomPainter {
 
 /// A widget that renders a standard dice face using [CustomPaint].
 ///
-/// Draws pips (dots) for values 1-6 in standard positions.
+/// Draws pips (dots) for values 1-6 in standard positions. Value 0 renders
+/// a blank face with no pips.
 /// No image assets are used; everything is drawn programmatically.
 ///
 /// Example:
@@ -91,7 +94,7 @@ class _DiceFacePainter extends CustomPainter {
 /// DiceFace(value: 5, size: 64.0, pipColor: Colors.white)
 /// ```
 class DiceFace extends StatelessWidget {
-  /// The face value to display (1-6).
+  /// The face value to display (0-6). Value 0 = blank (no pips).
   final int value;
 
   /// The overall size (width and height) of the dice face.
@@ -107,7 +110,7 @@ class DiceFace extends StatelessWidget {
 
   /// Creates a [DiceFace] widget.
   ///
-  /// The [value] must be between 1 and 6 inclusive.
+  /// The [value] must be between 0 and 6 inclusive. Value 0 renders blank.
   /// The [size] must be positive.
   const DiceFace({
     super.key,
@@ -115,7 +118,7 @@ class DiceFace extends StatelessWidget {
     this.size = 48.0,
     this.pipColor = Colors.white,
     this.pipRadiusFraction = 0.12,
-  }) : assert(value >= 1 && value <= 6),
+  }) : assert(value >= 0 && value <= 6),
        assert(size > 0);
 
   @override

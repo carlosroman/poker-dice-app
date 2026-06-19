@@ -302,8 +302,9 @@ void main() {
       expect(find.text('Game Complete!'), findsNothing);
     });
 
-    testWidgets('View Scoreboard button is visible when game is completed',
-        (tester) async {
+    testWidgets('View Scoreboard button is visible when game is completed', (
+      tester,
+    ) async {
       final completedState = buildGameState(
         status: GameStatus.completed,
         scoredCategories: {for (final c in ScoreCategory.values) c: 0},
@@ -313,8 +314,9 @@ void main() {
       expect(find.text('View Scoreboard'), findsOneWidget);
     });
 
-    testWidgets('View Scoreboard button is hidden when game is active',
-        (tester) async {
+    testWidgets('View Scoreboard button is hidden when game is active', (
+      tester,
+    ) async {
       final activeState = buildGameState(status: GameStatus.active);
       await tester.pumpWidget(buildGamePage(gameState: activeState));
 
@@ -325,16 +327,18 @@ void main() {
     // Score Button
     // -----------------------------------------------------------------------
 
-    testWidgets('score button is invisible when no category selected',
-        (tester) async {
+    testWidgets('score button is invisible when no category selected', (
+      tester,
+    ) async {
       final state = buildGameState(status: GameStatus.active);
       await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.text('Score'), findsNothing);
     });
 
-    testWidgets('score button is visible when category is selected',
-        (tester) async {
+    testWidgets('score button is visible when category is selected', (
+      tester,
+    ) async {
       final state = buildGameState(
         status: GameStatus.active,
         selectedCategory: ScoreCategory.aces,

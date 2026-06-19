@@ -32,7 +32,7 @@ class GameNotifier extends StateNotifier<GameState> {
   final Ref? ref;
 
   GameNotifier({this.ref, GameState? initialState})
-      : super(initialState ?? GameState()) {
+    : super(initialState ?? GameState()) {
     // Only reset turn when creating a fresh game, not when an initial state
     // is explicitly provided (e.g. for testing).
     if (initialState == null) {
@@ -180,7 +180,7 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Resets dice and rolls for a new turn.
   void _resetTurn() {
     state = state.copyWith(
-      currentDice: List.generate(5, (_) => Dice(value: 1)),
+      currentDice: List.generate(5, (_) => Dice(value: 0)),
       rollsRemaining: 3,
     );
   }
@@ -193,7 +193,9 @@ class GameNotifier extends StateNotifier<GameState> {
   void _autoSave(GameState gameState) {
     if (gameState.status != GameStatus.completed || ref == null) return;
 
-    ref!.read(scoreboardProvider.notifier).addResult(
+    ref!
+        .read(scoreboardProvider.notifier)
+        .addResult(
           GameResult(
             totalScore: gameState.totalScore,
             upperSectionTotal: gameState.upperSectionTotal,

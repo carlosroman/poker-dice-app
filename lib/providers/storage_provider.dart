@@ -13,7 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Initializes [SharedPreferences] asynchronously and creates
 /// a [StorageService] instance.
-final storageServiceProvider = FutureProvider<StorageServiceInterface>((ref) async {
+final storageServiceProvider = FutureProvider<StorageServiceInterface>((
+  ref,
+) async {
   final prefs = await SharedPreferences.getInstance();
   return StorageService(prefs: prefs);
 });
@@ -109,5 +111,5 @@ class ScoreboardNotifier extends StateNotifier<ScoreboardState> {
 /// Provider that exposes the [ScoreboardNotifier].
 final scoreboardProvider =
     StateNotifierProvider<ScoreboardNotifier, ScoreboardState>(
-  (ref) => ScoreboardNotifier(ref: ref),
-);
+      (ref) => ScoreboardNotifier(ref: ref),
+    );

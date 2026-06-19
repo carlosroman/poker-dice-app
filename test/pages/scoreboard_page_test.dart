@@ -146,11 +146,7 @@ void main() {
         ),
       ];
       await tester.pumpWidget(
-        buildScoreboard(
-          gameResults: results,
-          gamesPlayed: 5,
-          highScore: 300,
-        ),
+        buildScoreboard(gameResults: results, gamesPlayed: 5, highScore: 300),
       );
 
       expect(find.text('5'), findsOneWidget);
@@ -236,139 +232,132 @@ void main() {
   });
 
   group('ScoreboardPage with Riverpod', () {
-    testWidgets(
-      'shows provider data when no constructor data provided',
-      (tester) async {
-        final results = [
-          GameResult(
-            totalScore: 150,
-            upperSectionTotal: 50,
-            bonus: 0,
-            completedAt: DateTime(2024, 3, 10),
-          ),
-        ];
+    testWidgets('shows provider data when no constructor data provided', (
+      tester,
+    ) async {
+      final results = [
+        GameResult(
+          totalScore: 150,
+          upperSectionTotal: 50,
+          bonus: 0,
+          completedAt: DateTime(2024, 3, 10),
+        ),
+      ];
 
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              storageServiceProvider.overrideWith(
-                (ref) => Future.value(_FakeStorageService()),
-              ),
-              scoreboardProvider.overrideWith(
-                (ref) => ScoreboardNotifier(ref: ref)
-                  ..state = ScoreboardState(
-                    gameResults: results,
-                    gamesPlayed: 3,
-                    highScore: 150,
-                  ),
-              ),
-            ],
-            child: const MaterialApp(
-              home: ScoreboardPage(),
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            storageServiceProvider.overrideWith(
+              (ref) => Future.value(_FakeStorageService()),
             ),
-          ),
-        );
-
-        expect(find.text('Score: 150'), findsOneWidget);
-        expect(find.text('3'), findsOneWidget);
-        expect(find.text('150'), findsNWidgets(2)); // score + high score
-      },
-    );
-
-    testWidgets(
-      'constructor data takes precedence over provider data',
-      (tester) async {
-        final providerResults = [
-          GameResult(
-            totalScore: 100,
-            upperSectionTotal: 30,
-            bonus: 0,
-            completedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-        final constructorResults = [
-          GameResult(
-            totalScore: 999,
-            upperSectionTotal: 99,
-            bonus: 99,
-            completedAt: DateTime(2024, 6, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              storageServiceProvider.overrideWith(
-                (ref) => Future.value(_FakeStorageService()),
-              ),
-              scoreboardProvider.overrideWith(
-                (ref) => ScoreboardNotifier(ref: ref)
-                  ..state = ScoreboardState(
-                    gameResults: providerResults,
-                    gamesPlayed: 1,
-                    highScore: 100,
-                  ),
-              ),
-            ],
-            child: MaterialApp(
-              home: ScoreboardPage(
-                gameResults: constructorResults,
-                gamesPlayed: 42,
-                highScore: 999,
-              ),
-            ),
-          ),
-        );
-
-        expect(find.text('Score: 999'), findsOneWidget);
-        expect(find.text('Score: 100'), findsNothing);
-        expect(find.text('42'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'clear button calls notifier clearHistory when no callback',
-      (tester) async {
-        final results = [
-          GameResult(
-            totalScore: 200,
-            upperSectionTotal: 60,
-            bonus: 10,
-            completedAt: DateTime(2024, 5, 5),
-          ),
-        ];
-        bool clearCalled = false;
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              storageServiceProvider.overrideWith(
-                (ref) => Future.value(_FakeStorageService()),
-              ),
-              scoreboardProvider.overrideWith(
-                (ref) => _TestScoreboardNotifier(
-                  ref: ref,
-                  initialState: ScoreboardState(
-                    gameResults: results,
-                    gamesPlayed: 1,
-                    highScore: 200,
-                  ),
-                  onClear: () => clearCalled = true,
+            scoreboardProvider.overrideWith(
+              (ref) => ScoreboardNotifier(ref: ref)
+                ..state = ScoreboardState(
+                  gameResults: results,
+                  gamesPlayed: 3,
+                  highScore: 150,
                 ),
-              ),
-            ],
-            child: const MaterialApp(
-              home: ScoreboardPage(),
+            ),
+          ],
+          child: const MaterialApp(home: ScoreboardPage()),
+        ),
+      );
+
+      expect(find.text('Score: 150'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
+      expect(find.text('150'), findsNWidgets(2)); // score + high score
+    });
+
+    testWidgets('constructor data takes precedence over provider data', (
+      tester,
+    ) async {
+      final providerResults = [
+        GameResult(
+          totalScore: 100,
+          upperSectionTotal: 30,
+          bonus: 0,
+          completedAt: DateTime(2024, 1, 1),
+        ),
+      ];
+      final constructorResults = [
+        GameResult(
+          totalScore: 999,
+          upperSectionTotal: 99,
+          bonus: 99,
+          completedAt: DateTime(2024, 6, 1),
+        ),
+      ];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            storageServiceProvider.overrideWith(
+              (ref) => Future.value(_FakeStorageService()),
+            ),
+            scoreboardProvider.overrideWith(
+              (ref) => ScoreboardNotifier(ref: ref)
+                ..state = ScoreboardState(
+                  gameResults: providerResults,
+                  gamesPlayed: 1,
+                  highScore: 100,
+                ),
+            ),
+          ],
+          child: MaterialApp(
+            home: ScoreboardPage(
+              gameResults: constructorResults,
+              gamesPlayed: 42,
+              highScore: 999,
             ),
           ),
-        );
+        ),
+      );
 
-        await tester.tap(find.byIcon(Icons.delete_sweep));
-        await tester.pump();
+      expect(find.text('Score: 999'), findsOneWidget);
+      expect(find.text('Score: 100'), findsNothing);
+      expect(find.text('42'), findsOneWidget);
+    });
 
-        expect(clearCalled, isTrue);
-      },
-    );
+    testWidgets('clear button calls notifier clearHistory when no callback', (
+      tester,
+    ) async {
+      final results = [
+        GameResult(
+          totalScore: 200,
+          upperSectionTotal: 60,
+          bonus: 10,
+          completedAt: DateTime(2024, 5, 5),
+        ),
+      ];
+      bool clearCalled = false;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            storageServiceProvider.overrideWith(
+              (ref) => Future.value(_FakeStorageService()),
+            ),
+            scoreboardProvider.overrideWith(
+              (ref) => _TestScoreboardNotifier(
+                ref: ref,
+                initialState: ScoreboardState(
+                  gameResults: results,
+                  gamesPlayed: 1,
+                  highScore: 200,
+                ),
+                onClear: () => clearCalled = true,
+              ),
+            ),
+          ],
+          child: const MaterialApp(home: ScoreboardPage()),
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.delete_sweep));
+      await tester.pump();
+
+      expect(clearCalled, isTrue);
+    });
 
     testWidgets('shows loading indicator when provider is loading', (
       tester,
@@ -380,13 +369,12 @@ void main() {
               (ref) => Future.value(_FakeStorageService()),
             ),
             scoreboardProvider.overrideWith(
-              (ref) => ScoreboardNotifier(ref: ref)
-                ..state = const ScoreboardState(isLoading: true),
+              (ref) =>
+                  ScoreboardNotifier(ref: ref)
+                    ..state = const ScoreboardState(isLoading: true),
             ),
           ],
-          child: const MaterialApp(
-            home: ScoreboardPage(),
-          ),
+          child: const MaterialApp(home: ScoreboardPage()),
         ),
       );
 
@@ -403,13 +391,12 @@ void main() {
                 (ref) => Future.value(_FakeStorageService()),
               ),
               scoreboardProvider.overrideWith(
-                (ref) => ScoreboardNotifier(ref: ref)
-                  ..state = const ScoreboardState(),
+                (ref) =>
+                    ScoreboardNotifier(ref: ref)
+                      ..state = const ScoreboardState(),
               ),
             ],
-            child: const MaterialApp(
-              home: ScoreboardPage(),
-            ),
+            child: const MaterialApp(home: ScoreboardPage()),
           ),
         );
 
@@ -431,15 +418,9 @@ void main() {
     });
 
     test('copyWith creates correct copy', () {
-      const state = ScoreboardState(
-        gamesPlayed: 5,
-        highScore: 300,
-      );
+      const state = ScoreboardState(gamesPlayed: 5, highScore: 300);
 
-      final updated = state.copyWith(
-        gamesPlayed: 10,
-        isLoading: true,
-      );
+      final updated = state.copyWith(gamesPlayed: 10, isLoading: true);
 
       expect(updated.gamesPlayed, equals(10));
       expect(updated.highScore, equals(300));
@@ -610,9 +591,8 @@ class _FakeStorageService implements StorageServiceInterface {
   }
 
   @override
-  Future<List<GameResult>> loadGameResults() async => List.unmodifiable(
-    gameResults,
-  );
+  Future<List<GameResult>> loadGameResults() async =>
+      List.unmodifiable(gameResults);
 
   @override
   Future<int?> getHighScore() async => highScore;

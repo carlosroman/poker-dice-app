@@ -28,8 +28,8 @@ void main() {
       expect(sizedBox.height, 48.0);
     });
 
-    testWidgets('throws assertion for value less than 1', (tester) async {
-      expect(() => DiceFace(value: 0), throwsA(isA<AssertionError>()));
+    testWidgets('throws assertion for value less than 0', (tester) async {
+      expect(() => DiceFace(value: -1), throwsA(isA<AssertionError>()));
       expect(() => DiceFace(value: -5), throwsA(isA<AssertionError>()));
     });
 
@@ -47,7 +47,7 @@ void main() {
     });
 
     group('all valid values render', () {
-      for (final value in Iterable<int>.generate(6, (i) => i + 1)) {
+      for (final value in Iterable<int>.generate(7, (i) => i)) {
         testWidgets('value $value renders without error', (tester) async {
           await tester.pumpWidget(MaterialApp(home: DiceFace(value: value)));
 
@@ -92,6 +92,36 @@ void main() {
       final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
       expect(sizedBox.width, 80.0);
       expect(sizedBox.height, 80.0);
+    });
+
+    group('blank dice (value 0)', () {
+      testWidgets('renders blank dice without error', (tester) async {
+        await tester.pumpWidget(const MaterialApp(home: DiceFace(value: 0)));
+
+        expect(find.byType(DiceFace), findsOneWidget);
+      });
+
+      testWidgets('blank dice renders with CustomPaint', (tester) async {
+        await tester.pumpWidget(const MaterialApp(home: DiceFace(value: 0)));
+
+        expect(find.byType(CustomPaint), findsWidgets);
+      });
+
+      testWidgets('blank dice respects custom size', (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(home: DiceFace(value: 0, size: 80.0)),
+        );
+
+        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        expect(sizedBox.width, 80.0);
+        expect(sizedBox.height, 80.0);
+      });
+
+      testWidgets('blank dice supports const constructor', (tester) async {
+        const DiceFace dice = DiceFace(value: 0);
+        expect(dice.value, 0);
+        expect(dice.size, 48.0);
+      });
     });
 
     testWidgets('renders multiple dice faces', (tester) async {

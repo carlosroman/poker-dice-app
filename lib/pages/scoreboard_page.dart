@@ -54,9 +54,7 @@ class ScoreboardPage extends ConsumerWidget {
     // Load data from storage if not already loaded (deferred to avoid
     // modifying provider state during build)
     if (providerState.gameResults.isEmpty && gameResults == null) {
-      Future.microtask(
-        () => ref.read(scoreboardProvider.notifier).loadData(),
-      );
+      Future.microtask(() => ref.read(scoreboardProvider.notifier).loadData());
     }
 
     // Use constructor data if provided, otherwise use provider state
@@ -95,8 +93,8 @@ class ScoreboardPage extends ConsumerWidget {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : results.isEmpty
-              ? const Center(child: Text('No games played yet'))
-              : _buildContent(context, results, played, score),
+          ? const Center(child: Text('No games played yet'))
+          : _buildContent(context, results, played, score),
     );
   }
 
@@ -178,9 +176,7 @@ class _GameResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(
-        child: Text('${result.totalScore}'),
-      ),
+      leading: CircleAvatar(child: Text('${result.totalScore}')),
       title: Text('Score: ${result.totalScore}'),
       subtitle: Text(
         'Upper: ${result.upperSectionTotal} | Bonus: ${result.bonus}',
