@@ -5,7 +5,6 @@ description: Code review and quality assurance subagent. The main coding agent s
 disable: false
 permission:
   "dart-mcp-server_*": allow
-  bash: deny
   doom_loop: allow
   edit: deny
   external_directory: deny
@@ -16,6 +15,18 @@ permission:
   read: allow
   task: allow
   todowrite: allow
+  bash:
+    "*": deny
+    "fluter drive *": allow
+    "fluter drive *": allow
+    "make *": allow
+    "make *": allow
+    "make */**": allow
+    "rtk grep *": allow
+    "rtk grep *": allow
+    "rtk make *": allow
+    "rtk make */*": allow
+    "rtk make */**": allow
 ---
 
 ## Responsibility
