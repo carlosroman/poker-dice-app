@@ -55,25 +55,30 @@ class CategoryRow extends StatelessWidget {
     final theme = Theme.of(context);
     final isEnabled = state == CategoryRowState.selectable;
 
-    return GestureDetector(
+    return InkWell(
       onTap: isEnabled ? onTap : null,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: _buildDecoration(theme),
-        child: Row(
-          children: [
-            Icon(category.icon, color: _iconColor(theme)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                category.displayName,
-                style: _textStyle(theme),
-                overflow: TextOverflow.ellipsis,
+      borderRadius: BorderRadius.circular(8),
+      child: Semantics(
+        label: category.displayName,
+        button: true,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: _buildDecoration(theme),
+          child: Row(
+            children: [
+              Icon(category.icon, color: _iconColor(theme)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  category.displayName,
+                  style: _textStyle(theme),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            _buildScore(theme),
-          ],
+              const SizedBox(width: 8),
+              _buildScore(theme),
+            ],
+          ),
         ),
       ),
     );

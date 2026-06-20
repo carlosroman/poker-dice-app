@@ -75,6 +75,35 @@ void main() {
       expect(tapped, isTrue);
     });
 
+    testWidgets('CategoryRow onTap callback is called when tapped', (tester) async {
+      bool onTapCalled = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CategoryRow(
+              category: ScoreCategory.chance,
+              state: CategoryRowState.selectable,
+              previewScore: 10,
+              onTap: () {
+                onTapCalled = true;
+              },
+            ),
+          ),
+        ),
+      );
+
+      // Find and tap the CategoryRow
+      final categoryRowFinder = find.byType(CategoryRow);
+      expect(categoryRowFinder, findsOneWidget);
+
+      await tester.tap(categoryRowFinder);
+      await tester.pumpAndSettle();
+
+      // Verify the onTap callback was called
+      expect(onTapCalled, isTrue);
+    });
+
     testWidgets('selectable state with no onTap does not crash', (
       tester,
     ) async {
