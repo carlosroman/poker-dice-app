@@ -77,6 +77,7 @@ class _GamePageContent extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         leading: onBackTap != null
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -135,7 +136,12 @@ class _GamePageContent extends ConsumerWidget {
                 if (gameState.selectedCategory != null)
                   const SizedBox(height: 8),
                 // Roll button
-                _buildRollButton(context, gameState.rollsRemaining, gameState.currentDice, notifier),
+                _buildRollButton(
+                  context,
+                  gameState.rollsRemaining,
+                  gameState.currentDice,
+                  notifier,
+                ),
               ],
             ),
           ),
