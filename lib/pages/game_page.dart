@@ -152,18 +152,20 @@ class _GamePageContent extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           '$totalScore',
-          style: theme.textTheme.headlineSmall?.copyWith(
+          style: theme.textTheme.displayLarge?.copyWith(
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         Text(
           'You',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: Colors.white.withValues(alpha: 0.9),
           ),
         ),
       ],
