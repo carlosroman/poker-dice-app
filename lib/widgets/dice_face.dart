@@ -101,7 +101,7 @@ class DiceFace extends StatelessWidget {
   /// The overall size (width and height) of the dice face.
   final double size;
 
- /// The color of the pips.
+  /// The color of the pips.
   ///
   /// When `null`, the color is derived from the theme brightness:
   /// black for light themes, white for dark themes.
@@ -123,11 +123,12 @@ class DiceFace extends StatelessWidget {
     this.pipColor,
     this.pipRadiusFraction = 0.12,
   }) : assert(value >= 0 && value <= 6),
-        assert(size > 0);
+       assert(size > 0);
 
   @override
   Widget build(BuildContext context) {
-    final resolvedPipColor = pipColor ??
+    final resolvedPipColor =
+        pipColor ??
         (Theme.of(context).brightness == Brightness.light
             ? Colors.black
             : Colors.white);

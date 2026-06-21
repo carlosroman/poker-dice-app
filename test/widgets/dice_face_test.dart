@@ -146,8 +146,8 @@ void main() {
     group('theme-aware pip color', () {
       Finder findDiceFacePainter() {
         return find.byWidgetPredicate(
-          (widget) => widget is CustomPaint &&
-              widget.painter is DiceFacePainter,
+          (widget) =>
+              widget is CustomPaint && widget.painter is DiceFacePainter,
         );
       }
 
@@ -159,9 +159,9 @@ void main() {
           ),
         );
 
-        final painter = tester.widget<CustomPaint>(
-          findDiceFacePainter(),
-        ).painter as DiceFacePainter;
+        final painter =
+            tester.widget<CustomPaint>(findDiceFacePainter()).painter
+                as DiceFacePainter;
         expect(painter.pipColor, Colors.black);
       });
 
@@ -173,9 +173,9 @@ void main() {
           ),
         );
 
-        final painter = tester.widget<CustomPaint>(
-          findDiceFacePainter(),
-        ).painter as DiceFacePainter;
+        final painter =
+            tester.widget<CustomPaint>(findDiceFacePainter()).painter
+                as DiceFacePainter;
         expect(painter.pipColor, Colors.white);
       });
 
@@ -187,9 +187,9 @@ void main() {
           ),
         );
 
-        final painter = tester.widget<CustomPaint>(
-          findDiceFacePainter(),
-        ).painter as DiceFacePainter;
+        final painter =
+            tester.widget<CustomPaint>(findDiceFacePainter()).painter
+                as DiceFacePainter;
         expect(painter.pipColor, Colors.amber);
       });
     });

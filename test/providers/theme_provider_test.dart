@@ -156,10 +156,7 @@ void main() {
     test('light theme has light blue surface', () {
       final themeData = notifier.themeData;
 
-      expect(
-        themeData.colorScheme.surface.toARGB32(),
-        equals(0xFFE3F2FD),
-      );
+      expect(themeData.colorScheme.surface.toARGB32(), equals(0xFFE3F2FD));
     });
   });
 

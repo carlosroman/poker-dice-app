@@ -53,8 +53,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
       brightness: Brightness.light,
       colorScheme: base.copyWith(
         surface: const Color(0xFFE3F2FD), // light blue surface
-        surfaceContainerHighest:
-            const Color(0xFF0D47A1), // dark blue dice area
+        surfaceContainerHighest: const Color(0xFF0D47A1), // dark blue dice area
       ),
     );
   }
