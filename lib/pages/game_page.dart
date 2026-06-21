@@ -130,17 +130,29 @@ class _GamePageContent extends ConsumerWidget {
                 // Dice area
                 _buildDiceArea(context, gameState.currentDice, notifier),
                 const SizedBox(height: 16),
-                // Score confirmation button
-                if (gameState.selectedCategory != null)
-                  _buildScoreButton(context, notifier, gameState.currentDice),
-                if (gameState.selectedCategory != null)
-                  const SizedBox(height: 8),
-                // Roll button
-                _buildRollButton(
-                  context,
-                  gameState.rollsRemaining,
-                  gameState.currentDice,
-                  notifier,
+                // Buttons row (Roll + Score side by side)
+                Row(
+                  children: [
+                    // Roll button (left)
+                    Expanded(
+                      child: _buildRollButton(
+                        context,
+                        gameState.rollsRemaining,
+                        gameState.currentDice,
+                        notifier,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Score button (right, only when category selected)
+                    if (gameState.selectedCategory != null)
+                      Expanded(
+                        child: _buildScoreButton(
+                          context,
+                          notifier,
+                          gameState.currentDice,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -219,17 +231,14 @@ class _GamePageContent extends ConsumerWidget {
   ) {
     final bool diceRolled = dice.any((die) => die.value > 0);
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: diceRolled ? notifier.confirmScore : null,
-        icon: const Icon(Icons.check),
-        label: const Text('Score'),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+    return ElevatedButton.icon(
+      onPressed: diceRolled ? notifier.confirmScore : null,
+      icon: const Icon(Icons.check),
+      label: const Text('Score'),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
@@ -242,12 +251,9 @@ class _GamePageContent extends ConsumerWidget {
     List<Dice> dice,
     GameNotifier notifier,
   ) {
-    return SizedBox(
-      width: double.infinity,
-      child: RollButton(
-        rollsRemaining: rollsRemaining,
-        onPressed: () => onRoll(notifier, dice),
-      ),
+    return RollButton(
+      rollsRemaining: rollsRemaining,
+      onPressed: () => onRoll(notifier, dice),
     );
   }
 
