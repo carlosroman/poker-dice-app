@@ -37,11 +37,13 @@ class _GamePageState extends State<GamePage> {
     (_) => GlobalKey<AnimatedDiceState>(),
   );
 
-  /// Rolls dice and triggers tumble animation on each die.
-  void _onRoll(GameNotifier notifier) {
+  /// Rolls dice and triggers tumble animation only on non-held dice.
+  void _onRoll(GameNotifier notifier, List<Dice> dice) {
     notifier.rollDice();
-    for (final key in _dieKeys) {
-      key.currentState?.animate();
+    for (var i = 0; i < dice.length; i++) {
+      if (!dice[i].isHeld) {
+        _dieKeys[i].currentState?.animate();
+      }
     }
   }
 
@@ -59,7 +61,7 @@ class _GamePageState extends State<GamePage> {
 class _GamePageContent extends ConsumerWidget {
   final VoidCallback? onBackTap;
   final List<GlobalKey<AnimatedDiceState>> dieKeys;
-  final void Function(GameNotifier) onRoll;
+  final void Function(GameNotifier, List<Dice>) onRoll;
 
   const _GamePageContent({
     required this.onBackTap,
@@ -133,7 +135,7 @@ class _GamePageContent extends ConsumerWidget {
                 if (gameState.selectedCategory != null)
                   const SizedBox(height: 8),
                 // Roll button
-                _buildRollButton(context, gameState.rollsRemaining, notifier),
+                _buildRollButton(context, gameState.rollsRemaining, gameState.currentDice, notifier),
               ],
             ),
           ),
@@ -222,13 +224,14 @@ class _GamePageContent extends ConsumerWidget {
   Widget _buildRollButton(
     BuildContext context,
     int rollsRemaining,
+    List<Dice> dice,
     GameNotifier notifier,
   ) {
     return SizedBox(
       width: double.infinity,
       child: RollButton(
         rollsRemaining: rollsRemaining,
-        onPressed: () => onRoll(notifier),
+        onPressed: () => onRoll(notifier, dice),
       ),
     );
   }
