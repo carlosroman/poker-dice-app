@@ -181,7 +181,7 @@ class _GamePageContent extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16.0),
@@ -191,11 +191,11 @@ class _GamePageContent extends ConsumerWidget {
         children: List.generate(
           dice.length,
           (index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 2.0),
             child: AnimatedDice(
               key: dieKeys[index],
               dice: dice[index],
-              size: 56.0,
+              size: 112.0,
               onTap: () => notifier.toggleHold(index),
             ),
           ),
