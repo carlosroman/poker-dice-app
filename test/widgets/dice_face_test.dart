@@ -77,7 +77,7 @@ void main() {
       const DiceFace dice = DiceFace(value: 1);
       expect(dice.value, 1);
       expect(dice.size, 48.0);
-      expect(dice.pipColor, Colors.white);
+      expect(dice.pipColor, isNull); // derived from theme brightness
       expect(dice.pipRadiusFraction, 0.12);
     });
 
@@ -141,6 +141,57 @@ void main() {
       );
 
       expect(find.byType(DiceFace), findsNWidgets(3));
+    });
+
+    group('theme-aware pip color', () {
+      Finder findDiceFacePainter() {
+        return find.byWidgetPredicate(
+          (widget) => widget is CustomPaint &&
+              widget.painter is DiceFacePainter,
+        );
+      }
+
+      testWidgets('uses black pips in light theme', (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(brightness: Brightness.light),
+            home: const DiceFace(value: 3),
+          ),
+        );
+
+        final painter = tester.widget<CustomPaint>(
+          findDiceFacePainter(),
+        ).painter as DiceFacePainter;
+        expect(painter.pipColor, Colors.black);
+      });
+
+      testWidgets('uses white pips in dark theme', (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(brightness: Brightness.dark),
+            home: const DiceFace(value: 3),
+          ),
+        );
+
+        final painter = tester.widget<CustomPaint>(
+          findDiceFacePainter(),
+        ).painter as DiceFacePainter;
+        expect(painter.pipColor, Colors.white);
+      });
+
+      testWidgets('explicit pipColor overrides theme', (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(brightness: Brightness.light),
+            home: const DiceFace(value: 3, pipColor: Colors.amber),
+          ),
+        );
+
+        final painter = tester.widget<CustomPaint>(
+          findDiceFacePainter(),
+        ).painter as DiceFacePainter;
+        expect(painter.pipColor, Colors.amber);
+      });
     });
   });
 }

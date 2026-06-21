@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 /// A [CustomPainter] that draws the pips (dots) for a standard dice face.
 ///
 /// Supports values from 0 to 6. Value 0 renders a blank face (no pips).
-class _DiceFacePainter extends CustomPainter {
+/// Exposed for testing purposes.
+class DiceFacePainter extends CustomPainter {
   /// The face value to draw (0-6). Value 0 = blank (no pips).
   final int value;
 
@@ -13,7 +14,7 @@ class _DiceFacePainter extends CustomPainter {
   /// The radius of each pip.
   final double pipRadius;
 
-  const _DiceFacePainter({
+  const DiceFacePainter({
     required this.value,
     required this.pipColor,
     required this.pipRadius,
@@ -76,7 +77,7 @@ class _DiceFacePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DiceFacePainter oldDelegate) {
+  bool shouldRepaint(DiceFacePainter oldDelegate) {
     return oldDelegate.value != value ||
         oldDelegate.pipColor != pipColor ||
         oldDelegate.pipRadius != pipRadius;
@@ -100,8 +101,11 @@ class DiceFace extends StatelessWidget {
   /// The overall size (width and height) of the dice face.
   final double size;
 
-  /// The color of the pips.
-  final Color pipColor;
+ /// The color of the pips.
+  ///
+  /// When `null`, the color is derived from the theme brightness:
+  /// black for light themes, white for dark themes.
+  final Color? pipColor;
 
   /// The radius of each pip, as a fraction of the dice [size].
   ///
@@ -116,20 +120,24 @@ class DiceFace extends StatelessWidget {
     super.key,
     required this.value,
     this.size = 48.0,
-    this.pipColor = Colors.white,
+    this.pipColor,
     this.pipRadiusFraction = 0.12,
   }) : assert(value >= 0 && value <= 6),
-       assert(size > 0);
+        assert(size > 0);
 
   @override
   Widget build(BuildContext context) {
+    final resolvedPipColor = pipColor ??
+        (Theme.of(context).brightness == Brightness.light
+            ? Colors.black
+            : Colors.white);
     return SizedBox(
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _DiceFacePainter(
+        painter: DiceFacePainter(
           value: value,
-          pipColor: pipColor,
+          pipColor: resolvedPipColor,
           pipRadius: size * pipRadiusFraction,
         ),
       ),

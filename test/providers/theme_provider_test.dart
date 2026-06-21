@@ -143,6 +143,24 @@ void main() {
 
       expect(themeData.colorScheme.secondary.toARGB32(), equals(0xFFFFC107));
     });
+
+    test('light theme has dark blue surfaceContainerHighest for dice area', () {
+      final themeData = notifier.themeData;
+
+      expect(
+        themeData.colorScheme.surfaceContainerHighest.toARGB32(),
+        equals(0xFF0D47A1),
+      );
+    });
+
+    test('light theme has light blue surface', () {
+      final themeData = notifier.themeData;
+
+      expect(
+        themeData.colorScheme.surface.toARGB32(),
+        equals(0xFFE3F2FD),
+      );
+    });
   });
 
   // -----------------------------------------------------------------------

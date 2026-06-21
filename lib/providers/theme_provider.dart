@@ -38,15 +38,26 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   ThemeData get themeData => (state == ThemeMode.dark) ? darkTheme : lightTheme;
 
   /// Light theme with deep blue primary and amber accents.
-  static ThemeData get lightTheme => ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1565C0), // deep blue
+  ///
+  /// Uses a darker seed color and explicit surface colors to ensure
+  /// the dice area has a dark blue background with high contrast
+  /// against white dice faces and black pips.
+  static ThemeData get lightTheme {
+    final base = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF0D47A1), // darker blue for contrast
       brightness: Brightness.light,
       secondary: const Color(0xFFFFC107), // amber
-    ),
-  );
+    );
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: base.copyWith(
+        surface: const Color(0xFFE3F2FD), // light blue surface
+        surfaceContainerHighest:
+            const Color(0xFF0D47A1), // dark blue dice area
+      ),
+    );
+  }
 
   /// Dark theme with deep blue primary and amber accents.
   static ThemeData get darkTheme => ThemeData(
