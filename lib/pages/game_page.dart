@@ -77,6 +77,7 @@ class _GamePageContent extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         centerTitle: true,
         leading: onBackTap != null
             ? IconButton(
@@ -175,7 +176,7 @@ class _GamePageContent extends ConsumerWidget {
       children: [
         Text(
           '$totalScore',
-          style: theme.textTheme.displayLarge?.copyWith(
+          style: theme.textTheme.headlineLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -237,9 +238,7 @@ class _GamePageContent extends ConsumerWidget {
       label: const Text('Score'),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
