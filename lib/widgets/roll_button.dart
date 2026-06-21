@@ -44,7 +44,7 @@ class RollButton extends StatelessWidget {
           // Label
           Text(
             label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 8),
           // Rolls remaining badge
@@ -59,7 +59,7 @@ class RollButton extends StatelessWidget {
             child: Text(
               '$rollsRemaining',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: isEnabled ? Colors.white : Colors.grey,
               ),

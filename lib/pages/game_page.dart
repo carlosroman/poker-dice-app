@@ -235,7 +235,10 @@ class _GamePageContent extends ConsumerWidget {
     return ElevatedButton.icon(
       onPressed: diceRolled ? notifier.confirmScore : null,
       icon: const Icon(Icons.check),
-      label: const Text('Score'),
+      label: const Text(
+        'Score',
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
