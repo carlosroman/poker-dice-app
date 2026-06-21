@@ -350,12 +350,14 @@ void main() {
       // Score button should be visible but disabled
       expect(find.text('Score'), findsOneWidget);
       expect(
-        tester.widget<ElevatedButton>(
-          find.ancestor(
-            of: find.text('Score'),
-            matching: find.byType(ElevatedButton),
-          ),
-        ).onPressed,
+        tester
+            .widget<ElevatedButton>(
+              find.ancestor(
+                of: find.text('Score'),
+                matching: find.byType(ElevatedButton),
+              ),
+            )
+            .onPressed,
         isNull,
       );
     });
@@ -379,12 +381,14 @@ void main() {
       // Score button should be visible and enabled
       expect(find.text('Score'), findsOneWidget);
       expect(
-        tester.widget<ElevatedButton>(
-          find.ancestor(
-            of: find.text('Score'),
-            matching: find.byType(ElevatedButton),
-          ),
-        ).onPressed,
+        tester
+            .widget<ElevatedButton>(
+              find.ancestor(
+                of: find.text('Score'),
+                matching: find.byType(ElevatedButton),
+              ),
+            )
+            .onPressed,
         isNotNull,
       );
     });
@@ -408,12 +412,14 @@ void main() {
 
       expect(find.text('Score'), findsOneWidget);
       expect(
-        tester.widget<ElevatedButton>(
-          find.ancestor(
-            of: find.text('Score'),
-            matching: find.byType(ElevatedButton),
-          ),
-        ).onPressed,
+        tester
+            .widget<ElevatedButton>(
+              find.ancestor(
+                of: find.text('Score'),
+                matching: find.byType(ElevatedButton),
+              ),
+            )
+            .onPressed,
         isNotNull,
       );
     });
