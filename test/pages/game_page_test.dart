@@ -388,5 +388,51 @@ void main() {
       expect(state.selectedCategory, isNull);
       expect(find.text('Score'), findsNothing);
     });
+
+    // -----------------------------------------------------------------------
+    // Regression: unscored categories remain selectable
+    // -----------------------------------------------------------------------
+
+    testWidgets(
+      'unscored categories are selectable when some categories are scored',
+      (tester) async {
+        // Regression test: when some categories have scores, unscored
+        // categories must still be tappable. Previously, GamePage passed
+        // all 13 categories (including nulls as 0) to ScoreSheet, causing
+        // every row to appear "scored" and unselectable.
+        final notifier = GameNotifier(
+          initialState: buildGameState(
+            status: GameStatus.active,
+            scoredCategories: {
+              ScoreCategory.aces: 5,
+              ScoreCategory.twos: 4,
+            },
+          ),
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [gameProvider.overrideWith((ref) => notifier)],
+            child: MaterialApp(
+              theme: ThemeNotifier.lightTheme,
+              home: const GamePage(),
+            ),
+          ),
+        );
+
+        // ScoreSheet should be present
+        expect(find.byType(ScoreSheet), findsOneWidget);
+
+        // Tap an unscored category (Chance)
+        await tester.tap(find.text('Chance'));
+        await tester.pumpAndSettle();
+
+        // Tapping unscored category should select it for preview
+        final state = notifier.state;
+        expect(state.selectedCategory, ScoreCategory.chance);
+
+        // Score button should appear
+        expect(find.text('Score'), findsOneWidget);
+      },
+    );
   });
 }
