@@ -1,0 +1,4 @@
+---
+server:
+  host: "0.0.0.0" # Defines the binding address <string>
+  port: 9080 # Specifies the port <int> for the development server
