@@ -336,6 +336,85 @@ void main() {
       expect(find.text('Score'), findsNothing);
     });
 
+    testWidgets(
+      'score button is disabled when dice have not been rolled',
+      (tester) async {
+        // Dice start with value 0 (blank) — button should be disabled
+        final unrolledDice = List.generate(
+          5,
+          (_) => const Dice(value: 0),
+        );
+        final state = buildGameState(
+          dice: unrolledDice,
+          selectedCategory: ScoreCategory.aces,
+        );
+        await tester.pumpWidget(buildGamePage(gameState: state));
+
+        // Score button should be visible but disabled
+        expect(find.text('Score'), findsOneWidget);
+        expect(
+          tester.widget<ElevatedButton>(
+            find.byType(ElevatedButton).first,
+          ).onPressed,
+          isNull,
+        );
+      },
+    );
+
+    testWidgets(
+      'score button is enabled when dice have been rolled',
+      (tester) async {
+        final rolledDice = [
+          const Dice(value: 3),
+          const Dice(value: 1),
+          const Dice(value: 5),
+          const Dice(value: 2),
+          const Dice(value: 4),
+        ];
+        final state = buildGameState(
+          dice: rolledDice,
+          selectedCategory: ScoreCategory.aces,
+        );
+        await tester.pumpWidget(buildGamePage(gameState: state));
+
+        // Score button should be visible and enabled
+        expect(find.text('Score'), findsOneWidget);
+        expect(
+          tester.widget<ElevatedButton>(
+            find.byType(ElevatedButton).first,
+          ).onPressed,
+          isNotNull,
+        );
+      },
+    );
+
+    testWidgets(
+      'score button is enabled when at least one die has value > 0',
+      (tester) async {
+        // Only one die rolled — button should still be enabled
+        final partialDice = [
+          const Dice(value: 1),
+          const Dice(value: 0),
+          const Dice(value: 0),
+          const Dice(value: 0),
+          const Dice(value: 0),
+        ];
+        final state = buildGameState(
+          dice: partialDice,
+          selectedCategory: ScoreCategory.chance,
+        );
+        await tester.pumpWidget(buildGamePage(gameState: state));
+
+        expect(find.text('Score'), findsOneWidget);
+        expect(
+          tester.widget<ElevatedButton>(
+            find.byType(ElevatedButton).first,
+          ).onPressed,
+          isNotNull,
+        );
+      },
+    );
+
     testWidgets('score button is visible when category is selected', (
       tester,
     ) async {
@@ -359,8 +438,16 @@ void main() {
     });
 
     testWidgets('tapping score button confirms the score', (tester) async {
+      final rolledDice = [
+        const Dice(value: 1),
+        const Dice(value: 2),
+        const Dice(value: 3),
+        const Dice(value: 4),
+        const Dice(value: 5),
+      ];
       final notifier = GameNotifier(
         initialState: buildGameState(
+          dice: rolledDice,
           status: GameStatus.active,
           selectedCategory: ScoreCategory.aces,
         ),

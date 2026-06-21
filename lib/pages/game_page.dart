@@ -131,7 +131,7 @@ class _GamePageContent extends ConsumerWidget {
                 const SizedBox(height: 16),
                 // Score confirmation button
                 if (gameState.selectedCategory != null)
-                  _buildScoreButton(context, notifier),
+                  _buildScoreButton(context, notifier, gameState.currentDice),
                 if (gameState.selectedCategory != null)
                   const SizedBox(height: 8),
                 // Roll button
@@ -205,11 +205,18 @@ class _GamePageContent extends ConsumerWidget {
   }
 
   /// Builds the confirmation button to score the selected category.
-  Widget _buildScoreButton(BuildContext context, GameNotifier notifier) {
+  /// Disabled until at least one die has been rolled (value > 0).
+  Widget _buildScoreButton(
+    BuildContext context,
+    GameNotifier notifier,
+    List<Dice> dice,
+  ) {
+    final bool diceRolled = dice.any((die) => die.value > 0);
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: notifier.confirmScore,
+        onPressed: diceRolled ? notifier.confirmScore : null,
         icon: const Icon(Icons.check),
         label: const Text('Score'),
         style: ElevatedButton.styleFrom(
