@@ -3,18 +3,18 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:poker_dice/main.dart' as app;
-import 'package:poker_dice/widgets/dice_widget.dart';
+import 'package:poker_dice/widgets/animated_dice.dart';
 
 /// End-to-end integration test: dice hold mechanics and Chance scoring flow.
 ///
 /// Validates:
 /// 1. Dice are blank on start
 /// 2. Roll dice
-/// 3. Hold middle dice (key 'die-2')
+/// 3. Hold middle dice (index 2)
 /// 4. Roll again - middle dice unchanged
-/// 5. Hold last dice (key 'die-4')
+/// 5. Hold last dice (index 4)
 /// 6. Roll again - middle and last dice unchanged
-/// 7. Hold first dice (key 'die-0')
+/// 7. Hold first dice (index 0)
 /// 8. Roll again - first, middle, and last dice unchanged
 /// 9. Chance section shows score preview
 /// 10. Select "Chance" and score it
@@ -25,10 +25,13 @@ void main() {
     app.main();
     await tester.pumpAndSettle();
 
+    // Helper to find a specific die by index
+    Finder dieAt(int index) => find.byType(AnimatedDice).at(index);
+
     // 1. Check dice blank on start
-    expect(find.byType(DiceWidget), findsNWidgets(5));
+    expect(find.byType(AnimatedDice), findsNWidgets(5));
     for (int i = 0; i < 5; i++) {
-      final dieFinder = find.byKey(ValueKey('die-$i'));
+      final dieFinder = dieAt(i);
       expect(
         tester.getSemantics(dieFinder).label,
         contains('Die showing 0'),
@@ -40,13 +43,16 @@ void main() {
     await tester.tap(find.text('Roll'));
     await tester.pumpAndSettle();
 
-    // 3. Hold middle dice (die-2)
-    const middleKey = ValueKey('die-2');
-    final middleFinder = find.byKey(middleKey);
+    // 3. Hold middle dice (index 2)
+    final middleFinder = dieAt(2);
     final middleValue = _dieValueFromSemantics(
       tester.getSemantics(middleFinder),
     );
-    expect(middleValue >= 1 && middleValue <= 6, isTrue, reason: 'Middle die should have a value');
+    expect(
+      middleValue >= 1 && middleValue <= 6,
+      isTrue,
+      reason: 'Middle die should have a value',
+    );
 
     await tester.tap(middleFinder);
     await tester.pumpAndSettle();
@@ -63,16 +69,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      _dieValueFromSemantics(tester.getSemantics(middleFinder)),
+      _dieValueFromSemantics(tester.getSemantics(dieAt(2))),
       middleValue,
       reason: 'Middle die should not change when held',
     );
 
-    // 5. Hold last dice (die-4)
-    const lastKey = ValueKey('die-4');
-    final lastFinder = find.byKey(lastKey);
+    // 5. Hold last dice (index 4)
+    final lastFinder = dieAt(4);
     final lastValue = _dieValueFromSemantics(tester.getSemantics(lastFinder));
-    expect(lastValue >= 1 && lastValue <= 6, isTrue, reason: 'Last die should have a value');
+    expect(
+      lastValue >= 1 && lastValue <= 6,
+      isTrue,
+      reason: 'Last die should have a value',
+    );
 
     await tester.tap(lastFinder);
     await tester.pumpAndSettle();
@@ -89,21 +98,24 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      _dieValueFromSemantics(tester.getSemantics(middleFinder)),
+      _dieValueFromSemantics(tester.getSemantics(dieAt(2))),
       middleValue,
       reason: 'Middle die should not change when held',
     );
     expect(
-      _dieValueFromSemantics(tester.getSemantics(lastFinder)),
+      _dieValueFromSemantics(tester.getSemantics(dieAt(4))),
       lastValue,
       reason: 'Last die should not change when held',
     );
 
-    // 7. Hold first dice (die-0)
-    const firstKey = ValueKey('die-0');
-    final firstFinder = find.byKey(firstKey);
+    // 7. Hold first dice (index 0)
+    final firstFinder = dieAt(0);
     final firstValue = _dieValueFromSemantics(tester.getSemantics(firstFinder));
-    expect(firstValue >= 1 && firstValue <= 6, isTrue, reason: 'First die should have a value');
+    expect(
+      firstValue >= 1 && firstValue <= 6,
+      isTrue,
+      reason: 'First die should have a value',
+    );
 
     await tester.tap(firstFinder);
     await tester.pumpAndSettle();
@@ -120,17 +132,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      _dieValueFromSemantics(tester.getSemantics(firstFinder)),
+      _dieValueFromSemantics(tester.getSemantics(dieAt(0))),
       firstValue,
       reason: 'First die should not change when held',
     );
     expect(
-      _dieValueFromSemantics(tester.getSemantics(middleFinder)),
+      _dieValueFromSemantics(tester.getSemantics(dieAt(2))),
       middleValue,
       reason: 'Middle die should not change when held',
     );
     expect(
-      _dieValueFromSemantics(tester.getSemantics(lastFinder)),
+      _dieValueFromSemantics(tester.getSemantics(dieAt(4))),
       lastValue,
       reason: 'Last die should not change when held',
     );

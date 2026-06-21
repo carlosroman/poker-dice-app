@@ -7,7 +7,7 @@ import 'package:poker_dice/models/score_category.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/providers/theme_provider.dart';
 import 'package:poker_dice/pages/game_page.dart';
-import 'package:poker_dice/widgets/dice_widget.dart';
+import 'package:poker_dice/widgets/animated_dice.dart';
 import 'package:poker_dice/widgets/roll_button.dart';
 import 'package:poker_dice/widgets/score_sheet.dart';
 
@@ -48,7 +48,7 @@ void main() {
       await tester.pumpWidget(buildGamePage());
 
       expect(find.byType(ScoreSheet), findsOneWidget);
-      expect(find.byType(DiceWidget), findsNWidgets(5));
+      expect(find.byType(AnimatedDice), findsNWidgets(5));
       expect(find.byType(RollButton), findsOneWidget);
     });
 
@@ -98,7 +98,7 @@ void main() {
     testWidgets('displays five dice', (tester) async {
       await tester.pumpWidget(buildGamePage());
 
-      expect(find.byType(DiceWidget), findsNWidgets(5));
+      expect(find.byType(AnimatedDice), findsNWidgets(5));
     });
 
     testWidgets('roll button shows correct rolls remaining', (tester) async {
@@ -162,7 +162,7 @@ void main() {
       final state = buildGameState(dice: testDice);
       await tester.pumpWidget(buildGamePage(gameState: state));
 
-      expect(find.byType(DiceWidget), findsNWidgets(5));
+      expect(find.byType(AnimatedDice), findsNWidgets(5));
     });
 
     testWidgets('respects held dice state', (tester) async {
@@ -176,7 +176,7 @@ void main() {
       final state = buildGameState(dice: testDice);
       await tester.pumpWidget(buildGamePage(gameState: state));
 
-      expect(find.byType(DiceWidget), findsNWidgets(5));
+      expect(find.byType(AnimatedDice), findsNWidgets(5));
     });
 
     testWidgets('shows theme toggle button in app bar', (tester) async {
@@ -403,10 +403,7 @@ void main() {
         final notifier = GameNotifier(
           initialState: buildGameState(
             status: GameStatus.active,
-            scoredCategories: {
-              ScoreCategory.aces: 5,
-              ScoreCategory.twos: 4,
-            },
+            scoredCategories: {ScoreCategory.aces: 5, ScoreCategory.twos: 4},
           ),
         );
         await tester.pumpWidget(

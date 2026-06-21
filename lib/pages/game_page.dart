@@ -6,7 +6,7 @@ import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/models/score_category.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/providers/theme_provider.dart';
-import 'package:poker_dice/widgets/dice_widget.dart';
+import 'package:poker_dice/widgets/animated_dice.dart';
 import 'package:poker_dice/widgets/roll_button.dart';
 import 'package:poker_dice/widgets/score_sheet.dart';
 
@@ -20,12 +20,52 @@ import 'package:poker_dice/widgets/score_sheet.dart';
 /// - Game completion overlay with total score and new game button
 ///
 /// State is managed by [gameProvider] via Riverpod.
-class GamePage extends ConsumerWidget {
+class GamePage extends StatefulWidget {
   /// Called when the player taps the back button.
   final VoidCallback? onBackTap;
 
   /// Creates a [GamePage] with optional navigation callbacks.
   const GamePage({super.key, this.onBackTap});
+
+  @override
+  State<GamePage> createState() => _GamePageState();
+}
+
+class _GamePageState extends State<GamePage> {
+  final List<GlobalKey<AnimatedDiceState>> _dieKeys = List.generate(
+    5,
+    (_) => GlobalKey<AnimatedDiceState>(),
+  );
+
+  /// Rolls dice and triggers tumble animation on each die.
+  void _onRoll(GameNotifier notifier) {
+    notifier.rollDice();
+    for (final key in _dieKeys) {
+      key.currentState?.animate();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _GamePageContent(
+      onBackTap: widget.onBackTap,
+      dieKeys: _dieKeys,
+      onRoll: _onRoll,
+    );
+  }
+}
+
+/// Internal widget that accesses Riverpod providers and builds the UI.
+class _GamePageContent extends ConsumerWidget {
+  final VoidCallback? onBackTap;
+  final List<GlobalKey<AnimatedDiceState>> dieKeys;
+  final void Function(GameNotifier) onRoll;
+
+  const _GamePageContent({
+    required this.onBackTap,
+    required this.dieKeys,
+    required this.onRoll,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,10 +112,10 @@ class GamePage extends ConsumerWidget {
                   child: ScoreSheet(
                     dice: gameState.currentDice,
                     scoredCategories: Map<ScoreCategory, int>.fromEntries(
-                        gameState.scoredCategories.entries.where(
-                          (e) => e.value != null,
-                        ).map((e) => MapEntry(e.key, e.value as int)),
-                      ),
+                      gameState.scoredCategories.entries
+                          .where((e) => e.value != null)
+                          .map((e) => MapEntry(e.key, e.value as int)),
+                    ),
                     selectedCategory: gameState.selectedCategory,
                     onCategorySelect: (ScoreCategory category) =>
                         notifier.selectCategory(category),
@@ -148,8 +188,8 @@ class GamePage extends ConsumerWidget {
           dice.length,
           (index) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: DiceWidget(
-              key: ValueKey('die-$index'),
+            child: AnimatedDice(
+              key: dieKeys[index],
               dice: dice[index],
               size: 56.0,
               onTap: () => notifier.toggleHold(index),
@@ -188,7 +228,7 @@ class GamePage extends ConsumerWidget {
       width: double.infinity,
       child: RollButton(
         rollsRemaining: rollsRemaining,
-        onPressed: notifier.rollDice,
+        onPressed: () => onRoll(notifier),
       ),
     );
   }

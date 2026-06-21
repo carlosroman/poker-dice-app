@@ -75,7 +75,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('CategoryRow onTap callback is called when tapped', (tester) async {
+    testWidgets('CategoryRow onTap callback is called when tapped', (
+      tester,
+    ) async {
       bool onTapCalled = false;
 
       await tester.pumpWidget(
