@@ -131,12 +131,11 @@ class _GamePageContent extends ConsumerWidget {
                 // Dice area
                 _buildDiceArea(context, gameState.currentDice, notifier),
                 const SizedBox(height: 16),
-                // Buttons row (Roll + Score side by side)
+                // Buttons row (Roll + Score side by side, equal width)
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Roll button (left) - takes 2 parts of space
-                    Flexible(
-                      flex: 2,
+                    Expanded(
                       child: _buildRollButton(
                         context,
                         gameState.rollsRemaining,
@@ -145,16 +144,14 @@ class _GamePageContent extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Score button (right) - takes 1 part of space, only when category selected
-                    if (gameState.selectedCategory != null)
-                      Flexible(
-                        flex: 1,
-                        child: _buildScoreButton(
-                          context,
-                          notifier,
-                          gameState.currentDice,
-                        ),
+                    Expanded(
+                      child: _buildScoreButton(
+                        context,
+                        notifier,
+                        gameState.currentDice,
+                        gameState.selectedCategory,
                       ),
+                    ),
                   ],
                 ),
               ],
@@ -235,16 +232,18 @@ class _GamePageContent extends ConsumerWidget {
   }
 
   /// Builds the confirmation button to score the selected category.
-  /// Disabled until at least one die has been rolled (value > 0).
+  /// Disabled when no category is selected or no dice have been rolled.
   Widget _buildScoreButton(
     BuildContext context,
     GameNotifier notifier,
     List<Dice> dice,
+    ScoreCategory? selectedCategory,
   ) {
     final bool diceRolled = dice.any((die) => die.value > 0);
+    final bool isEnabled = selectedCategory != null && diceRolled;
 
     return ElevatedButton.icon(
-      onPressed: diceRolled ? notifier.confirmScore : null,
+      onPressed: isEnabled ? notifier.confirmScore : null,
       icon: const Icon(Icons.check),
       label: const Text(
         'Score',

@@ -327,13 +327,20 @@ void main() {
     // Score Button
     // -----------------------------------------------------------------------
 
-    testWidgets('score button is invisible when no category selected', (
+    testWidgets('score button is disabled when no category selected', (
       tester,
     ) async {
       final state = buildGameState(status: GameStatus.active);
       await tester.pumpWidget(buildGamePage(gameState: state));
 
-      expect(find.text('Score'), findsNothing);
+      // Score button should always be visible but disabled without category
+      expect(find.text('Score'), findsOneWidget);
+      expect(
+        tester
+            .widget<ElevatedButton>(find.byType(ElevatedButton).last)
+            .onPressed,
+        isNull,
+      );
     });
 
     testWidgets('score button is disabled when dice have not been rolled', (
@@ -482,7 +489,14 @@ void main() {
       final state = notifier.state;
       expect(state.scoredCategories[ScoreCategory.aces], isNotNull);
       expect(state.selectedCategory, isNull);
-      expect(find.text('Score'), findsNothing);
+      // Score button remains visible but disabled (no category selected)
+      expect(find.text('Score'), findsOneWidget);
+      expect(
+        tester
+            .widget<ElevatedButton>(find.byType(ElevatedButton).last)
+            .onPressed,
+        isNull,
+      );
     });
 
     // -----------------------------------------------------------------------
@@ -515,8 +529,13 @@ void main() {
         // ScoreSheet should be present
         expect(find.byType(ScoreSheet), findsOneWidget);
 
+        // Ensure Chance is visible by scrolling
+        final chanceFinder = find.text('Chance');
+        await tester.ensureVisible(chanceFinder);
+        await tester.pumpAndSettle();
+
         // Tap an unscored category (Chance)
-        await tester.tap(find.text('Chance'));
+        await tester.tap(chanceFinder);
         await tester.pumpAndSettle();
 
         // Tapping unscored category should select it for preview
