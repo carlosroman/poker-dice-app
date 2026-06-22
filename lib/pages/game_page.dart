@@ -112,7 +112,7 @@ class _GamePageContent extends ConsumerWidget {
               children: [
                 // Score sheet
                 Expanded(
-                  flex: 3,
+                  flex: 4,
                   child: ScoreSheet(
                     dice: gameState.currentDice,
                     scoredCategories: Map<ScoreCategory, int>.fromEntries(

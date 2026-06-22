@@ -138,7 +138,7 @@ class ScoreSheet extends StatelessWidget {
         children: [
           Text(
             title,
-            style: theme.textTheme.headlineSmall?.copyWith(
+            style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.secondary,
             ),
