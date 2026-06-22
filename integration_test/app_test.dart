@@ -174,8 +174,13 @@ void main() {
     await tester.tap(find.text('Score'));
     await tester.pumpAndSettle();
 
-    // Score button disappears after scoring
-    expect(find.text('Score'), findsNothing);
+    // Score button is always visible but disabled when no category selected
+    expect(find.text('Score'), findsOneWidget);
+    // Verify it's disabled (onPressed is null)
+    final scoreButton = tester.widget<ElevatedButton>(
+      find.byType(ElevatedButton).last,
+    );
+    expect(scoreButton.onPressed, isNull);
   });
 }
 
