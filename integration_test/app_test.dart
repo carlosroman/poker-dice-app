@@ -43,6 +43,17 @@ void main() {
     await tester.tap(find.text('Roll'));
     await tester.pumpAndSettle();
 
+    // Score button should be visible but DISABLED (no category selected)
+    expect(find.text('Score'), findsOneWidget);
+    final initialScoreButton = tester.widget<ElevatedButton>(
+      find.byType(ElevatedButton).last,
+    );
+    expect(
+      initialScoreButton.onPressed,
+      isNull,
+      reason: 'Score button should be disabled when no category selected',
+    );
+
     // 3. Hold middle dice (index 2)
     final middleFinder = dieAt(2);
     final middleValue = _dieValueFromSemantics(
@@ -168,8 +179,17 @@ void main() {
     await tester.tap(find.text('Chance'));
     await tester.pumpAndSettle();
 
-    // Score button should appear when a category is selected
+    // Score button should be ENABLED when category selected and dice rolled
     expect(find.text('Score'), findsOneWidget);
+    final enabledScoreButton = tester.widget<ElevatedButton>(
+      find.byType(ElevatedButton).last,
+    );
+    expect(
+      enabledScoreButton.onPressed,
+      isNotNull,
+      reason:
+          'Score button should be enabled when category selected and dice rolled',
+    );
 
     await tester.tap(find.text('Score'));
     await tester.pumpAndSettle();
