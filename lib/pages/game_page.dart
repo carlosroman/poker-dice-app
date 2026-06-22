@@ -134,8 +134,9 @@ class _GamePageContent extends ConsumerWidget {
                 // Buttons row (Roll + Score side by side)
                 Row(
                   children: [
-                    // Roll button (left)
-                    Expanded(
+                    // Roll button (left) - takes 2 parts of space
+                    Flexible(
+                      flex: 2,
                       child: _buildRollButton(
                         context,
                         gameState.rollsRemaining,
@@ -144,9 +145,10 @@ class _GamePageContent extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Score button (right, only when category selected)
+                    // Score button (right) - takes 1 part of space, only when category selected
                     if (gameState.selectedCategory != null)
-                      Expanded(
+                      Flexible(
+                        flex: 1,
                         child: _buildScoreButton(
                           context,
                           notifier,
