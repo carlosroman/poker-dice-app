@@ -205,20 +205,29 @@ class _GamePageContent extends ConsumerWidget {
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16.0),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          dice.length,
-          (index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2.0),
-            child: AnimatedDice(
-              key: dieKeys[index],
-              dice: dice[index],
-              size: 112.0,
-              onTap: () => notifier.toggleHold(index),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableWidth = constraints.maxWidth;
+          final diceSize = availableWidth < 500
+              ? (availableWidth - 40) / 5.5
+              : 112.0;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              dice.length,
+              (index) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                child: AnimatedDice(
+                  key: dieKeys[index],
+                  dice: dice[index],
+                  size: diceSize,
+                  onTap: () => notifier.toggleHold(index),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
