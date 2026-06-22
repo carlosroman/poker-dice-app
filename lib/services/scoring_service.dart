@@ -123,7 +123,13 @@ class ScoringService {
   }
 
   int _scoreYatzy(List<Dice> dice) {
-    final counts = countDiceValues(dice);
+    // Yatzy requires 5 dice of the same non-zero value
+    final counts = <int, int>{};
+    for (final die in dice) {
+      if (die.value > 0) {
+        counts[die.value] = (counts[die.value] ?? 0) + 1;
+      }
+    }
     if (counts.values.any((c) => c == 5)) {
       return 50;
     }

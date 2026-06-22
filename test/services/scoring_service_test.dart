@@ -361,6 +361,13 @@ void main() {
         0,
       );
     });
+
+    test('returns 0 when all dice are blank (value 0)', () {
+      expect(
+        service.calculateScore(dice([0, 0, 0, 0, 0]), ScoreCategory.yatzy),
+        0,
+      );
+    });
   });
 
   // -----------------------------------------------------------------------
