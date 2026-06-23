@@ -56,7 +56,8 @@ void main() {
       final state = buildGameState(scoredCategories: {ScoreCategory.aces: 150});
       await tester.pumpWidget(buildGamePage(gameState: state));
 
-      expect(find.text('150'), findsOneWidget);
+      // totalScore = 150 (Aces) + 35 (bonus, upper >= 63) = 185
+      expect(find.text('185'), findsOneWidget);
     });
 
     testWidgets('displays player label "You"', (tester) async {
@@ -512,6 +513,13 @@ void main() {
         // every row to appear "scored" and unselectable.
         final notifier = GameNotifier(
           initialState: buildGameState(
+            dice: const [
+              Dice(value: 1),
+              Dice(value: 2),
+              Dice(value: 3),
+              Dice(value: 4),
+              Dice(value: 5),
+            ],
             status: GameStatus.active,
             scoredCategories: {ScoreCategory.aces: 5, ScoreCategory.twos: 4},
           ),

@@ -256,5 +256,52 @@ void main() {
       expect(find.byType(ScoreSheet), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+      'categories always call onCategorySelect (guard is in provider)',
+      (tester) async {
+        final blankDice = [
+          const Dice(value: 0),
+          const Dice(value: 0),
+          const Dice(value: 0),
+          const Dice(value: 0),
+          const Dice(value: 0),
+        ];
+
+        ScoreCategory? selected;
+        await tester.pumpWidget(
+          buildScoreSheet(
+            dice: blankDice,
+            width: 400,
+            onCategorySelect: (c) => selected = c,
+          ),
+        );
+
+        await tester.tap(find.text('Aces'));
+        await tester.pump();
+
+        // ScoreSheet always delegates to provider; provider guards blank dice
+        expect(selected, ScoreCategory.aces);
+      },
+    );
+
+    testWidgets(
+      'categories are enabled after rolling dice',
+      (tester) async {
+        bool tapped = false;
+        await tester.pumpWidget(
+          buildScoreSheet(
+            dice: defaultDice,
+            width: 400,
+            onCategorySelect: (_) => tapped = true,
+          ),
+        );
+
+        await tester.tap(find.text('Aces'));
+        await tester.pump();
+
+        expect(tapped, isTrue);
+      },
+    );
   });
 }

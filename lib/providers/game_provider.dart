@@ -98,6 +98,10 @@ class GameNotifier extends StateNotifier<GameState> {
       return;
     }
 
+    if (_diceAreBlank(state.currentDice)) {
+      return;
+    }
+
     state = state.copyWith(selectedCategory: category);
   }
 
@@ -111,6 +115,10 @@ class GameNotifier extends StateNotifier<GameState> {
     }
 
     if (state.scoredCategories[category] != null) {
+      return;
+    }
+
+    if (_diceAreBlank(state.currentDice)) {
       return;
     }
 
@@ -203,5 +211,9 @@ class GameNotifier extends StateNotifier<GameState> {
             completedAt: DateTime.now(),
           ),
         );
+  }
+
+  bool _diceAreBlank(List<Dice> dice) {
+    return dice.every((die) => die.value == 0);
   }
 }

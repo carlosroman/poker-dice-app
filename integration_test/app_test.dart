@@ -18,8 +18,32 @@ import 'package:poker_dice/widgets/animated_dice.dart';
 /// 8. Roll again - first, middle, and last dice unchanged
 /// 9. Chance section shows score preview
 /// 10. Select "Chance" and score it
+///
+/// Also validates:
+/// - Categories are disabled when dice are blank
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('categories disabled when dice are blank', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Dice are blank on start, categories should be disabled
+    // Try to tap "Aces" - it should not select the category
+    await tester.tap(find.text('Aces'));
+    await tester.pumpAndSettle();
+
+    // Score button should remain disabled (no category selected)
+    expect(find.text('Score'), findsOneWidget);
+    final scoreButton = tester.widget<ElevatedButton>(
+      find.byType(ElevatedButton).last,
+    );
+    expect(
+      scoreButton.onPressed,
+      isNull,
+      reason: 'Score button should be disabled when dice are blank',
+    );
+  });
 
   testWidgets('dice hold and chance scoring flow', (tester) async {
     app.main();

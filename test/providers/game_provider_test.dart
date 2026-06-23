@@ -19,6 +19,33 @@ void main() {
     container.dispose();
   });
 
+  /// Rolls dice then selects a category for preview.
+  void _rollAndSelect(ScoreCategory category) {
+    notifier.rollDice();
+    notifier.selectCategoryForPreview(category);
+  }
+
+  /// Rolls dice, selects, and confirms a category in one step.
+  void _rollAndScore(ScoreCategory category) {
+    notifier.rollDice();
+    notifier.selectCategoryForPreview(category);
+    notifier.confirmScore();
+  }
+
+  /// Rolls dice and double-taps a category (select then confirm).
+  void _rollAndDoubleTap(ScoreCategory category) {
+    notifier.rollDice();
+    notifier.selectCategory(category);
+    notifier.selectCategory(category);
+  }
+
+  /// Completes the game by scoring all categories.
+  void _completeGame() {
+    for (final category in ScoreCategory.values) {
+      _rollAndScore(category);
+    }
+  }
+
   // -----------------------------------------------------------------------
   // Initial state
   // -----------------------------------------------------------------------
@@ -92,10 +119,7 @@ void main() {
 
     test('does nothing when game is completed', () {
       // Score all categories to complete the game
-      for (final category in ScoreCategory.values) {
-        notifier.selectCategoryForPreview(category);
-        notifier.confirmScore();
-      }
+      _completeGame();
 
       notifier.rollDice();
       final stateAfter = container.read(gameProvider);
@@ -139,11 +163,34 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // selectCategory with blank dice
+  // -----------------------------------------------------------------------
+
+  group('selectCategory with blank dice', () {
+    test('does not select category when all dice are blank', () {
+      notifier.selectCategory(ScoreCategory.aces);
+      final state = container.read(gameProvider);
+
+      expect(state.selectedCategory, isNull);
+      expect(state.scoredCategories[ScoreCategory.aces], isNull);
+    });
+
+    test('selects category after rolling dice', () {
+      notifier.rollDice();
+      notifier.selectCategory(ScoreCategory.aces);
+
+      final state = container.read(gameProvider);
+      expect(state.selectedCategory, ScoreCategory.aces);
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // selectCategory
   // -----------------------------------------------------------------------
 
   group('selectCategory', () {
     test('first call selects for preview, second call confirms score', () {
+      notifier.rollDice();
       notifier.selectCategory(ScoreCategory.aces);
 
       // First call: only selects for preview
@@ -160,6 +207,7 @@ void main() {
     });
 
     test('does not overwrite an already scored category', () {
+      notifier.rollDice();
       notifier.selectCategory(ScoreCategory.aces);
       notifier.selectCategory(ScoreCategory.aces);
       final firstScore = container
@@ -176,10 +224,7 @@ void main() {
 
     test('does nothing when game is completed', () {
       // Complete the game
-      for (final category in ScoreCategory.values) {
-        notifier.selectCategoryForPreview(category);
-        notifier.confirmScore();
-      }
+      _completeGame();
 
       notifier.selectCategory(ScoreCategory.aces);
       final stateAfter = container.read(gameProvider);
@@ -189,11 +234,33 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // selectCategoryForPreview with blank dice
+  // -----------------------------------------------------------------------
+
+  group('selectCategoryForPreview with blank dice', () {
+    test('does not select category when all dice are blank', () {
+      notifier.selectCategoryForPreview(ScoreCategory.aces);
+      final state = container.read(gameProvider);
+
+      expect(state.selectedCategory, isNull);
+    });
+
+    test('selects category after rolling dice', () {
+      notifier.rollDice();
+      notifier.selectCategoryForPreview(ScoreCategory.aces);
+
+      final state = container.read(gameProvider);
+      expect(state.selectedCategory, ScoreCategory.aces);
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // selectCategoryForPreview
   // -----------------------------------------------------------------------
 
   group('selectCategoryForPreview', () {
     test('selects a category without scoring', () {
+      notifier.rollDice();
       notifier.selectCategoryForPreview(ScoreCategory.aces);
 
       final state = container.read(gameProvider);
@@ -202,6 +269,7 @@ void main() {
     });
 
     test('does not select an already scored category', () {
+      notifier.rollDice();
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       notifier.confirmScore();
 
@@ -212,10 +280,7 @@ void main() {
     });
 
     test('does nothing when game is completed', () {
-      for (final category in ScoreCategory.values) {
-        notifier.selectCategoryForPreview(category);
-        notifier.confirmScore();
-      }
+      _completeGame();
 
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       final state = container.read(gameProvider);
@@ -225,6 +290,7 @@ void main() {
     });
 
     test('switching selection updates selected category', () {
+      notifier.rollDice();
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       expect(container.read(gameProvider).selectedCategory, ScoreCategory.aces);
 
@@ -239,6 +305,7 @@ void main() {
 
   group('confirmScore', () {
     test('scores the selected category and resets the turn', () {
+      notifier.rollDice();
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       notifier.confirmScore();
 
@@ -257,10 +324,7 @@ void main() {
     });
 
     test('does nothing when game is completed', () {
-      for (final category in ScoreCategory.values) {
-        notifier.selectCategoryForPreview(category);
-        notifier.confirmScore();
-      }
+      _completeGame();
 
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       notifier.confirmScore();
@@ -276,6 +340,7 @@ void main() {
 
   group('clearSelection', () {
     test('clears the selected category', () {
+      notifier.rollDice();
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       expect(container.read(gameProvider).selectedCategory, ScoreCategory.aces);
 
@@ -314,6 +379,7 @@ void main() {
     });
 
     test('returns null for already scored category', () {
+      notifier.rollDice();
       notifier.selectCategory(ScoreCategory.aces);
       notifier.selectCategory(ScoreCategory.aces);
       expect(notifier.getPreviewScore(ScoreCategory.aces), isNull);
@@ -339,7 +405,7 @@ void main() {
   // -----------------------------------------------------------------------
 
   group('auto-save', () {
-    test('calls addResult when game is completed', () {
+test('calls addResult when game is completed', () {
       // Track addResult calls
       List<GameResult>? resultsAdded;
 
@@ -357,6 +423,7 @@ void main() {
 
       // Score all 13 categories to complete the game
       for (final category in ScoreCategory.values) {
+        notifier.rollDice();
         notifier.selectCategory(category);
         notifier.selectCategory(category);
       }
@@ -365,10 +432,7 @@ void main() {
       expect(resultsAdded, isNotNull);
       expect(resultsAdded!.length, 1);
       expect(resultsAdded![0].totalScore, notifier.state.totalScore);
-      expect(
-        resultsAdded![0].upperSectionTotal,
-        notifier.state.upperSectionTotal,
-      );
+      expect(resultsAdded![0].upperSectionTotal, notifier.state.upperSectionTotal);
       expect(resultsAdded![0].bonus, notifier.state.bonus);
     });
 
@@ -389,6 +453,7 @@ void main() {
       notifier = container.read(gameProvider.notifier);
 
       // Score only one category - game is not complete
+      notifier.rollDice();
       notifier.selectCategory(ScoreCategory.aces);
 
       expect(notifier.state.status, GameStatus.active);
