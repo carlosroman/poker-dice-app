@@ -79,13 +79,11 @@ class _GamePageContent extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         centerTitle: true,
-        leading: onBackTap != null
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: onBackTap,
-                tooltip: 'Back',
-              )
-            : null,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: onBackTap ?? () => context.go('/'),
+          tooltip: 'Back',
+        ),
         title: _buildAppBarTitle(context, gameState.totalScore),
         actions: [
           IconButton(

@@ -72,10 +72,10 @@ void main() {
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     });
 
-    testWidgets('hides back button when onBackTap is null', (tester) async {
+    testWidgets('shows back button when onBackTap is null', (tester) async {
       await tester.pumpWidget(buildGamePage());
 
-      expect(find.byIcon(Icons.arrow_back), findsNothing);
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     });
 
     testWidgets('calls onBackTap when back button is tapped', (tester) async {

@@ -604,4 +604,7 @@ class _FakeStorageService implements StorageServiceInterface {
   Future<void> clearHistory() async {
     clearWasCalled = true;
   }
+
+  @override
+  bool hasInProgressGame() => false;
 }

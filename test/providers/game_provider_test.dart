@@ -19,24 +19,11 @@ void main() {
     container.dispose();
   });
 
-  /// Rolls dice then selects a category for preview.
-  void _rollAndSelect(ScoreCategory category) {
-    notifier.rollDice();
-    notifier.selectCategoryForPreview(category);
-  }
-
   /// Rolls dice, selects, and confirms a category in one step.
   void _rollAndScore(ScoreCategory category) {
     notifier.rollDice();
     notifier.selectCategoryForPreview(category);
     notifier.confirmScore();
-  }
-
-  /// Rolls dice and double-taps a category (select then confirm).
-  void _rollAndDoubleTap(ScoreCategory category) {
-    notifier.rollDice();
-    notifier.selectCategory(category);
-    notifier.selectCategory(category);
   }
 
   /// Completes the game by scoring all categories.

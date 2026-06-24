@@ -28,6 +28,12 @@ abstract class StorageServiceInterface {
 
   /// Returns the number of games played.
   Future<int> getGamesPlayed();
+
+  /// Returns whether there is an in-progress game saved.
+  ///
+  /// Currently always returns `false`; will be implemented when
+  /// in-progress game save/restore is added.
+  bool hasInProgressGame();
 }
 
 /// Service responsible for persisting and loading game results.
@@ -94,5 +100,15 @@ class StorageService implements StorageServiceInterface {
   Future<int> getGamesPlayed() async {
     final results = await loadGameResults();
     return results.length;
+  }
+
+  /// Returns whether there is an in-progress game saved.
+  ///
+  /// Currently always returns `false`; will be implemented when
+  /// in-progress game save/restore is added.
+  @override
+  bool hasInProgressGame() {
+    // TODO: Implement in-progress game detection
+    return false;
   }
 }
