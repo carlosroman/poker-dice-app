@@ -30,9 +30,9 @@ class TitleScreen extends ConsumerWidget {
             // Title
             Text(
               'Poker Dice',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 48),
             // New Game button

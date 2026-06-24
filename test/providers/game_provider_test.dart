@@ -14,9 +14,9 @@ void main() {
   setUp(() {
     container = ProviderContainer(
       overrides: [
-        storageServiceProvider.overrideWith((ref) => Future.value(
-          const _FakeStorageService(),
-        )),
+        storageServiceProvider.overrideWith(
+          (ref) => Future.value(const _FakeStorageService()),
+        ),
       ],
     );
     notifier = container.read(gameProvider.notifier);
@@ -398,16 +398,16 @@ void main() {
   // Auto-save on game completion
   // -----------------------------------------------------------------------
 
-group('auto-save', () {
- test('calls addResult when game is completed', () {
+  group('auto-save', () {
+    test('calls addResult when game is completed', () {
       // Track addResult calls
       List<GameResult>? resultsAdded;
 
       container = ProviderContainer(
         overrides: [
-          storageServiceProvider.overrideWith((ref) => Future.value(
-            const _FakeStorageService(),
-          )),
+          storageServiceProvider.overrideWith(
+            (ref) => Future.value(const _FakeStorageService()),
+          ),
           scoreboardProvider.overrideWith((ref) {
             return _TestScoreboardNotifier(
               ref: ref,
@@ -429,7 +429,10 @@ group('auto-save', () {
       expect(resultsAdded, isNotNull);
       expect(resultsAdded!.length, 1);
       expect(resultsAdded![0].totalScore, notifier.state.totalScore);
-      expect(resultsAdded![0].upperSectionTotal, notifier.state.upperSectionTotal);
+      expect(
+        resultsAdded![0].upperSectionTotal,
+        notifier.state.upperSectionTotal,
+      );
       expect(resultsAdded![0].bonus, notifier.state.bonus);
     });
 
@@ -439,9 +442,9 @@ group('auto-save', () {
 
       container = ProviderContainer(
         overrides: [
-          storageServiceProvider.overrideWith((ref) => Future.value(
-            const _FakeStorageService(),
-          )),
+          storageServiceProvider.overrideWith(
+            (ref) => Future.value(const _FakeStorageService()),
+          ),
           scoreboardProvider.overrideWith((ref) {
             return _TestScoreboardNotifier(
               ref: ref,

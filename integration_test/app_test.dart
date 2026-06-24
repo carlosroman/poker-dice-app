@@ -271,9 +271,11 @@ void main() {
     // Store the dice values for later verification
     final diceValuesBefore = <int>[];
     for (int i = 0; i < 5; i++) {
-      diceValuesBefore.add(_dieValueFromSemantics(
-        tester.getSemantics(find.byType(AnimatedDice).at(i)),
-      ));
+      diceValuesBefore.add(
+        _dieValueFromSemantics(
+          tester.getSemantics(find.byType(AnimatedDice).at(i)),
+        ),
+      );
     }
 
     // Step 11: Hit back to title screen

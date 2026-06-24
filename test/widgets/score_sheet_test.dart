@@ -285,23 +285,20 @@ void main() {
       },
     );
 
-    testWidgets(
-      'categories are enabled after rolling dice',
-      (tester) async {
-        bool tapped = false;
-        await tester.pumpWidget(
-          buildScoreSheet(
-            dice: defaultDice,
-            width: 400,
-            onCategorySelect: (_) => tapped = true,
-          ),
-        );
+    testWidgets('categories are enabled after rolling dice', (tester) async {
+      bool tapped = false;
+      await tester.pumpWidget(
+        buildScoreSheet(
+          dice: defaultDice,
+          width: 400,
+          onCategorySelect: (_) => tapped = true,
+        ),
+      );
 
-        await tester.tap(find.text('Aces'));
-        await tester.pump();
+      await tester.tap(find.text('Aces'));
+      await tester.pump();
 
-        expect(tapped, isTrue);
-      },
-    );
+      expect(tapped, isTrue);
+    });
   });
 }
