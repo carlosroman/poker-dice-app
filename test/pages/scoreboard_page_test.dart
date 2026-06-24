@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_dice/models/game_history.dart';
+import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/pages/scoreboard_page.dart';
 import 'package:poker_dice/providers/storage_provider.dart';
 import 'package:poker_dice/services/storage_service.dart';
@@ -607,4 +608,13 @@ class _FakeStorageService implements StorageServiceInterface {
 
   @override
   bool hasInProgressGame() => false;
+
+  @override
+  Future<void> saveInProgressGame(GameState state) async {}
+
+  @override
+  Future<GameState?> loadInProgressGame() async => null;
+
+  @override
+  Future<void> clearInProgressGame() async {}
 }

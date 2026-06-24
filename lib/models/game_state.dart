@@ -133,6 +133,46 @@ class GameState {
     return copyWith(scoredCategories: updated, status: newStatus);
   }
 
+  /// Converts this state to a JSON-serializable map.
+  Map<String, dynamic> toJson() {
+    return {
+      'current_dice': currentDice.map((d) => d.toJson()).toList(),
+      'rolls_remaining': rollsRemaining,
+      'scored_categories': scoredCategories.entries
+          .map((e) => {'category_index': e.key.index, 'score': e.value})
+          .toList(),
+      'status_index': status.index,
+      'selected_category_index': selectedCategory?.index,
+    };
+  }
+
+  /// Creates a [GameState] from a JSON map.
+  factory GameState.fromJson(Map<String, dynamic> json) {
+    final diceList = (json['current_dice'] as List)
+        .map((d) => Dice.fromJson(d as Map<String, dynamic>))
+        .toList();
+
+    final scoredData = (json['scored_categories'] as List)
+        .cast<Map<String, dynamic>>();
+    final scoredCategories = <ScoreCategory, int?>{
+      for (final entry in scoredData)
+        ScoreCategory.values[entry['category_index'] as int]:
+            entry['score'] as int?,
+    };
+
+    return GameState(
+      currentDice: diceList,
+      rollsRemaining: json['rolls_remaining'] as int? ?? 3,
+      scoredCategories: scoredCategories,
+      status: ScoreCategory.values.isNotEmpty
+          ? GameStatus.values[json['status_index'] as int? ?? 0]
+          : GameStatus.active,
+      selectedCategory: json['selected_category_index'] != null
+          ? ScoreCategory.values[json['selected_category_index'] as int]
+          : null,
+    );
+  }
+
   /// Returns a copy of this state with the specified fields replaced.
   GameState copyWith({
     List<Dice>? currentDice,

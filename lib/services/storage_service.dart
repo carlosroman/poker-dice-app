@@ -7,10 +7,14 @@ library;
 import 'dart:convert';
 
 import 'package:poker_dice/models/game_history.dart';
+import 'package:poker_dice/models/game_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Key used to store the game history list in shared_preferences.
 const String _gameHistoryKey = 'game_history';
+
+/// Key used to store the in-progress game state in shared_preferences.
+const String _inProgressGameKey = 'in_progress_game';
 
 /// Interface for game result persistence.
 abstract class StorageServiceInterface {
@@ -30,10 +34,18 @@ abstract class StorageServiceInterface {
   Future<int> getGamesPlayed();
 
   /// Returns whether there is an in-progress game saved.
-  ///
-  /// Currently always returns `false`; will be implemented when
-  /// in-progress game save/restore is added.
   bool hasInProgressGame();
+
+  /// Saves an in-progress [GameState] to persistent storage.
+  Future<void> saveInProgressGame(GameState state);
+
+  /// Loads the in-progress [GameState] from persistent storage.
+  ///
+  /// Returns `null` if no in-progress game is saved.
+  Future<GameState?> loadInProgressGame();
+
+  /// Clears the saved in-progress game from persistent storage.
+  Future<void> clearInProgressGame();
 }
 
 /// Service responsible for persisting and loading game results.
@@ -103,12 +115,35 @@ class StorageService implements StorageServiceInterface {
   }
 
   /// Returns whether there is an in-progress game saved.
-  ///
-  /// Currently always returns `false`; will be implemented when
-  /// in-progress game save/restore is added.
   @override
   bool hasInProgressGame() {
-    // TODO: Implement in-progress game detection
-    return false;
+    return _prefs.containsKey(_inProgressGameKey);
+  }
+
+  /// Saves an in-progress [GameState] to persistent storage.
+  @override
+  Future<void> saveInProgressGame(GameState state) async {
+    await _prefs.setString(_inProgressGameKey, jsonEncode(state.toJson()));
+  }
+
+  /// Loads the in-progress [GameState] from persistent storage.
+  ///
+  /// Returns `null` if no in-progress game is saved.
+  @override
+  Future<GameState?> loadInProgressGame() async {
+    final encoded = _prefs.getString(_inProgressGameKey);
+    if (encoded == null) return null;
+    try {
+      final json = jsonDecode(encoded) as Map<String, dynamic>;
+      return GameState.fromJson(json);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Clears the saved in-progress game from persistent storage.
+  @override
+  Future<void> clearInProgressGame() async {
+    await _prefs.remove(_inProgressGameKey);
   }
 }

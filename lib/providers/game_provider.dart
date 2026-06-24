@@ -38,6 +38,8 @@ class GameNotifier extends StateNotifier<GameState> {
     if (initialState == null) {
       _resetTurn();
     }
+    // Load in-progress game if available.
+    _loadInProgressGame();
   }
 
   final DiceRoller _diceRoller = DiceRoller();
@@ -80,6 +82,7 @@ class GameNotifier extends StateNotifier<GameState> {
   void toggleHold(int index) {
     try {
       state = state.toggleHold(index);
+      _autoSave(state);
     } on RangeError {
       // Index out of bounds, ignore.
     }
@@ -171,6 +174,7 @@ class GameNotifier extends StateNotifier<GameState> {
   void resetGame() {
     state = GameState();
     _resetTurn();
+    _clearInProgressGame();
   }
 
   /// Returns the preview score for [category] with current dice.
@@ -197,23 +201,55 @@ class GameNotifier extends StateNotifier<GameState> {
   ///
   /// When the game status is [GameStatus.completed], creates a
   /// [GameResult] and adds it to [ScoreboardNotifier] which
-  /// persists via [StorageService].
+  /// persists via [StorageService]. For active games, saves the
+  /// in-progress state.
   void _autoSave(GameState gameState) {
-    if (gameState.status != GameStatus.completed || ref == null) return;
+    if (ref == null) return;
 
-    ref!
-        .read(scoreboardProvider.notifier)
-        .addResult(
-          GameResult(
-            totalScore: gameState.totalScore,
-            upperSectionTotal: gameState.upperSectionTotal,
-            bonus: gameState.bonus,
-            completedAt: DateTime.now(),
-          ),
-        );
+    if (gameState.status == GameStatus.completed) {
+      ref!
+          .read(scoreboardProvider.notifier)
+          .addResult(
+            GameResult(
+              totalScore: gameState.totalScore,
+              upperSectionTotal: gameState.upperSectionTotal,
+              bonus: gameState.bonus,
+              completedAt: DateTime.now(),
+            ),
+          );
+      _clearInProgressGame();
+    } else {
+      _saveInProgressGame(gameState);
+    }
   }
 
   bool _diceAreBlank(List<Dice> dice) {
     return dice.every((die) => die.value == 0);
+  }
+
+  /// Loads an in-progress game from persistent storage.
+  void _loadInProgressGame() {
+    if (ref == null) return;
+    ref!.read(storageServiceProvider.future).then((storageService) {
+      storageService.loadInProgressGame().then((savedState) {
+        if (savedState != null && savedState.status == GameStatus.active) {
+          state = savedState;
+        }
+      });
+    });
+  }
+
+  /// Saves the current in-progress game to persistent storage.
+  Future<void> _saveInProgressGame(GameState gameState) async {
+    if (ref == null) return;
+    final storageService = await ref!.read(storageServiceProvider.future);
+    await storageService.saveInProgressGame(gameState);
+  }
+
+  /// Clears the saved in-progress game from persistent storage.
+  Future<void> _clearInProgressGame() async {
+    if (ref == null) return;
+    final storageService = await ref!.read(storageServiceProvider.future);
+    await storageService.clearInProgressGame();
   }
 }

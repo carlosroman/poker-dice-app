@@ -5,13 +5,20 @@ import 'package:poker_dice/models/game_state.dart';
 import 'package:poker_dice/models/score_category.dart';
 import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/providers/storage_provider.dart';
+import 'package:poker_dice/services/storage_service.dart';
 
 void main() {
   late ProviderContainer container;
   late GameNotifier notifier;
 
   setUp(() {
-    container = ProviderContainer();
+    container = ProviderContainer(
+      overrides: [
+        storageServiceProvider.overrideWith((ref) => Future.value(
+          const _FakeStorageService(),
+        )),
+      ],
+    );
     notifier = container.read(gameProvider.notifier);
   });
 
@@ -391,13 +398,16 @@ void main() {
   // Auto-save on game completion
   // -----------------------------------------------------------------------
 
-  group('auto-save', () {
-test('calls addResult when game is completed', () {
+group('auto-save', () {
+ test('calls addResult when game is completed', () {
       // Track addResult calls
       List<GameResult>? resultsAdded;
 
       container = ProviderContainer(
         overrides: [
+          storageServiceProvider.overrideWith((ref) => Future.value(
+            const _FakeStorageService(),
+          )),
           scoreboardProvider.overrideWith((ref) {
             return _TestScoreboardNotifier(
               ref: ref,
@@ -429,6 +439,9 @@ test('calls addResult when game is completed', () {
 
       container = ProviderContainer(
         overrides: [
+          storageServiceProvider.overrideWith((ref) => Future.value(
+            const _FakeStorageService(),
+          )),
           scoreboardProvider.overrideWith((ref) {
             return _TestScoreboardNotifier(
               ref: ref,
@@ -459,4 +472,36 @@ class _TestScoreboardNotifier extends ScoreboardNotifier {
   Future<void> addResult(GameResult result) async {
     onAddResult?.call(result);
   }
+}
+
+/// Fake [StorageServiceInterface] for testing.
+class _FakeStorageService implements StorageServiceInterface {
+  const _FakeStorageService();
+
+  @override
+  Future<void> saveGameResult(GameResult result) async {}
+
+  @override
+  Future<List<GameResult>> loadGameResults() async => [];
+
+  @override
+  Future<int?> getHighScore() async => null;
+
+  @override
+  Future<int> getGamesPlayed() async => 0;
+
+  @override
+  Future<void> clearHistory() async {}
+
+  @override
+  bool hasInProgressGame() => false;
+
+  @override
+  Future<void> saveInProgressGame(GameState state) async {}
+
+  @override
+  Future<GameState?> loadInProgressGame() async => null;
+
+  @override
+  Future<void> clearInProgressGame() async {}
 }

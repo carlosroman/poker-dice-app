@@ -21,6 +21,19 @@ class Dice {
     return Dice(value: value ?? this.value, isHeld: isHeld ?? this.isHeld);
   }
 
+  /// Converts this die to a JSON-serializable map.
+  Map<String, dynamic> toJson() {
+    return {'value': value, 'is_held': isHeld};
+  }
+
+  /// Creates a [Dice] from a JSON map.
+  factory Dice.fromJson(Map<String, dynamic> json) {
+    return Dice(
+      value: json['value'] as int,
+      isHeld: json['is_held'] as bool? ?? false,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
