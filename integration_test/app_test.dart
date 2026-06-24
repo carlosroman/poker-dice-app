@@ -242,6 +242,92 @@ void main() {
     );
     expect(scoreButton.onPressed, isNull);
   });
+
+  /// End-to-end test: back navigation and continue game flow.
+  ///
+  /// Validates:
+  /// - Step 11: Hit back to title screen
+  /// - Step 12: Can return back to the original game (state preserved)
+  /// - Step 13: Hit back to title screen again
+  /// - Step 14: Selecting new game resets score to 0 and dice to blank
+  testWidgets('back navigation and continue game flow', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Reset GoRouter to title screen (singleton persists across flutter drive tests)
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Tap "New Game" button to navigate to game screen with fresh state
+    await tester.tap(find.byType(ElevatedButton).first);
+    await tester.pumpAndSettle();
+
+    // Roll dice to create a game state
+    await tester.tap(find.text('Roll'));
+    await tester.pumpAndSettle();
+    // Allow async save to complete
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Store the dice values for later verification
+    final diceValuesBefore = <int>[];
+    for (int i = 0; i < 5; i++) {
+      diceValuesBefore.add(_dieValueFromSemantics(
+        tester.getSemantics(find.byType(AnimatedDice).at(i)),
+      ));
+    }
+
+    // Step 11: Hit back to title screen
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    // Verify we're at title screen
+    expect(find.text('Poker Dice'), findsOneWidget);
+    expect(find.text('New Game'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
+
+    // Step 12: Tap Continue to return to the game
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+
+    // Verify game state was preserved
+    for (int i = 0; i < 5; i++) {
+      final currentValue = _dieValueFromSemantics(
+        tester.getSemantics(find.byType(AnimatedDice).at(i)),
+      );
+      expect(
+        currentValue,
+        diceValuesBefore[i],
+        reason: 'Die $i should be preserved after continue',
+      );
+    }
+
+    // Step 13: Hit back to title screen again
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    // Verify we're at title screen
+    expect(find.text('Poker Dice'), findsOneWidget);
+
+    // Step 14: Selecting New Game brings you to the game with score 0 and blank dice
+    await tester.tap(find.byType(ElevatedButton).first);
+    await tester.pumpAndSettle();
+
+    // Verify score is 0 (find within AppBar to avoid matching dice showing 0)
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('0')),
+      findsOneWidget,
+      reason: 'Total score should be 0 after new game',
+    );
+
+    // Verify dice are blank
+    for (int i = 0; i < 5; i++) {
+      expect(
+        tester.getSemantics(find.byType(AnimatedDice).at(i)).label,
+        contains('Die showing 0'),
+        reason: 'Die $i should be blank after new game',
+      );
+    }
+  });
 }
 
 /// Extracts the numeric die value from a semantics label like
