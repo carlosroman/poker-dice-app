@@ -28,6 +28,14 @@ void main() {
     app.main();
     await tester.pumpAndSettle();
 
+    // Reset GoRouter to title screen (singleton persists across flutter drive tests)
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Tap "New Game" button to navigate to game screen with fresh state
+    await tester.tap(find.byType(ElevatedButton).first);
+    await tester.pumpAndSettle();
+
     // Dice are blank on start, categories should be disabled
     // Try to tap "Aces" - it should not select the category
     await tester.tap(find.text('Aces'));
@@ -47,6 +55,14 @@ void main() {
 
   testWidgets('dice hold and chance scoring flow', (tester) async {
     app.main();
+    await tester.pumpAndSettle();
+
+    // Reset GoRouter to title screen (singleton persists across flutter drive tests)
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Tap "New Game" button to navigate to game screen with fresh state
+    await tester.tap(find.byType(ElevatedButton).first);
     await tester.pumpAndSettle();
 
     // Helper to find a specific die by index

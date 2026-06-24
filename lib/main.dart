@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:poker_dice/pages/game_page.dart';
 import 'package:poker_dice/pages/scoreboard_page.dart';
+import 'package:poker_dice/pages/title_screen.dart';
 import 'package:poker_dice/providers/theme_provider.dart';
 
 void main() {
@@ -10,9 +11,11 @@ void main() {
 }
 
 /// GoRouter configuration for the app.
-final _router = GoRouter(
+/// Exposed for e2e test isolation (singleton persists across flutter drive tests).
+final router = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const GamePage()),
+    GoRoute(path: '/', builder: (context, state) => const TitleScreen()),
+    GoRoute(path: '/game', builder: (context, state) => const GamePage()),
     GoRoute(
       path: '/scoreboard',
       builder: (context, state) => const ScoreboardPage(),
@@ -32,7 +35,7 @@ class MainApp extends ConsumerWidget {
       theme: ThemeNotifier.lightTheme,
       darkTheme: ThemeNotifier.darkTheme,
       themeMode: themeMode,
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }
