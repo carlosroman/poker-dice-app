@@ -15,6 +15,30 @@ void main() {
       expect(result.upperSectionTotal, 70);
       expect(result.bonus, 35);
       expect(result.completedAt, DateTime(2024, 1, 15));
+      expect(result.playerCount, 1);
+    });
+
+    test('constructor defaults playerCount to 1', () {
+      final result = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+      );
+
+      expect(result.playerCount, 1);
+    });
+
+    test('constructor accepts explicit playerCount', () {
+      final result = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+      );
+
+      expect(result.playerCount, 2);
     });
 
     test('copyWith creates new instance with replaced fields', () {
@@ -48,6 +72,22 @@ void main() {
       expect(copied.upperSectionTotal, 70);
       expect(copied.bonus, 35);
       expect(copied.completedAt, DateTime(2024, 1, 15));
+      expect(copied.playerCount, 1);
+    });
+
+    test('copyWith updates playerCount', () {
+      final original = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 1,
+      );
+
+      final copied = original.copyWith(playerCount: 2);
+
+      expect(copied.playerCount, 2);
+      expect(copied.totalScore, 250);
     });
 
     test('toJson returns correct map', () {
@@ -64,6 +104,21 @@ void main() {
       expect(json['upper_section_total'], 70);
       expect(json['bonus'], 35);
       expect(json['completed_at'], '2024-01-15T00:00:00.000');
+      expect(json['player_count'], 1);
+    });
+
+    test('toJson includes playerCount for multiplayer', () {
+      final result = GameResult(
+        totalScore: 500,
+        upperSectionTotal: 140,
+        bonus: 70,
+        completedAt: DateTime(2024, 3, 10),
+        playerCount: 2,
+      );
+
+      final json = result.toJson();
+
+      expect(json['player_count'], 2);
     });
 
     test('fromJson creates correct instance', () {
@@ -80,6 +135,35 @@ void main() {
       expect(result.upperSectionTotal, 70);
       expect(result.bonus, 35);
       expect(result.completedAt, DateTime(2024, 1, 15));
+      // Backward compatibility: defaults to 1 when player_count is missing
+      expect(result.playerCount, 1);
+    });
+
+    test('fromJson deserializes playerCount', () {
+      final json = {
+        'total_score': 250,
+        'upper_section_total': 70,
+        'bonus': 35,
+        'completed_at': '2024-01-15T00:00:00.000',
+        'player_count': 2,
+      };
+
+      final result = GameResult.fromJson(json);
+
+      expect(result.playerCount, 2);
+    });
+
+    test('fromJson defaults playerCount to 1 when missing', () {
+      final json = {
+        'total_score': 250,
+        'upper_section_total': 70,
+        'bonus': 35,
+        'completed_at': '2024-01-15T00:00:00.000',
+      };
+
+      final result = GameResult.fromJson(json);
+
+      expect(result.playerCount, 1);
     });
 
     test('toJson and fromJson are symmetric', () {
@@ -132,6 +216,26 @@ void main() {
       expect(result1, isNot(equals(result2)));
     });
 
+    test('equality returns false for different playerCount', () {
+      final result1 = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 1,
+      );
+
+      final result2 = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+      );
+
+      expect(result1, isNot(equals(result2)));
+    });
+
     test('equality returns false for different type', () {
       final result = GameResult(
         totalScore: 250,
@@ -161,6 +265,26 @@ void main() {
       expect(result1.hashCode, equals(result2.hashCode));
     });
 
+    test('hashCode differs for different playerCount', () {
+      final result1 = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 1,
+      );
+
+      final result2 = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+      );
+
+      expect(result1.hashCode, isNot(equals(result2.hashCode)));
+    });
+
     test('toString returns meaningful representation', () {
       final result = GameResult(
         totalScore: 250,
@@ -174,6 +298,7 @@ void main() {
       expect(string, contains('250'));
       expect(string, contains('70'));
       expect(string, contains('35'));
+      expect(string, contains('playerCount'));
     });
   });
 }

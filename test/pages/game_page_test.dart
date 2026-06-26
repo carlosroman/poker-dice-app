@@ -13,21 +13,21 @@ import 'package:poker_dice/widgets/score_sheet.dart';
 
 void main() {
   group('GamePage', () {
-    GameState buildGameState({
-      List<Dice>? dice,
-      int rollsRemaining = 3,
-      Map<ScoreCategory, int?>? scoredCategories,
-      GameStatus status = GameStatus.active,
-      ScoreCategory? selectedCategory,
-    }) {
-      return GameState(
-        currentDice: dice,
-        rollsRemaining: rollsRemaining,
-        scoredCategories: scoredCategories,
-        status: status,
-        selectedCategory: selectedCategory,
-      );
-    }
+GameState buildGameState({
+  int rollsRemaining = 3,
+  List<Dice>? currentDice,
+  Map<ScoreCategory, int?>? scoredCategories,
+  GameStatus status = GameStatus.active,
+  ScoreCategory? selectedCategory,
+}) {
+  return GameState(
+    rollsRemaining: rollsRemaining,
+    currentDice: currentDice ?? List.generate(5, (_) => Dice(value: 0)),
+    singlePlayerScoredCategories: scoredCategories,
+    status: status,
+    selectedCategory: selectedCategory,
+  );
+}
 
     Widget buildGamePage({GameState? gameState, VoidCallback? onBackTap}) {
       return ProviderScope(
@@ -160,7 +160,7 @@ void main() {
         5,
         (i) => Dice(value: i + 1, isHeld: false),
       );
-      final state = buildGameState(dice: testDice);
+      final state = buildGameState(currentDice: testDice);
       await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.byType(AnimatedDice), findsNWidgets(5));
@@ -174,7 +174,7 @@ void main() {
         Dice(value: 4, isHeld: false),
         Dice(value: 5, isHeld: false),
       ];
-      final state = buildGameState(dice: testDice);
+      final state = buildGameState(currentDice: testDice);
       await tester.pumpWidget(buildGamePage(gameState: state));
 
       expect(find.byType(AnimatedDice), findsNWidgets(5));
@@ -350,7 +350,7 @@ void main() {
       // Dice start with value 0 (blank) — button should be disabled
       final unrolledDice = List.generate(5, (_) => const Dice(value: 0));
       final state = buildGameState(
-        dice: unrolledDice,
+        currentDice: unrolledDice,
         selectedCategory: ScoreCategory.aces,
       );
       await tester.pumpWidget(buildGamePage(gameState: state));
@@ -381,7 +381,7 @@ void main() {
         const Dice(value: 4),
       ];
       final state = buildGameState(
-        dice: rolledDice,
+        currentDice: rolledDice,
         selectedCategory: ScoreCategory.aces,
       );
       await tester.pumpWidget(buildGamePage(gameState: state));
@@ -413,7 +413,7 @@ void main() {
         const Dice(value: 0),
       ];
       final state = buildGameState(
-        dice: partialDice,
+        currentDice: partialDice,
         selectedCategory: ScoreCategory.chance,
       );
       await tester.pumpWidget(buildGamePage(gameState: state));
@@ -464,7 +464,7 @@ void main() {
       ];
       final notifier = GameNotifier(
         initialState: buildGameState(
-          dice: rolledDice,
+      currentDice: rolledDice,
           status: GameStatus.active,
           selectedCategory: ScoreCategory.aces,
         ),
@@ -488,7 +488,7 @@ void main() {
 
       // Category should now be scored and selection cleared
       final state = notifier.state;
-      expect(state.scoredCategories[ScoreCategory.aces], isNotNull);
+      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNotNull);
       expect(state.selectedCategory, isNull);
       // Score button remains visible but disabled (no category selected)
       expect(find.text('Score'), findsOneWidget);
@@ -513,7 +513,7 @@ void main() {
         // every row to appear "scored" and unselectable.
         final notifier = GameNotifier(
           initialState: buildGameState(
-            dice: const [
+            currentDice: const [
               Dice(value: 1),
               Dice(value: 2),
               Dice(value: 3),

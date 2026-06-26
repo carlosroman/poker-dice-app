@@ -27,16 +27,16 @@ void main() {
   });
 
   /// Rolls dice, selects, and confirms a category in one step.
-  void _rollAndScore(ScoreCategory category) {
+  void rollAndScore(ScoreCategory category) {
     notifier.rollDice();
     notifier.selectCategoryForPreview(category);
     notifier.confirmScore();
   }
 
   /// Completes the game by scoring all categories.
-  void _completeGame() {
+  void completeGame() {
     for (final category in ScoreCategory.values) {
-      _rollAndScore(category);
+      rollAndScore(category);
     }
   }
 
@@ -61,7 +61,11 @@ void main() {
 
     test('starts with no scored categories', () {
       expect(
-        container.read(gameProvider).scoredCategories.values.whereType<int>(),
+        container
+            .read(gameProvider)
+            .currentPlayerScoredCategories
+            .values
+            .whereType<int>(),
         isEmpty,
       );
     });
@@ -113,7 +117,7 @@ void main() {
 
     test('does nothing when game is completed', () {
       // Score all categories to complete the game
-      _completeGame();
+      completeGame();
 
       notifier.rollDice();
       final stateAfter = container.read(gameProvider);
@@ -166,7 +170,7 @@ void main() {
       final state = container.read(gameProvider);
 
       expect(state.selectedCategory, isNull);
-      expect(state.scoredCategories[ScoreCategory.aces], isNull);
+      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNull);
     });
 
     test('selects category after rolling dice', () {
@@ -190,12 +194,12 @@ void main() {
       // First call: only selects for preview
       var state = container.read(gameProvider);
       expect(state.selectedCategory, ScoreCategory.aces);
-      expect(state.scoredCategories[ScoreCategory.aces], isNull);
+      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNull);
 
       // Second call: confirms the score
       notifier.selectCategory(ScoreCategory.aces);
       state = container.read(gameProvider);
-      expect(state.scoredCategories[ScoreCategory.aces], isNotNull);
+      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNotNull);
       expect(state.selectedCategory, isNull);
       expect(state.rollsRemaining, 3);
     });
@@ -206,19 +210,19 @@ void main() {
       notifier.selectCategory(ScoreCategory.aces);
       final firstScore = container
           .read(gameProvider)
-          .scoredCategories[ScoreCategory.aces];
+          .currentPlayerScoredCategories[ScoreCategory.aces];
 
       notifier.selectCategory(ScoreCategory.aces);
       final secondScore = container
           .read(gameProvider)
-          .scoredCategories[ScoreCategory.aces];
+          .currentPlayerScoredCategories[ScoreCategory.aces];
 
       expect(secondScore, equals(firstScore));
     });
 
     test('does nothing when game is completed', () {
       // Complete the game
-      _completeGame();
+      completeGame();
 
       notifier.selectCategory(ScoreCategory.aces);
       final stateAfter = container.read(gameProvider);
@@ -259,7 +263,7 @@ void main() {
 
       final state = container.read(gameProvider);
       expect(state.selectedCategory, ScoreCategory.aces);
-      expect(state.scoredCategories[ScoreCategory.aces], isNull);
+      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNull);
     });
 
     test('does not select an already scored category', () {
@@ -274,7 +278,7 @@ void main() {
     });
 
     test('does nothing when game is completed', () {
-      _completeGame();
+      completeGame();
 
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       final state = container.read(gameProvider);
@@ -304,7 +308,7 @@ void main() {
       notifier.confirmScore();
 
       final state = container.read(gameProvider);
-      expect(state.scoredCategories[ScoreCategory.aces], isNotNull);
+      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNotNull);
       expect(state.selectedCategory, isNull);
       expect(state.rollsRemaining, 3);
     });
@@ -314,11 +318,11 @@ void main() {
 
       final state = container.read(gameProvider);
       expect(state.selectedCategory, isNull);
-      expect(state.scoredCategories.values.whereType<int>(), isEmpty);
+      expect(state.currentPlayerScoredCategories.values.whereType<int>(), isEmpty);
     });
 
     test('does nothing when game is completed', () {
-      _completeGame();
+      completeGame();
 
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       notifier.confirmScore();
@@ -357,7 +361,7 @@ void main() {
       final state = container.read(gameProvider);
       expect(state.currentDice.length, 5);
       expect(state.rollsRemaining, 3);
-      expect(state.scoredCategories.values.whereType<int>(), isEmpty);
+      expect(state.currentPlayerScoredCategories.values.whereType<int>(), isEmpty);
       expect(state.status, GameStatus.active);
     });
   });
