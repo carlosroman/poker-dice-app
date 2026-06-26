@@ -45,3 +45,5 @@ app.*.map.json
 /android/app/release
 todo.md
 Yatzy_*.png
+Yatzy_*.jpg
+Yatzy_*.jpeg
