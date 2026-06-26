@@ -113,11 +113,11 @@ class _GamePageContent extends ConsumerWidget {
                   flex: 4,
                   child: ScoreSheet(
                     dice: gameState.currentDice,
-                    scoredCategories: Map<ScoreCategory, int>.fromEntries(
-                      gameState.scoredCategories.entries
-                          .where((e) => e.value != null)
-                          .map((e) => MapEntry(e.key, e.value as int)),
-                    ),
+scoredCategories: Map<ScoreCategory, int>.fromEntries(
+        gameState.currentPlayerScoredCategories.entries
+            .where((e) => e.value != null)
+            .map((e) => MapEntry(e.key, e.value as int)),
+      ),
                     selectedCategory: gameState.selectedCategory,
                     onCategorySelect: (ScoreCategory category) =>
                         notifier.selectCategory(category),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_dice/models/dice.dart';
 
 /// Defines all scoring categories in the poker dice game.
 ///
@@ -119,6 +120,139 @@ extension ScoreCategoryX on ScoreCategory {
       case ScoreCategory.chance:
         return Icons.casino;
     }
+  }
+
+  /// Calculates the score for this category based on the given dice.
+  /// Returns 0 if the category cannot be scored with the current dice.
+  int calculateScore(List<Dice> dice) {
+    switch (this) {
+      // Upper section: sum of dice matching the face value
+      case ScoreCategory.aces:
+      case ScoreCategory.twos:
+      case ScoreCategory.threes:
+      case ScoreCategory.fours:
+      case ScoreCategory.fives:
+      case ScoreCategory.sixes:
+        int sum = 0;
+        for (final die in dice) {
+          if (die.value == diceValue) {
+            sum += die.value;
+          }
+        }
+        return sum;
+
+      // Three of a kind: sum of all dice if any value appears 3+ times
+      case ScoreCategory.threeOfAKind:
+        if (_hasCount(dice, 3)) {
+          int sum = 0;
+          for (final die in dice) {
+            sum += die.value;
+          }
+          return sum;
+        }
+        return 0;
+
+      // Four of a kind: sum of all dice if any value appears 4+ times
+      case ScoreCategory.fourOfAKind:
+        if (_hasCount(dice, 4)) {
+          int sum = 0;
+          for (final die in dice) {
+            sum += die.value;
+          }
+          return sum;
+        }
+        return 0;
+
+      // Full house: 25 points if three of one value and two of another
+      case ScoreCategory.fullHouse:
+        if (_isFullHouse(dice)) {
+          return 25;
+        }
+        return 0;
+
+      // Small straight: 30 points for 4 consecutive values
+      case ScoreCategory.smallStraight:
+        if (_isSmallStraight(dice)) {
+          return 30;
+        }
+        return 0;
+
+      // Large straight: 40 points for 5 consecutive values
+      case ScoreCategory.largeStraight:
+        if (_isLargeStraight(dice)) {
+          return 40;
+        }
+        return 0;
+
+      // Yatzy: 50 points if all dice show the same value
+      case ScoreCategory.yatzy:
+        if (_hasCount(dice, 5)) {
+          return 50;
+        }
+        return 0;
+
+      // Chance: sum of all dice
+      case ScoreCategory.chance:
+        int sum = 0;
+        for (final die in dice) {
+          sum += die.value;
+        }
+        return sum;
+    }
+  }
+
+  bool _hasCount(List<Dice> dice, int count) {
+    for (int v = 1; v <= 6; v++) {
+      int c = 0;
+      for (final die in dice) {
+        if (die.value == v) c++;
+      }
+      if (c >= count) return true;
+    }
+    return false;
+  }
+
+  bool _isFullHouse(List<Dice> dice) {
+    int threeCount = 0;
+    int twoCount = 0;
+    for (int v = 1; v <= 6; v++) {
+      int c = 0;
+      for (final die in dice) {
+        if (die.value == v) c++;
+      }
+      if (c == 3) threeCount++;
+      if (c == 2) twoCount++;
+    }
+    return threeCount == 1 && twoCount == 1;
+  }
+
+  bool _isSmallStraight(List<Dice> dice) {
+    final values = <int>{};
+    for (final die in dice) {
+      if (die.value > 0) values.add(die.value);
+    }
+    final sorted = values.toList()..sort();
+    int consecutive = 1;
+    for (int i = 1; i < sorted.length; i++) {
+      if (sorted[i] == sorted[i - 1] + 1) {
+        consecutive++;
+        if (consecutive >= 4) return true;
+      } else {
+        consecutive = 1;
+      }
+    }
+    return false;
+  }
+
+  bool _isLargeStraight(List<Dice> dice) {
+    final values = <int>{};
+    for (final die in dice) {
+      if (die.value > 0) values.add(die.value);
+    }
+    return (values.contains(1) && values.contains(2) && values.contains(3) &&
+            values.contains(4) && values.contains(5)) ||
+        (values.contains(2) && values.contains(3) && values.contains(4) &&
+            values.contains(5) && values.contains(6));
   }
 
   /// The die face value (1-6) for upper categories, null otherwise.

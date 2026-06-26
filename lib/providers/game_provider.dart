@@ -97,7 +97,7 @@ class GameNotifier extends StateNotifier<GameState> {
       return;
     }
 
-    if (state.scoredCategories[category] != null) {
+    if (state.currentPlayerScoredCategories[category] != null) {
       return;
     }
 
@@ -117,7 +117,7 @@ class GameNotifier extends StateNotifier<GameState> {
       return;
     }
 
-    if (state.scoredCategories[category] != null) {
+    if (state.currentPlayerScoredCategories[category] != null) {
       return;
     }
 
@@ -145,7 +145,7 @@ class GameNotifier extends StateNotifier<GameState> {
       return;
     }
 
-    if (state.scoredCategories[category] != null) {
+    if (state.currentPlayerScoredCategories[category] != null) {
       state = state.copyWith(clearSelectedCategory: true);
       return;
     }
@@ -154,7 +154,7 @@ class GameNotifier extends StateNotifier<GameState> {
 
     try {
       state = state
-          .scoreCategory(category, score)
+          .recordScore(category, score)
           .copyWith(clearSelectedCategory: true);
       _autoSave(state);
       if (state.status == GameStatus.active) {
@@ -181,7 +181,7 @@ class GameNotifier extends StateNotifier<GameState> {
   ///
   /// Returns `null` if the category is already scored.
   int? getPreviewScore(ScoreCategory category) {
-    if (state.scoredCategories[category] != null) {
+    if (state.currentPlayerScoredCategories[category] != null) {
       return null;
     }
     return _scoringService.calculateScore(state.currentDice, category);
