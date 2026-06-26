@@ -364,6 +364,92 @@ void main() {
       expect(state.currentPlayerScoredCategories.values.whereType<int>(), isEmpty);
       expect(state.status, GameStatus.active);
     });
+
+    test('resets with custom player count', () {
+      notifier.resetGame(playerCount: 2);
+
+      final state = container.read(gameProvider);
+      expect(state.playerCount, 2);
+      expect(state.currentPlayer, 0);
+    });
+
+    test('defaults to single player when no player count provided', () {
+      notifier.resetGame();
+
+      final state = container.read(gameProvider);
+      expect(state.playerCount, 1);
+      expect(state.currentPlayer, 0);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Multiplayer getters
+  // -----------------------------------------------------------------------
+
+  group('multiplayer getters', () {
+    test('currentPlayer returns the current player index (0-based)', () {
+      notifier.resetGame(playerCount: 2);
+      expect(notifier.currentPlayer, 0);
+    });
+
+    test('playerCount returns the number of players', () {
+      notifier.resetGame(playerCount: 2);
+      expect(notifier.playerCount, 2);
+    });
+
+    test('lastScoredCategory is null initially', () {
+      expect(notifier.lastScoredCategory, isNull);
+    });
+
+    test('lastScoredCategory updates after scoring', () {
+      notifier.rollDice();
+      notifier.selectCategoryForPreview(ScoreCategory.aces);
+      notifier.confirmScore();
+
+      expect(notifier.lastScoredCategory, ScoreCategory.aces);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // confirmScore - player switching
+  // -----------------------------------------------------------------------
+
+  group('confirmScore - player switching', () {
+    test('switches player after scoring in 2-player mode (0→1)', () {
+      notifier.resetGame(playerCount: 2);
+      notifier.rollDice();
+      notifier.selectCategoryForPreview(ScoreCategory.aces);
+      notifier.confirmScore();
+
+      final state = container.read(gameProvider);
+      expect(state.currentPlayer, 1);
+    });
+
+    test('does not switch player in single player mode', () {
+      notifier.resetGame(playerCount: 1);
+      notifier.rollDice();
+      notifier.selectCategoryForPreview(ScoreCategory.aces);
+      notifier.confirmScore();
+
+      final state = container.read(gameProvider);
+      expect(state.currentPlayer, 0);
+    });
+
+    test('game remains active after one player completes all categories in 2-player mode', () {
+      notifier.resetGame(playerCount: 2);
+
+      // Player 0 completes all 13 categories
+      for (final category in ScoreCategory.values) {
+        notifier.rollDice();
+        notifier.selectCategoryForPreview(category);
+        notifier.confirmScore();
+      }
+
+      final state = container.read(gameProvider);
+      // Game is still active because player 1 hasn't scored yet
+      expect(state.status, GameStatus.active);
+      expect(state.currentPlayer, 1);
+    });
   });
 
   // -----------------------------------------------------------------------

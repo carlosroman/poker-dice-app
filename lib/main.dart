@@ -15,7 +15,17 @@ void main() {
 final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const TitleScreen()),
-    GoRoute(path: '/game', builder: (context, state) => const GamePage()),
+    GoRoute(
+      path: '/game',
+      builder: (context, state) {
+        final mode = state.uri.queryParameters['mode'];
+        final playerCount = mode == 'double' ? 2 : 1;
+        return GamePage(
+          onBackTap: () => context.go('/'),
+          playerCount: playerCount,
+        );
+      },
+    ),
     GoRoute(
       path: '/scoreboard',
       builder: (context, state) => const ScoreboardPage(),

@@ -132,9 +132,19 @@ class GameNotifier extends StateNotifier<GameState> {
     }
   }
 
+  /// Current player index (0 or 1).
+  int get currentPlayer => state.currentPlayer;
+
+  /// Number of players (1 or 2).
+  int get playerCount => state.playerCount;
+
+  /// Last scored category across all players.
+  ScoreCategory? get lastScoredCategory => state.lastScoredCategory;
+
   /// Scores the currently selected category and advances the turn.
   ///
   /// Does nothing if no category is selected or the game is completed.
+  /// In 2-player mode, switches to the next player after scoring.
   void confirmScore() {
     final category = state.selectedCategory;
     if (category == null) {
@@ -157,7 +167,13 @@ class GameNotifier extends StateNotifier<GameState> {
           .recordScore(category, score)
           .copyWith(clearSelectedCategory: true);
       _autoSave(state);
-      if (state.status == GameStatus.active) {
+
+      // Switch player after scoring (only in 2-player mode)
+      if (state.playerCount > 1 && state.status == GameStatus.active) {
+        state = state.switchPlayer();
+        _resetTurn();
+        _autoSave(state);
+      } else if (state.status == GameStatus.active) {
         _resetTurn();
       }
     } on StateError {
@@ -171,8 +187,9 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 
   /// Resets the game to a fresh state.
-  void resetGame() {
-    state = GameState();
+  /// Optionally sets [playerCount] (1 or 2).
+  void resetGame({int playerCount = 1}) {
+    state = GameState.initial(playerCount: playerCount);
     _resetTurn();
     _clearInProgressGame();
   }

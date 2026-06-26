@@ -24,8 +24,11 @@ class GamePage extends StatefulWidget {
   /// Called when the player taps the back button.
   final VoidCallback? onBackTap;
 
+  /// Number of players (1 or 2). Defaults to 1.
+  final int playerCount;
+
   /// Creates a [GamePage] with optional navigation callbacks.
-  const GamePage({super.key, this.onBackTap});
+  const GamePage({super.key, this.onBackTap, this.playerCount = 1});
 
   @override
   State<GamePage> createState() => _GamePageState();
