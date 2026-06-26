@@ -249,10 +249,16 @@ extension ScoreCategoryX on ScoreCategory {
     for (final die in dice) {
       if (die.value > 0) values.add(die.value);
     }
-    return (values.contains(1) && values.contains(2) && values.contains(3) &&
-            values.contains(4) && values.contains(5)) ||
-        (values.contains(2) && values.contains(3) && values.contains(4) &&
-            values.contains(5) && values.contains(6));
+    return (values.contains(1) &&
+            values.contains(2) &&
+            values.contains(3) &&
+            values.contains(4) &&
+            values.contains(5)) ||
+        (values.contains(2) &&
+            values.contains(3) &&
+            values.contains(4) &&
+            values.contains(5) &&
+            values.contains(6));
   }
 
   /// The die face value (1-6) for upper categories, null otherwise.

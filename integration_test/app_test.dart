@@ -284,7 +284,7 @@ void main() {
 
     // Verify we're at title screen
     expect(find.text('Poker Dice'), findsOneWidget);
-    expect(find.text('New Game'), findsOneWidget);
+    expect(find.text('New Single Game'), findsOneWidget);
     expect(find.text('Continue'), findsOneWidget);
 
     // Step 12: Tap Continue to return to the game

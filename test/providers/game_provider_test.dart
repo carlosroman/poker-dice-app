@@ -199,7 +199,10 @@ void main() {
       // Second call: confirms the score
       notifier.selectCategory(ScoreCategory.aces);
       state = container.read(gameProvider);
-      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNotNull);
+      expect(
+        state.currentPlayerScoredCategories[ScoreCategory.aces],
+        isNotNull,
+      );
       expect(state.selectedCategory, isNull);
       expect(state.rollsRemaining, 3);
     });
@@ -308,7 +311,10 @@ void main() {
       notifier.confirmScore();
 
       final state = container.read(gameProvider);
-      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNotNull);
+      expect(
+        state.currentPlayerScoredCategories[ScoreCategory.aces],
+        isNotNull,
+      );
       expect(state.selectedCategory, isNull);
       expect(state.rollsRemaining, 3);
     });
@@ -318,7 +324,10 @@ void main() {
 
       final state = container.read(gameProvider);
       expect(state.selectedCategory, isNull);
-      expect(state.currentPlayerScoredCategories.values.whereType<int>(), isEmpty);
+      expect(
+        state.currentPlayerScoredCategories.values.whereType<int>(),
+        isEmpty,
+      );
     });
 
     test('does nothing when game is completed', () {
@@ -361,7 +370,10 @@ void main() {
       final state = container.read(gameProvider);
       expect(state.currentDice.length, 5);
       expect(state.rollsRemaining, 3);
-      expect(state.currentPlayerScoredCategories.values.whereType<int>(), isEmpty);
+      expect(
+        state.currentPlayerScoredCategories.values.whereType<int>(),
+        isEmpty,
+      );
       expect(state.status, GameStatus.active);
     });
 
@@ -435,21 +447,24 @@ void main() {
       expect(state.currentPlayer, 0);
     });
 
-    test('game remains active after one player completes all categories in 2-player mode', () {
-      notifier.resetGame(playerCount: 2);
+    test(
+      'game remains active after one player completes all categories in 2-player mode',
+      () {
+        notifier.resetGame(playerCount: 2);
 
-      // Player 0 completes all 13 categories
-      for (final category in ScoreCategory.values) {
-        notifier.rollDice();
-        notifier.selectCategoryForPreview(category);
-        notifier.confirmScore();
-      }
+        // Player 0 completes all 13 categories
+        for (final category in ScoreCategory.values) {
+          notifier.rollDice();
+          notifier.selectCategoryForPreview(category);
+          notifier.confirmScore();
+        }
 
-      final state = container.read(gameProvider);
-      // Game is still active because player 1 hasn't scored yet
-      expect(state.status, GameStatus.active);
-      expect(state.currentPlayer, 1);
-    });
+        final state = container.read(gameProvider);
+        // Game is still active because player 1 hasn't scored yet
+        expect(state.status, GameStatus.active);
+        expect(state.currentPlayer, 1);
+      },
+    );
   });
 
   // -----------------------------------------------------------------------

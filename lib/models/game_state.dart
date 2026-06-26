@@ -40,6 +40,7 @@ class GameState {
     List<Dice>? currentDice,
     this.rollsRemaining = 3,
     Map<int, Map<ScoreCategory, int?>>? scoredCategories,
+
     /// Accepts old single-player format for backward compatibility.
     Map<ScoreCategory, int?>? singlePlayerScoredCategories,
     this.status = GameStatus.active,
@@ -47,16 +48,20 @@ class GameState {
     this.playerCount = 1,
     this.currentPlayer = 0,
     this.lastScoredCategory,
-  })  : assert(playerCount >= 1 && playerCount <= 2,
-            'playerCount must be 1 or 2, got $playerCount.'),
-        assert(currentPlayer >= 0 && currentPlayer < playerCount,
-            'currentPlayer ($currentPlayer) must be in range [0, $playerCount).'),
-        currentDice = currentDice ?? List.generate(5, (_) => Dice(value: 0)),
-        scoredCategories = _resolveScoredCategories(
-          scoredCategories,
-          singlePlayerScoredCategories,
-          playerCount,
-        ) {
+  }) : assert(
+         playerCount >= 1 && playerCount <= 2,
+         'playerCount must be 1 or 2, got $playerCount.',
+       ),
+       assert(
+         currentPlayer >= 0 && currentPlayer < playerCount,
+         'currentPlayer ($currentPlayer) must be in range [0, $playerCount).',
+       ),
+       currentDice = currentDice ?? List.generate(5, (_) => Dice(value: 0)),
+       scoredCategories = _resolveScoredCategories(
+         scoredCategories,
+         singlePlayerScoredCategories,
+         playerCount,
+       ) {
     if (this.currentDice.length != 5) {
       throw ArgumentError(
         'Exactly 5 dice are required, got ${this.currentDice.length}.',
@@ -75,9 +80,7 @@ class GameState {
     }
     return {
       for (int i = 0; i < playerCount; i++)
-        i: {
-          for (final category in ScoreCategory.values) category: null,
-        },
+        i: {for (final category in ScoreCategory.values) category: null},
     };
   }
 
@@ -217,8 +220,10 @@ class GameState {
     updated[currentPlayer] = updatedPlayer;
 
     // Check if ALL players have completed
-    bool allComplete = updated.values.every((playerCats) =>
-        ScoreCategory.values.every((cat) => playerCats[cat] != null));
+    bool allComplete = updated.values.every(
+      (playerCats) =>
+          ScoreCategory.values.every((cat) => playerCats[cat] != null),
+    );
 
     final newStatus = allComplete ? GameStatus.completed : status;
 
@@ -287,12 +292,7 @@ class GameState {
             (e) => {
               'player_index': e.key,
               'categories': e.value.entries
-                  .map(
-                    (c) => {
-                      'category_index': c.key.index,
-                      'score': c.value,
-                    },
-                  )
+                  .map((c) => {'category_index': c.key.index, 'score': c.value})
                   .toList(),
             },
           )
@@ -320,8 +320,9 @@ class GameState {
         parsedScoredCategories = <int, Map<ScoreCategory, int?>>{
           for (final entry in scoredData.cast<Map<String, dynamic>>())
             entry['player_index'] as int: <ScoreCategory, int?>{
-              for (final cat in (entry['categories'] as List<dynamic>)
-                  .cast<Map<String, dynamic>>())
+              for (final cat
+                  in (entry['categories'] as List<dynamic>)
+                      .cast<Map<String, dynamic>>())
                 ScoreCategory.values[cat['category_index'] as int]:
                     cat['score'] as int?,
             },

@@ -76,10 +76,7 @@ void main() {
 
     group('scored categories', () {
       test('tracks scored categories per player', () {
-        final scored = {
-          ScoreCategory.aces: 3,
-          ScoreCategory.twos: 2,
-        };
+        final scored = {ScoreCategory.aces: 3, ScoreCategory.twos: 2};
         final state = GameState(singlePlayerScoredCategories: scored);
 
         expect(state.currentPlayerScoredCategories[ScoreCategory.aces], 3);
@@ -88,10 +85,7 @@ void main() {
       });
 
       test('returns scored map with non-null values', () {
-        final scored = {
-          ScoreCategory.aces: 3,
-          ScoreCategory.twos: null,
-        };
+        final scored = {ScoreCategory.aces: 3, ScoreCategory.twos: null};
         final state = GameState(singlePlayerScoredCategories: scored);
 
         final scoredMap = state.scored;
@@ -157,9 +151,9 @@ void main() {
       });
 
       test('throws when category already scored', () {
-        final state = GameState(singlePlayerScoredCategories: {
-          ScoreCategory.aces: 6,
-        });
+        final state = GameState(
+          singlePlayerScoredCategories: {ScoreCategory.aces: 6},
+        );
 
         expect(
           () => state.recordScore(ScoreCategory.aces, 3),
@@ -303,7 +297,10 @@ void main() {
         final newState = state.reset();
 
         expect(newState.rollsRemaining, 3);
-        expect(newState.currentPlayerScoredCategories[ScoreCategory.aces], null);
+        expect(
+          newState.currentPlayerScoredCategories[ScoreCategory.aces],
+          null,
+        );
         for (final die in newState.currentDice) {
           expect(die.value, 0);
         }

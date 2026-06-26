@@ -129,8 +129,11 @@ class ScoreSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    final p0Scores = playerScoredCategories?[0] ?? scoredCategories.cast<ScoreCategory, int?>();
-    final p1Scores = playerScoredCategories?[1] ?? const <ScoreCategory, int?>{};
+    final p0Scores =
+        playerScoredCategories?[0] ??
+        scoredCategories.cast<ScoreCategory, int?>();
+    final p1Scores =
+        playerScoredCategories?[1] ?? const <ScoreCategory, int?>{};
 
     final upperCategories = ScoreCategory.values
         .where((c) => c.isUpper)
@@ -267,7 +270,9 @@ class ScoreSheet extends StatelessWidget {
         ),
         // Score sections
         ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(12),
+          ),
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -316,39 +321,36 @@ class ScoreSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildSectionHeader(context, title),
-        ...categories.map(
-          (category) {
-            final score = scores[category];
-            final isScored = score != null;
+        ...categories.map((category) {
+          final score = scores[category];
+          final isScored = score != null;
 
-            if (isInteractive) {
-              return CategoryRow(
-                key: ValueKey('${categories.first.name}_$title'),
-                category: category,
-                state: _rowState(category),
-                previewScore: _previewScore(category),
-                finalScore: scoredCategories[category],
-                onTap: _rowState(category) == CategoryRowState.selectable
-                    ? () => onCategorySelect(category)
-                    : null,
-                isLastScored: category == lastScoredCategory,
-              );
-            }
-
-            // Read-only display for other player
+          if (isInteractive) {
             return CategoryRow(
               key: ValueKey('${categories.first.name}_$title'),
               category: category,
-              state: isScored ? CategoryRowState.scored : CategoryRowState.disabled,
-              finalScore: score ?? 0,
+              state: _rowState(category),
+              previewScore: _previewScore(category),
+              finalScore: scoredCategories[category],
+              onTap: _rowState(category) == CategoryRowState.selectable
+                  ? () => onCategorySelect(category)
+                  : null,
               isLastScored: category == lastScoredCategory,
             );
-          },
-        ),
-        if (isUpper) ...[
-          const SizedBox(height: 4),
-          _buildBonusRow(context),
-        ],
+          }
+
+          // Read-only display for other player
+          return CategoryRow(
+            key: ValueKey('${categories.first.name}_$title'),
+            category: category,
+            state: isScored
+                ? CategoryRowState.scored
+                : CategoryRowState.disabled,
+            finalScore: score ?? 0,
+            isLastScored: category == lastScoredCategory,
+          );
+        }),
+        if (isUpper) ...[const SizedBox(height: 4), _buildBonusRow(context)],
       ],
     );
   }

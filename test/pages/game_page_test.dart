@@ -13,21 +13,21 @@ import 'package:poker_dice/widgets/score_sheet.dart';
 
 void main() {
   group('GamePage', () {
-GameState buildGameState({
-  int rollsRemaining = 3,
-  List<Dice>? currentDice,
-  Map<ScoreCategory, int?>? scoredCategories,
-  GameStatus status = GameStatus.active,
-  ScoreCategory? selectedCategory,
-}) {
-  return GameState(
-    rollsRemaining: rollsRemaining,
-    currentDice: currentDice ?? List.generate(5, (_) => Dice(value: 0)),
-    singlePlayerScoredCategories: scoredCategories,
-    status: status,
-    selectedCategory: selectedCategory,
-  );
-}
+    GameState buildGameState({
+      int rollsRemaining = 3,
+      List<Dice>? currentDice,
+      Map<ScoreCategory, int?>? scoredCategories,
+      GameStatus status = GameStatus.active,
+      ScoreCategory? selectedCategory,
+    }) {
+      return GameState(
+        rollsRemaining: rollsRemaining,
+        currentDice: currentDice ?? List.generate(5, (_) => Dice(value: 0)),
+        singlePlayerScoredCategories: scoredCategories,
+        status: status,
+        selectedCategory: selectedCategory,
+      );
+    }
 
     Widget buildGamePage({GameState? gameState, VoidCallback? onBackTap}) {
       return ProviderScope(
@@ -464,7 +464,7 @@ GameState buildGameState({
       ];
       final notifier = GameNotifier(
         initialState: buildGameState(
-      currentDice: rolledDice,
+          currentDice: rolledDice,
           status: GameStatus.active,
           selectedCategory: ScoreCategory.aces,
         ),
@@ -488,7 +488,10 @@ GameState buildGameState({
 
       // Category should now be scored and selection cleared
       final state = notifier.state;
-      expect(state.currentPlayerScoredCategories[ScoreCategory.aces], isNotNull);
+      expect(
+        state.currentPlayerScoredCategories[ScoreCategory.aces],
+        isNotNull,
+      );
       expect(state.selectedCategory, isNull);
       // Score button remains visible but disabled (no category selected)
       expect(find.text('Score'), findsOneWidget);

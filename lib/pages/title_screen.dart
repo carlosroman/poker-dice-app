@@ -1,4 +1,4 @@
-/// Title screen with New Game and Continue buttons.
+/// Title screen with New Single Game, New Double Game, and Continue buttons.
 ///
 /// Entry point of the app. The "Continue" button is disabled
 /// when there is no saved in-progress game.
@@ -35,13 +35,22 @@ class TitleScreen extends ConsumerWidget {
               ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 48),
-            // New Game button
+            // New Single Game button
             ElevatedButton(
               onPressed: () {
-                ref.read(gameProvider.notifier).resetGame();
-                context.go('/game');
+                ref.read(gameProvider.notifier).resetGame(playerCount: 1);
+                context.go('/game?mode=single');
               },
-              child: const Text('New Game'),
+              child: const Text('New Single Game'),
+            ),
+            const SizedBox(height: 16),
+            // New Double Game button
+            ElevatedButton(
+              onPressed: () {
+                ref.read(gameProvider.notifier).resetGame(playerCount: 2);
+                context.go('/game?mode=double');
+              },
+              child: const Text('New Double Game'),
             ),
             const SizedBox(height: 16),
             // Continue button (disabled if no saved game)

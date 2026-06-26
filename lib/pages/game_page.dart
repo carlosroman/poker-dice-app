@@ -120,7 +120,7 @@ class _GamePageContent extends ConsumerWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-               // Score sheet
+                // Score sheet
                 Expanded(
                   flex: 4,
                   child: ScoreSheet(

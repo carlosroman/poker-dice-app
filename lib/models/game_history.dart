@@ -78,8 +78,13 @@ class GameResult {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(totalScore, upperSectionTotal, bonus, completedAt, playerCount);
+  int get hashCode => Object.hash(
+    totalScore,
+    upperSectionTotal,
+    bonus,
+    completedAt,
+    playerCount,
+  );
 
   @override
   String toString() {

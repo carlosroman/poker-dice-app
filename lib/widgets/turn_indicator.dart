@@ -32,7 +32,11 @@ class TurnIndicator extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.sports_esports_rounded, size: 20, color: colors.onSecondaryContainer),
+          Icon(
+            Icons.sports_esports_rounded,
+            size: 20,
+            color: colors.onSecondaryContainer,
+          ),
           const SizedBox(width: 8),
           Text(
             'Player ${currentPlayer + 1}\'s Turn',
