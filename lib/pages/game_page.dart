@@ -9,6 +9,7 @@ import 'package:poker_dice/providers/theme_provider.dart';
 import 'package:poker_dice/widgets/animated_dice.dart';
 import 'package:poker_dice/widgets/roll_button.dart';
 import 'package:poker_dice/widgets/score_sheet.dart';
+import 'package:poker_dice/widgets/turn_indicator.dart';
 
 /// Complete game screen for the poker dice (Yatzy) game.
 ///
@@ -56,6 +57,7 @@ class _GamePageState extends State<GamePage> {
       onBackTap: widget.onBackTap,
       dieKeys: _dieKeys,
       onRoll: _onRoll,
+      playerCount: widget.playerCount,
     );
   }
 }
@@ -65,11 +67,13 @@ class _GamePageContent extends ConsumerWidget {
   final VoidCallback? onBackTap;
   final List<GlobalKey<AnimatedDiceState>> dieKeys;
   final void Function(GameNotifier, List<Dice>) onRoll;
+  final int playerCount;
 
   const _GamePageContent({
     required this.onBackTap,
     required this.dieKeys,
     required this.onRoll,
+    this.playerCount = 1,
   });
 
   @override
@@ -87,7 +91,12 @@ class _GamePageContent extends ConsumerWidget {
           onPressed: onBackTap ?? () => context.go('/'),
           tooltip: 'Back',
         ),
-        title: _buildAppBarTitle(context, gameState.totalScore),
+        title: _buildAppBarTitle(
+          context,
+          gameState.totalScore,
+          gameState.playerCount,
+          gameState.currentPlayer,
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -111,23 +120,35 @@ class _GamePageContent extends ConsumerWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Score sheet
+               // Score sheet
                 Expanded(
                   flex: 4,
                   child: ScoreSheet(
                     dice: gameState.currentDice,
-scoredCategories: Map<ScoreCategory, int>.fromEntries(
-        gameState.currentPlayerScoredCategories.entries
-            .where((e) => e.value != null)
-            .map((e) => MapEntry(e.key, e.value as int)),
-      ),
+                    scoredCategories: Map<ScoreCategory, int>.fromEntries(
+                      gameState.currentPlayerScoredCategories.entries
+                          .where((e) => e.value != null)
+                          .map((e) => MapEntry(e.key, e.value as int)),
+                    ),
                     selectedCategory: gameState.selectedCategory,
                     onCategorySelect: (ScoreCategory category) =>
                         notifier.selectCategory(category),
                     upperTotal: gameState.upperSectionTotal,
                     bonus: gameState.bonus,
+                    playerCount: gameState.playerCount,
+                    currentPlayer: gameState.currentPlayer,
+                    playerScoredCategories: gameState.scoredCategories,
+                    lastScoredCategory: gameState.lastScoredCategory,
                   ),
                 ),
+                // Turn indicator (hidden in single-player)
+                if (gameState.playerCount > 1) ...[
+                  const SizedBox(height: 8),
+                  TurnIndicator(
+                    currentPlayer: gameState.currentPlayer,
+                    playerCount: gameState.playerCount,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 // Dice area
                 _buildDiceArea(context, gameState.currentDice, notifier),
@@ -167,8 +188,15 @@ scoredCategories: Map<ScoreCategory, int>.fromEntries(
   }
 
   /// Builds the app bar title showing total score and player label.
-  Widget _buildAppBarTitle(BuildContext context, int totalScore) {
+  Widget _buildAppBarTitle(
+    BuildContext context,
+    int totalScore,
+    int playerCount,
+    int currentPlayer,
+  ) {
     final theme = Theme.of(context);
+
+    final label = playerCount > 1 ? 'Player ${currentPlayer + 1}' : 'You';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,7 +210,7 @@ scoredCategories: Map<ScoreCategory, int>.fromEntries(
           ),
         ),
         Text(
-          'You',
+          label,
           style: theme.textTheme.titleMedium?.copyWith(
             color: Colors.white.withValues(alpha: 0.9),
           ),

@@ -40,6 +40,11 @@ class CategoryRow extends StatelessWidget {
   /// Called when the row is tapped and [state] is selectable.
   final VoidCallback? onTap;
 
+  /// Whether this category was the most recently scored.
+  ///
+  /// When true, a yellow dot indicator is shown next to the category name.
+  final bool isLastScored;
+
   /// Creates a [CategoryRow].
   const CategoryRow({
     super.key,
@@ -48,6 +53,7 @@ class CategoryRow extends StatelessWidget {
     this.previewScore,
     this.finalScore,
     this.onTap,
+    this.isLastScored = false,
   });
 
   @override
@@ -66,10 +72,26 @@ class CategoryRow extends StatelessWidget {
             Icon(category.icon, color: _iconColor(theme)),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                category.displayName,
-                style: _textStyle(theme),
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      category.displayName,
+                      style: _textStyle(theme),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (isLastScored) const SizedBox(width: 6),
+                  if (isLastScored)
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.amber,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(width: 8),
