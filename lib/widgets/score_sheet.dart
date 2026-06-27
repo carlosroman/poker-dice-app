@@ -222,6 +222,7 @@ class ScoreSheet extends StatelessWidget {
     final playerBonus = playerUpperTotal >= 63 ? 35 : 0;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Player header
@@ -268,8 +269,9 @@ class ScoreSheet extends StatelessWidget {
             ],
           ),
         ),
-        // Score sections
-        ClipRRect(
+     // Score sections
+      Expanded(
+        child: ClipRRect(
           borderRadius: const BorderRadius.vertical(
             bottom: Radius.circular(12),
           ),
@@ -284,6 +286,7 @@ class ScoreSheet extends StatelessWidget {
                   playerUpperTotal,
                   playerBonus,
                   isCurrent,
+                  playerIndex,
                 ),
                 const Divider(height: 1),
                 _buildReadOnlySection(
@@ -294,13 +297,15 @@ class ScoreSheet extends StatelessWidget {
                   playerUpperTotal,
                   playerBonus,
                   isCurrent,
+                  playerIndex,
                 ),
               ],
             ),
           ),
         ),
-      ],
-    );
+      ),
+    ],
+  );
   }
 
   /// Builds a section of category rows for a player.
@@ -312,8 +317,9 @@ class ScoreSheet extends StatelessWidget {
     Map<ScoreCategory, int?> scores,
     int upperTotal,
     int bonus,
-    bool isInteractive,
-  ) {
+    bool isInteractive, [
+    int playerIndex = 0,
+  ]) {
     final isUpper = categories.isNotEmpty && categories.first.isUpper;
 
     return Column(
@@ -327,7 +333,7 @@ class ScoreSheet extends StatelessWidget {
 
           if (isInteractive) {
             return CategoryRow(
-              key: ValueKey('${categories.first.name}_$title'),
+              key: ValueKey('p${playerIndex}_${category.name}_$title'),
               category: category,
               state: _rowState(category),
               previewScore: _previewScore(category),
@@ -341,7 +347,7 @@ class ScoreSheet extends StatelessWidget {
 
           // Read-only display for other player
           return CategoryRow(
-            key: ValueKey('${categories.first.name}_$title'),
+            key: ValueKey('p${playerIndex}_${category.name}_$title'),
             category: category,
             state: isScored
                 ? CategoryRowState.scored

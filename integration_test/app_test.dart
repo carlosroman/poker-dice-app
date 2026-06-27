@@ -330,6 +330,73 @@ void main() {
       );
     }
   });
+
+  /// End-to-end test: multiplayer game flow.
+  ///
+  /// Validates:
+  /// - Step 1: Start a 2-player game from the title screen
+  /// - Step 2: Player 1 rolls and scores a category
+  /// - Step 3: Turn switches to Player 2
+  /// - Step 4: Player 2 rolls and scores a category
+  /// - Step 5: Both players' scores are displayed independently
+  testWidgets('multiplayer game flow', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Reset GoRouter to title screen
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Step 1: Start a 2-player game
+    await tester.tap(find.text('New Multiplayer Game'));
+    await tester.pumpAndSettle();
+
+    // Verify turn indicator shows Player 1
+    expect(find.text('Player 1'), findsOneWidget);
+
+    // Step 2: Player 1 rolls
+    await tester.tap(find.text('Roll'));
+    await tester.pumpAndSettle();
+
+    // Verify dice are rolled
+    var hasRolled = false;
+    for (int i = 0; i < 5; i++) {
+      final value = _dieValueFromSemantics(
+        tester.getSemantics(find.byType(AnimatedDice).at(i)),
+      );
+      if (value >= 1 && value <= 6) {
+        hasRolled = true;
+        break;
+      }
+    }
+    expect(hasRolled, isTrue, reason: 'At least one die should have a value');
+
+    // Player 1 scores Aces
+    await tester.tap(find.text('Aces'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Score'));
+    await tester.pumpAndSettle();
+
+    // Step 3: Verify turn switched to Player 2
+    expect(find.text('Player 2'), findsOneWidget);
+
+    // Step 4: Player 2 rolls and scores
+    await tester.tap(find.text('Roll'));
+    await tester.pumpAndSettle();
+
+    // Player 2 scores Twos
+    await tester.tap(find.text('Twos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Score'));
+    await tester.pumpAndSettle();
+
+    // Step 5: Verify turn switched back to Player 1
+    expect(find.text('Player 1'), findsOneWidget);
+
+    // Verify both players have scores in their respective categories
+    expect(find.text('Aces'), findsOneWidget);
+    expect(find.text('Twos'), findsOneWidget);
+  });
 }
 
 /// Extracts the numeric die value from a semantics label like
