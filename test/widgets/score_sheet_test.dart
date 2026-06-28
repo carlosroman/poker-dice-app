@@ -177,7 +177,7 @@ void main() {
           ),
         );
 
-        await tester.tap(find.text('Aces'));
+        await tester.tap(find.text('Ones'));
         await tester.pump();
 
         expect(selected, ScoreCategory.aces);
@@ -277,7 +277,7 @@ void main() {
           ),
         );
 
-        await tester.tap(find.text('Aces'));
+        await tester.tap(find.text('Ones'));
         await tester.pump();
 
         // ScoreSheet always delegates to provider; provider guards blank dice
@@ -295,7 +295,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Aces'));
+      await tester.tap(find.text('Ones'));
       await tester.pump();
 
       expect(tapped, isTrue);

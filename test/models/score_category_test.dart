@@ -31,7 +31,7 @@ void main() {
 
     group('displayName', () {
       test('returns correct display names for all categories', () {
-        expect(ScoreCategory.aces.displayName, 'Aces');
+        expect(ScoreCategory.aces.displayName, 'Ones');
         expect(ScoreCategory.twos.displayName, 'Twos');
         expect(ScoreCategory.threes.displayName, 'Threes');
         expect(ScoreCategory.fours.displayName, 'Fours');

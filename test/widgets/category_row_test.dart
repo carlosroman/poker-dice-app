@@ -18,7 +18,7 @@ void main() {
       );
 
       expect(find.byIcon(Icons.looks_one), findsOneWidget);
-      expect(find.text('Aces'), findsOneWidget);
+      expect(find.text('Ones'), findsOneWidget);
     });
 
     testWidgets('selectable state shows preview score', (tester) async {

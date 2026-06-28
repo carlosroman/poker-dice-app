@@ -6,7 +6,7 @@ class GameResult {
   /// The total final score of the game.
   final int totalScore;
 
-  /// The sum of upper section scores (Aces through Sixes).
+  /// The sum of upper section scores (Ones through Sixes).
   final int upperSectionTotal;
 
   /// Bonus awarded if upper section total is 63 or more.

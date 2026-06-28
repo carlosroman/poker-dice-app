@@ -56,7 +56,7 @@ void main() {
       final state = buildGameState(scoredCategories: {ScoreCategory.aces: 150});
       await tester.pumpWidget(buildGamePage(gameState: state));
 
-      // totalScore = 150 (Aces) + 35 (bonus, upper >= 63) = 185
+      // totalScore = 150 (Ones) + 35 (bonus, upper >= 63) = 185
       expect(find.text('185'), findsOneWidget);
     });
 

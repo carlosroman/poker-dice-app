@@ -3,10 +3,10 @@ import 'package:poker_dice/models/dice.dart';
 
 /// Defines all scoring categories in the poker dice game.
 ///
-/// Categories are split into upper (aces through sixes) and lower
+/// Categories are split into upper (ones through sixes) and lower
 /// (three of a kind through chance) sections.
 enum ScoreCategory {
-  /// Sum of all dice showing 1.
+  /// Sum of all dice showing ones.
   aces,
 
   /// Sum of all dice showing 2.
@@ -48,7 +48,7 @@ enum ScoreCategory {
 
 /// Extension providing display and scoring helpers for [ScoreCategory].
 extension ScoreCategoryX on ScoreCategory {
-  /// Whether this category belongs to the upper section (aces – sixes).
+  /// Whether this category belongs to the upper section (ones – sixes).
   bool get isUpper {
     return this == ScoreCategory.aces ||
         this == ScoreCategory.twos ||
@@ -62,7 +62,7 @@ extension ScoreCategoryX on ScoreCategory {
   String get displayName {
     switch (this) {
       case ScoreCategory.aces:
-        return 'Aces';
+        return 'Ones';
       case ScoreCategory.twos:
         return 'Twos';
       case ScoreCategory.threes:

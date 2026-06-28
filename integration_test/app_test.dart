@@ -42,8 +42,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Dice are blank on start, categories should be disabled
-    // Try to tap "Aces" - it should not select the category
-    await tester.tap(find.text('Aces'));
+    // Try to tap "Ones" - it should not select the category
+    await tester.tap(find.text('Ones'));
     await tester.pumpAndSettle();
 
     // Score button should remain disabled (no category selected)
@@ -376,8 +376,8 @@ void main() {
     }
     expect(hasRolled, isTrue, reason: 'At least one die should have a value');
 
-    // Player 1 scores Aces
-    await tester.tap(find.text('Aces'));
+    // Player 1 scores Ones
+    await tester.tap(find.text('Ones'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Score'));
     await tester.pumpAndSettle();
@@ -399,7 +399,7 @@ void main() {
     expect(find.text('Player 1'), findsOneWidget);
 
     // Verify both players have scores in their respective categories
-    expect(find.text('Aces'), findsOneWidget);
+    expect(find.text('Ones'), findsOneWidget);
     expect(find.text('Twos'), findsOneWidget);
   });
 
@@ -426,18 +426,18 @@ void main() {
     expect(find.text('Player 1'), findsOneWidget);
 
     // Score a few categories for each player to establish game flow
-    // Player 1 rolls and scores Aces
+    // Player 1 rolls and scores Ones
     await tester.tap(find.text('Roll'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Aces'));
+    await tester.tap(find.text('Ones'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Score'));
     await tester.pumpAndSettle();
 
-    // Player 2 rolls and scores Aces
+    // Player 2 rolls and scores Ones
     await tester.tap(find.text('Roll'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Aces'));
+    await tester.tap(find.text('Ones'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Score'));
     await tester.pumpAndSettle();

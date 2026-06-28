@@ -112,8 +112,8 @@ void main() {
         ),
       );
 
-      // Act: tap on Aces category
-      await tester.tap(find.text('Aces'));
+      // Act: tap on Ones category
+      await tester.tap(find.text('Ones'));
       await tester.pumpAndSettle();
 
       // Assert
@@ -140,7 +140,7 @@ void main() {
       );
 
       // Assert: already-scored category should not trigger callback when tapped
-      await tester.tap(find.text('Aces'));
+      await tester.tap(find.text('Ones'));
       await tester.pumpAndSettle();
       expect(selectedCategories, isEmpty);
     });
