@@ -298,6 +298,31 @@ class _GamePageContent extends ConsumerWidget {
     );
   }
 
+  /// Calculates the total score for a given player index.
+  int _getPlayerScore(
+    Map<int, Map<ScoreCategory, int?>> scoredCategories,
+    int playerIndex,
+  ) {
+    final scores = scoredCategories[playerIndex];
+    if (scores == null) return 0;
+    return scores.values.fold(0, (sum, s) => sum + (s ?? 0));
+  }
+
+  /// Returns the winner declaration text for a 2-player game.
+  String _getWinnerText(
+    int playerCount,
+    Map<int, Map<ScoreCategory, int?>> scoredCategories,
+  ) {
+    if (playerCount == 1) return '';
+
+    final p1Total = _getPlayerScore(scoredCategories, 0);
+    final p2Total = _getPlayerScore(scoredCategories, 1);
+
+    if (p1Total > p2Total) return 'Player 1 Wins!';
+    if (p2Total > p1Total) return 'Player 2 Wins!';
+    return "It's a Tie!";
+  }
+
   /// Builds the game completion overlay with total score and new game action.
   Widget _buildCompletionOverlay(
     BuildContext context,
@@ -305,6 +330,59 @@ class _GamePageContent extends ConsumerWidget {
     GameNotifier notifier,
   ) {
     final theme = Theme.of(context);
+    final isTwoPlayer = gameState.playerCount > 1;
+
+    final List<Widget> scoreWidgets;
+    if (isTwoPlayer) {
+      final p1Score = _getPlayerScore(gameState.scoredCategories, 0);
+      final p2Score = _getPlayerScore(gameState.scoredCategories, 1);
+      final winnerText = _getWinnerText(
+        gameState.playerCount,
+        gameState.scoredCategories,
+      );
+
+      scoreWidgets = [
+        const SizedBox(height: 8),
+        Text(
+          'Player 1: $p1Score',
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Player 2: $p2Score',
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          winnerText,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      ];
+    } else {
+      scoreWidgets = [
+        const SizedBox(height: 8),
+        Text(
+          'Final Score',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          '${gameState.totalScore}',
+          style: theme.textTheme.displaySmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      ];
+    }
 
     return Container(
       color: theme.colorScheme.surface.withValues(alpha: 0.85),
@@ -328,20 +406,7 @@ class _GamePageContent extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Final Score',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  '${gameState.totalScore}',
-                  style: theme.textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
+                ...scoreWidgets,
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,

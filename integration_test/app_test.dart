@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:poker_dice/main.dart' as app;
+import 'package:poker_dice/models/game_state.dart';
+import 'package:poker_dice/models/score_category.dart';
+import 'package:poker_dice/pages/game_page.dart';
+import 'package:poker_dice/providers/game_provider.dart';
 import 'package:poker_dice/widgets/animated_dice.dart';
 
 /// End-to-end integration test: dice hold mechanics and Chance scoring flow.
@@ -396,6 +401,77 @@ void main() {
     // Verify both players have scores in their respective categories
     expect(find.text('Aces'), findsOneWidget);
     expect(find.text('Twos'), findsOneWidget);
+  });
+
+  /// End-to-end test: multiplayer game completion shows winner.
+  ///
+  /// Validates:
+  /// - Starting a 2-player game
+  /// - Scoring categories for both players
+  /// - Game completion overlay shows winner declaration
+  /// - Individual player scores are displayed
+  testWidgets('multiplayer game completion shows winner', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Reset GoRouter to title screen
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Start 2-player game
+    await tester.tap(find.text('New Multiplayer Game'));
+    await tester.pumpAndSettle();
+
+    // Verify turn indicator shows Player 1
+    expect(find.text('Player 1'), findsOneWidget);
+
+    // Score a few categories for each player to establish game flow
+    // Player 1 rolls and scores Aces
+    await tester.tap(find.text('Roll'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aces'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Score'));
+    await tester.pumpAndSettle();
+
+    // Player 2 rolls and scores Aces
+    await tester.tap(find.text('Roll'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aces'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Score'));
+    await tester.pumpAndSettle();
+
+    // Manipulate game state to complete all remaining categories
+    // Player 1: all categories = 10 (total: 130)
+    // Player 2: all categories = 5 (total: 65)
+    // Player 1 wins
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(GamePage)),
+      listen: false,
+    );
+    final notifier = container.read(gameProvider.notifier);
+
+    final completedState = GameState(
+      playerCount: 2,
+      scoredCategories: {
+        0: {for (final cat in ScoreCategory.values) cat: 10},
+        1: {for (final cat in ScoreCategory.values) cat: 5},
+      },
+      status: GameStatus.completed,
+    );
+    notifier.state = completedState;
+    await tester.pumpAndSettle();
+
+    // Verify completion overlay is visible
+    expect(find.text('Game Complete!'), findsOneWidget);
+
+    // Verify individual player scores
+    expect(find.text('Player 1: 130'), findsOneWidget);
+    expect(find.text('Player 2: 65'), findsOneWidget);
+
+    // Verify winner declaration
+    expect(find.text('Player 1 Wins!'), findsOneWidget);
   });
 }
 

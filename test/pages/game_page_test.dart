@@ -507,6 +507,132 @@ void main() {
     // Regression: unscored categories remain selectable
     // -----------------------------------------------------------------------
 
+    // -----------------------------------------------------------------------
+    // Two-player completion overlay
+    // -----------------------------------------------------------------------
+
+    GameState buildCompletedTwoPlayerState({
+      required Map<int, Map<ScoreCategory, int?>> scoredCategories,
+    }) {
+      return GameState(
+        scoredCategories: scoredCategories,
+        playerCount: 2,
+        status: GameStatus.completed,
+      );
+    }
+
+    Widget buildTwoPlayerGamePage({GameState? gameState}) {
+      return ProviderScope(
+        overrides: [
+          gameProvider.overrideWith(
+            (ref) => GameNotifier(initialState: gameState ?? GameState()),
+          ),
+        ],
+        child: MaterialApp(
+          theme: ThemeNotifier.lightTheme,
+          darkTheme: ThemeNotifier.darkTheme,
+          home: const GamePage(playerCount: 2),
+        ),
+      );
+    }
+
+    testWidgets(
+      'two-player completion overlay shows individual player scores',
+      (tester) async {
+        // Fill all categories for both players with known values
+        final p1Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 10};
+        final p2Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 5};
+
+        final state = buildCompletedTwoPlayerState(
+          scoredCategories: {0: p1Scores, 1: p2Scores},
+        );
+        await tester.pumpWidget(buildTwoPlayerGamePage(gameState: state));
+
+        expect(find.text('Game Complete!'), findsOneWidget);
+        expect(find.text('Player 1: 130'), findsOneWidget);
+        expect(find.text('Player 2: 65'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'two-player completion overlay shows Player 1 Wins when P1 has higher score',
+      (tester) async {
+        final p1Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 15};
+        final p2Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 5};
+
+        final state = buildCompletedTwoPlayerState(
+          scoredCategories: {0: p1Scores, 1: p2Scores},
+        );
+        await tester.pumpWidget(buildTwoPlayerGamePage(gameState: state));
+
+        expect(find.text('Player 1 Wins!'), findsOneWidget);
+        expect(find.text('Player 2 Wins!'), findsNothing);
+        expect(find.text("It's a Tie!"), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'two-player completion overlay shows Player 2 Wins when P2 has higher score',
+      (tester) async {
+        final p1Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 3};
+        final p2Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 12};
+
+        final state = buildCompletedTwoPlayerState(
+          scoredCategories: {0: p1Scores, 1: p2Scores},
+        );
+        await tester.pumpWidget(buildTwoPlayerGamePage(gameState: state));
+
+        expect(find.text('Player 2 Wins!'), findsOneWidget);
+        expect(find.text('Player 1 Wins!'), findsNothing);
+        expect(find.text("It's a Tie!"), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'two-player completion overlay shows tie when scores are equal',
+      (tester) async {
+        final p1Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 7};
+        final p2Scores =
+            <ScoreCategory, int?>{for (final c in ScoreCategory.values) c: 7};
+
+        final state = buildCompletedTwoPlayerState(
+          scoredCategories: {0: p1Scores, 1: p2Scores},
+        );
+        await tester.pumpWidget(buildTwoPlayerGamePage(gameState: state));
+
+        expect(find.text("It's a Tie!"), findsOneWidget);
+        expect(find.text('Player 1 Wins!'), findsNothing);
+        expect(find.text('Player 2 Wins!'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'one-player completion overlay still shows Final Score',
+      (tester) async {
+        final completedState = buildGameState(
+          status: GameStatus.completed,
+          scoredCategories: {for (final c in ScoreCategory.values) c: 0},
+        );
+        await tester.pumpWidget(buildGamePage(gameState: completedState));
+
+        expect(find.text('Final Score'), findsOneWidget);
+        expect(find.text('Player 1:'), findsNothing);
+        expect(find.text('Player 2:'), findsNothing);
+        expect(find.text('Player 1 Wins!'), findsNothing);
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // Regression: unscored categories remain selectable
+    // -----------------------------------------------------------------------
+
     testWidgets(
       'unscored categories are selectable when some categories are scored',
       (tester) async {
