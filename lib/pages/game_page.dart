@@ -93,7 +93,9 @@ class _GamePageContent extends ConsumerWidget {
         ),
         title: _buildAppBarTitle(
           context,
-          gameState.totalScore,
+          gameState.playerCount > 1
+              ? gameState.currentPlayerScore
+              : gameState.totalScore,
           gameState.playerCount,
           gameState.currentPlayer,
         ),

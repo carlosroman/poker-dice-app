@@ -633,6 +633,115 @@ void main() {
     // Regression: unscored categories remain selectable
     // -----------------------------------------------------------------------
 
+    // -----------------------------------------------------------------------
+    // Two-player app bar score
+    // -----------------------------------------------------------------------
+
+    GameState buildActiveTwoPlayerState({
+      required Map<int, Map<ScoreCategory, int?>> scoredCategories,
+      int currentPlayer = 0,
+    }) {
+      return GameState(
+        scoredCategories: scoredCategories,
+        playerCount: 2,
+        status: GameStatus.active,
+        currentPlayer: currentPlayer,
+      );
+    }
+
+    testWidgets(
+      'two-player mode shows current player score in app bar not total',
+      (tester) async {
+        // Player 1 has scored 100, Player 2 has scored 50
+        // Total would be 150, but app bar should show only P1's score (100)
+        final p1Scores = <ScoreCategory, int?>{
+          ScoreCategory.aces: 100,
+        };
+        final p2Scores = <ScoreCategory, int?>{
+          ScoreCategory.twos: 50,
+        };
+
+        final state = buildActiveTwoPlayerState(
+          scoredCategories: {0: p1Scores, 1: p2Scores},
+          currentPlayer: 0,
+        );
+        await tester.pumpWidget(buildTwoPlayerGamePage(gameState: state));
+
+        // App bar should show Player 1's score (100)
+        expect(
+          find.ancestor(
+            of: find.text('100'),
+            matching: find.byType(AppBar),
+          ),
+          findsOneWidget,
+        );
+        // App bar should NOT show total (150)
+        expect(
+          find.ancestor(
+            of: find.text('150'),
+            matching: find.byType(AppBar),
+          ),
+          findsNothing,
+        );
+        expect(find.text('Player 1'), findsNWidgets(3));
+      },
+    );
+
+    testWidgets(
+      'two-player mode shows Player 2 score when it is Player 2 turn',
+      (tester) async {
+        // Player 1 has scored 100, Player 2 has scored 50
+        // When it's Player 2's turn, app bar should show 50
+        final p1Scores = <ScoreCategory, int?>{
+          ScoreCategory.aces: 100,
+        };
+        final p2Scores = <ScoreCategory, int?>{
+          ScoreCategory.twos: 50,
+        };
+
+        final state = buildActiveTwoPlayerState(
+          scoredCategories: {0: p1Scores, 1: p2Scores},
+          currentPlayer: 1,
+        );
+        await tester.pumpWidget(buildTwoPlayerGamePage(gameState: state));
+
+        // App bar should show Player 2's score (50)
+        expect(
+          find.ancestor(
+            of: find.text('50'),
+            matching: find.byType(AppBar),
+          ),
+          findsOneWidget,
+        );
+        // App bar should NOT show total (150)
+        expect(
+          find.ancestor(
+            of: find.text('150'),
+            matching: find.byType(AppBar),
+          ),
+          findsNothing,
+        );
+        expect(find.text('Player 2'), findsNWidgets(3));
+      },
+    );
+
+    testWidgets(
+      'single player mode still shows total score in app bar',
+      (tester) async {
+        // Regression: single-player must continue showing total score
+        final state = buildGameState(scoredCategories: {ScoreCategory.aces: 150});
+        await tester.pumpWidget(buildGamePage(gameState: state));
+
+        // totalScore = 150 + 35 bonus = 185
+        expect(find.text('185'), findsOneWidget);
+        expect(find.text('You'), findsOneWidget);
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // Regression: unscored categories remain selectable
+    // -----------------------------------------------------------------------
+
     testWidgets(
       'unscored categories are selectable when some categories are scored',
       (tester) async {
