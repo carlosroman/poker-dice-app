@@ -175,9 +175,14 @@ class _GameResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayScore = result.winnerScore;
+    final playerInfo = result.playerCount > 1
+        ? 'Winner Score'
+        : 'Score';
+
     return ListTile(
-      leading: CircleAvatar(child: Text('${result.totalScore}')),
-      title: Text('Score: ${result.totalScore}'),
+      leading: CircleAvatar(child: Text('$displayScore')),
+      title: Text('$playerInfo: $displayScore'),
       subtitle: Text(
         'Upper: ${result.upperSectionTotal} | Bonus: ${result.bonus}',
       ),

@@ -230,6 +230,63 @@ void main() {
       expect(find.text('Upper: 70 | Bonus: 35'), findsOneWidget);
       expect(find.text('15/1/2024'), findsOneWidget);
     });
+
+    testWidgets('shows Score label for single-player games', (tester) async {
+      final results = [
+        GameResult(
+          totalScore: 250,
+          upperSectionTotal: 70,
+          bonus: 35,
+          completedAt: DateTime(2024, 1, 15),
+          playerCount: 1,
+        ),
+      ];
+      await tester.pumpWidget(buildScoreboard(gameResults: results));
+
+      expect(find.text('Score: 250'), findsOneWidget);
+    });
+
+    testWidgets('shows Winner Score label for 2-player games', (tester) async {
+      final results = [
+        GameResult(
+          totalScore: 450,
+          upperSectionTotal: 70,
+          bonus: 35,
+          completedAt: DateTime(2024, 1, 15),
+          playerCount: 2,
+          player1Score: 250,
+          player2Score: 200,
+        ),
+      ];
+      await tester.pumpWidget(buildScoreboard(gameResults: results));
+
+      expect(find.text('Winner Score: 250'), findsOneWidget);
+      // Should NOT show totalScore
+      expect(find.text('Winner Score: 450'), findsNothing);
+    });
+
+    testWidgets('shows winner individual score not total for 2-player games',
+        (tester) async {
+      final results = [
+        GameResult(
+          totalScore: 400,
+          upperSectionTotal: 60,
+          bonus: 35,
+          completedAt: DateTime(2024, 3, 10),
+          playerCount: 2,
+          player1Score: 180,
+          player2Score: 220,
+        ),
+      ];
+      await tester.pumpWidget(buildScoreboard(gameResults: results));
+
+      // Player 2 wins with 220
+      expect(find.text('Winner Score: 220'), findsOneWidget);
+      // Should NOT show totalScore (400)
+      expect(find.text('Winner Score: 400'), findsNothing);
+      // Circle avatar should show winner score
+      expect(find.text('220'), findsOneWidget);
+    });
   });
 
   group('ScoreboardPage with Riverpod', () {
