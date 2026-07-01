@@ -113,6 +113,50 @@ void main() {
       expect(highScore, 300);
     });
 
+    test('getHighScore uses winnerScore for 2-player games', () async {
+      // Single player game with score 200
+      final result1 = GameResult(
+        totalScore: 200,
+        upperSectionTotal: 60,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 1),
+        playerCount: 1,
+        player1Score: 200,
+        player2Score: 0,
+      );
+      // 2-player game: total 500, but winner scored 300
+      final result2 = GameResult(
+        totalScore: 500,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 300,
+        player2Score: 200,
+      );
+      // 2-player game: total 450, winner scored 250
+      final result3 = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 120,
+        bonus: 0,
+        completedAt: DateTime(2024, 2, 1),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      fakePrefs.data['game_history'] = [
+        jsonEncode(result1.toJson()),
+        jsonEncode(result2.toJson()),
+        jsonEncode(result3.toJson()),
+      ];
+
+      final highScore = await storageService.getHighScore();
+
+      // Should return 300 (highest winnerScore), not 500 (highest totalScore)
+      expect(highScore, 300);
+    });
+
     test('getGamesPlayed returns correct count', () async {
       final result1 = GameResult(
         totalScore: 200,

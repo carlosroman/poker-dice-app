@@ -97,14 +97,16 @@ class StorageService implements StorageServiceInterface {
     await _prefs.remove(_gameHistoryKey);
   }
 
-  /// Returns the highest total score from the game history.
+  /// Returns the highest winner score from the game history.
   ///
+  /// For single-player games this is the total score.
+  /// For 2-player games this is the highest individual player score.
   /// Returns `null` if no games have been played.
   @override
   Future<int?> getHighScore() async {
     final results = await loadGameResults();
     if (results.isEmpty) return null;
-    return results.map((r) => r.totalScore).reduce((a, b) => a > b ? a : b);
+    return results.map((r) => r.winnerScore).reduce((a, b) => a > b ? a : b);
   }
 
   /// Returns the number of games played.

@@ -225,6 +225,18 @@ class GameNotifier extends StateNotifier<GameState> {
     if (ref == null) return;
 
     if (gameState.status == GameStatus.completed) {
+      final player1Score =
+          gameState.scoredCategories[0]?.values.fold(
+            0,
+            (a, b) => a + (b ?? 0),
+          ) ??
+          0;
+      final player2Score =
+          gameState.scoredCategories[1]?.values.fold(
+            0,
+            (a, b) => a + (b ?? 0),
+          ) ??
+          0;
       ref!
           .read(scoreboardProvider.notifier)
           .addResult(
@@ -233,6 +245,9 @@ class GameNotifier extends StateNotifier<GameState> {
               upperSectionTotal: gameState.upperSectionTotal,
               bonus: gameState.bonus,
               completedAt: DateTime.now(),
+              playerCount: gameState.playerCount,
+              player1Score: player1Score,
+              player2Score: player2Score,
             ),
           );
       _clearInProgressGame();

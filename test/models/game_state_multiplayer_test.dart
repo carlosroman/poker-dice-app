@@ -12,7 +12,7 @@ import 'package:poker_dice/models/score_category.dart';
 void main() {
   group('GameState - Multiplayer', () {
     // Helper: calculate total score for a player from their scored categories
-    int _playerTotalScore(Map<int, Map<ScoreCategory, int?>> scoredCategories,
+    int playerTotalScore(Map<int, Map<ScoreCategory, int?>> scoredCategories,
         int player) {
       final scores = scoredCategories[player];
       if (scores == null) return 0;
@@ -62,8 +62,8 @@ void main() {
       state = state.recordScore(ScoreCategory.aces, 3);
 
       // Assert
-      expect(_playerTotalScore(state.scoredCategories, 0), 15);
-      expect(_playerTotalScore(state.scoredCategories, 1), 3);
+      expect(playerTotalScore(state.scoredCategories, 0), 15);
+      expect(playerTotalScore(state.scoredCategories, 1), 3);
     });
 
     test('game ends when all players complete all categories', () {
@@ -158,8 +158,8 @@ void main() {
       state = state.recordScore(ScoreCategory.twos, 8);
 
       // Assert
-      final total = _playerTotalScore(state.scoredCategories, 0) +
-          _playerTotalScore(state.scoredCategories, 1);
+      final total = playerTotalScore(state.scoredCategories, 0) +
+          playerTotalScore(state.scoredCategories, 1);
       expect(total, 38);
     });
 

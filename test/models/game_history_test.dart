@@ -300,5 +300,182 @@ void main() {
       expect(string, contains('35'));
       expect(string, contains('playerCount'));
     });
+
+    test('player1Score and player2Score default to 0', () {
+      final result = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+      );
+
+      expect(result.player1Score, 0);
+      expect(result.player2Score, 0);
+    });
+
+    test('player1Score and player2Score can be set explicitly', () {
+      final result = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      expect(result.player1Score, 250);
+      expect(result.player2Score, 200);
+    });
+
+    test('winnerScore returns totalScore for single-player', () {
+      final result = GameResult(
+        totalScore: 250,
+        upperSectionTotal: 70,
+        bonus: 35,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 1,
+        player1Score: 250,
+        player2Score: 0,
+      );
+
+      expect(result.winnerScore, 250);
+    });
+
+    test('winnerScore returns highest player score for 2-player', () {
+      final result = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      expect(result.winnerScore, 250);
+    });
+
+    test('winnerScore returns player2Score when higher', () {
+      final result = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 200,
+        player2Score: 250,
+      );
+
+      expect(result.winnerScore, 250);
+    });
+
+    test('toJson includes player scores', () {
+      final result = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      final json = result.toJson();
+
+      expect(json['player1_score'], 250);
+      expect(json['player2_score'], 200);
+    });
+
+    test('fromJson deserializes player scores', () {
+      final json = {
+        'total_score': 450,
+        'upper_section_total': 140,
+        'bonus': 0,
+        'completed_at': '2024-01-15T00:00:00.000',
+        'player_count': 2,
+        'player1_score': 250,
+        'player2_score': 200,
+      };
+
+      final result = GameResult.fromJson(json);
+
+      expect(result.player1Score, 250);
+      expect(result.player2Score, 200);
+    });
+
+    test('fromJson defaults player scores to 0 when missing', () {
+      final json = {
+        'total_score': 250,
+        'upper_section_total': 70,
+        'bonus': 35,
+        'completed_at': '2024-01-15T00:00:00.000',
+        'player_count': 1,
+      };
+
+      final result = GameResult.fromJson(json);
+
+      expect(result.player1Score, 0);
+      expect(result.player2Score, 0);
+    });
+
+    test('copyWith updates player scores', () {
+      final original = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      final copied = original.copyWith(player1Score: 300);
+
+      expect(copied.player1Score, 300);
+      expect(copied.player2Score, 200);
+      expect(copied.playerCount, 2);
+    });
+
+    test('equality returns false for different player scores', () {
+      final result1 = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      final result2 = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 1, 15),
+        playerCount: 2,
+        player1Score: 200,
+        player2Score: 250,
+      );
+
+      expect(result1, isNot(equals(result2)));
+    });
+
+    test('toJson and fromJson are symmetric with player scores', () {
+      final original = GameResult(
+        totalScore: 450,
+        upperSectionTotal: 140,
+        bonus: 0,
+        completedAt: DateTime(2024, 6, 20),
+        playerCount: 2,
+        player1Score: 250,
+        player2Score: 200,
+      );
+
+      final json = original.toJson();
+      final restored = GameResult.fromJson(json);
+
+      expect(restored, equals(original));
+    });
   });
 }
