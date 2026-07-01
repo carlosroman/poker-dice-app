@@ -18,7 +18,7 @@ void main() {
         expect(state.selectedCategory, isNull);
         expect(state.playerCount, 1);
         expect(state.currentPlayer, 0);
-        expect(state.lastScoredCategory, isNull);
+        expect(state.lastScoredCategoryPerPlayer[0], isNull);
       });
 
       test('creates with custom dice', () {
@@ -147,7 +147,7 @@ void main() {
         final newState = state.recordScore(ScoreCategory.aces, 6);
 
         expect(newState.currentPlayerScoredCategories[ScoreCategory.aces], 6);
-        expect(newState.lastScoredCategory, ScoreCategory.aces);
+        expect(newState.lastScoredCategoryPerPlayer[0], ScoreCategory.aces);
       });
 
       test('throws when category already scored', () {
@@ -352,7 +352,7 @@ void main() {
           rollsRemaining: 2,
           singlePlayerScoredCategories: scored,
           selectedCategory: ScoreCategory.twos,
-          lastScoredCategory: ScoreCategory.aces,
+          lastScoredCategoryPerPlayer: {0: ScoreCategory.aces},
         );
 
         final json = state.toJson();
@@ -362,7 +362,7 @@ void main() {
         expect(restored.rollsRemaining, 2);
         expect(restored.currentPlayerScoredCategories[ScoreCategory.aces], 6);
         expect(restored.selectedCategory, ScoreCategory.twos);
-        expect(restored.lastScoredCategory, ScoreCategory.aces);
+        expect(restored.lastScoredCategoryPerPlayer[0], ScoreCategory.aces);
         expect(restored.status, GameStatus.active);
       });
 
@@ -430,7 +430,7 @@ void main() {
 
         expect(state.playerCount, 2);
         expect(state.currentPlayer, 1);
-        expect(state.lastScoredCategory, ScoreCategory.aces);
+        expect(state.lastScoredCategoryPerPlayer[0], ScoreCategory.aces);
         expect(state.scoredCategories[0]?[ScoreCategory.aces], 6);
         expect(state.scoredCategories[1]?[ScoreCategory.aces], 3);
       });

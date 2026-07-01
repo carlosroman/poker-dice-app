@@ -409,16 +409,16 @@ void main() {
       expect(notifier.playerCount, 2);
     });
 
-    test('lastScoredCategory is null initially', () {
-      expect(notifier.lastScoredCategory, isNull);
+    test('lastScoredCategoryPerPlayer is empty initially', () {
+      expect(notifier.lastScoredCategoryPerPlayer[0], isNull);
     });
 
-    test('lastScoredCategory updates after scoring', () {
+    test('lastScoredCategoryPerPlayer updates after scoring', () {
       notifier.rollDice();
       notifier.selectCategoryForPreview(ScoreCategory.aces);
       notifier.confirmScore();
 
-      expect(notifier.lastScoredCategory, ScoreCategory.aces);
+      expect(notifier.lastScoredCategoryPerPlayer[0], ScoreCategory.aces);
     });
   });
 

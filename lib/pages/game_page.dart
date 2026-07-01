@@ -140,7 +140,8 @@ class _GamePageContent extends ConsumerWidget {
                     playerCount: gameState.playerCount,
                     currentPlayer: gameState.currentPlayer,
                     playerScoredCategories: gameState.scoredCategories,
-                    lastScoredCategory: gameState.lastScoredCategory,
+                    lastScoredCategoryPerPlayer:
+                        gameState.lastScoredCategoryPerPlayer,
                   ),
                 ),
                 // Turn indicator (hidden in single-player)

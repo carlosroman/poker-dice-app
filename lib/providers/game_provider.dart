@@ -138,8 +138,9 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Number of players (1 or 2).
   int get playerCount => state.playerCount;
 
-  /// Last scored category across all players.
-  ScoreCategory? get lastScoredCategory => state.lastScoredCategory;
+  /// Per-player last scored category (for yellow dot indicator).
+  Map<int, ScoreCategory?> get lastScoredCategoryPerPlayer =>
+      state.lastScoredCategoryPerPlayer;
 
   /// Scores the currently selected category and advances the turn.
   ///

@@ -33,8 +33,9 @@ class GameState {
   /// Current player index (0 or 1).
   final int currentPlayer;
 
-  /// Last scored category across all players (for yellow dot indicator).
-  final ScoreCategory? lastScoredCategory;
+  /// Per-player last scored category (for yellow dot indicator).
+  /// Key is player index, value is the last category they scored.
+  final Map<int, ScoreCategory?> lastScoredCategoryPerPlayer;
 
   GameState({
     List<Dice>? currentDice,
@@ -47,7 +48,7 @@ class GameState {
     this.selectedCategory,
     this.playerCount = 1,
     this.currentPlayer = 0,
-    this.lastScoredCategory,
+    Map<int, ScoreCategory?>? lastScoredCategoryPerPlayer,
   }) : assert(
          playerCount >= 1 && playerCount <= 2,
          'playerCount must be 1 or 2, got $playerCount.',
@@ -57,11 +58,15 @@ class GameState {
          'currentPlayer ($currentPlayer) must be in range [0, $playerCount).',
        ),
        currentDice = currentDice ?? List.generate(5, (_) => Dice(value: 0)),
-       scoredCategories = _resolveScoredCategories(
-         scoredCategories,
-         singlePlayerScoredCategories,
-         playerCount,
-       ) {
+        scoredCategories = _resolveScoredCategories(
+          scoredCategories,
+          singlePlayerScoredCategories,
+          playerCount,
+        ),
+        lastScoredCategoryPerPlayer = _resolveLastScoredCategoryPerPlayer(
+          lastScoredCategoryPerPlayer,
+          playerCount,
+        ) {
     if (this.currentDice.length != 5) {
       throw ArgumentError(
         'Exactly 5 dice are required, got ${this.currentDice.length}.',
@@ -82,6 +87,14 @@ class GameState {
       for (int i = 0; i < playerCount; i++)
         i: {for (final category in ScoreCategory.values) category: null},
     };
+  }
+
+  static Map<int, ScoreCategory?> _resolveLastScoredCategoryPerPlayer(
+    Map<int, ScoreCategory?>? lastScoredCategoryPerPlayer,
+    int playerCount,
+  ) {
+    if (lastScoredCategoryPerPlayer != null) return lastScoredCategoryPerPlayer;
+    return {for (int i = 0; i < playerCount; i++) i: null};
   }
 
   /// Creates a fresh initial game state.
@@ -227,10 +240,15 @@ class GameState {
 
     final newStatus = allComplete ? GameStatus.completed : status;
 
+    // Set last scored category only for the current player
+    final updatedLastScored =
+        Map<int, ScoreCategory?>.from(lastScoredCategoryPerPlayer);
+    updatedLastScored[currentPlayer] = category;
+
     return copyWith(
       scoredCategories: updated,
       status: newStatus,
-      lastScoredCategory: category,
+      lastScoredCategoryPerPlayer: updatedLastScored,
     );
   }
 
@@ -263,7 +281,7 @@ class GameState {
     bool clearSelectedCategory = false,
     int? playerCount,
     int? currentPlayer,
-    ScoreCategory? lastScoredCategory,
+    Map<int, ScoreCategory?>? lastScoredCategoryPerPlayer,
   }) {
     return GameState(
       currentDice: currentDice ?? this.currentDice,
@@ -275,7 +293,8 @@ class GameState {
           : (selectedCategory ?? this.selectedCategory),
       playerCount: playerCount ?? this.playerCount,
       currentPlayer: currentPlayer ?? this.currentPlayer,
-      lastScoredCategory: lastScoredCategory ?? this.lastScoredCategory,
+      lastScoredCategoryPerPlayer:
+          lastScoredCategoryPerPlayer ?? this.lastScoredCategoryPerPlayer,
     );
   }
 
@@ -284,7 +303,9 @@ class GameState {
     return {
       'player_count': playerCount,
       'current_player': currentPlayer,
-      'last_scored_category_index': lastScoredCategory?.index,
+      'last_scored_category_per_player': lastScoredCategoryPerPlayer.entries
+          .map((e) => {'player_index': e.key, 'category_index': e.value?.index})
+          .toList(),
       'current_dice': currentDice.map((d) => d.toJson()).toList(),
       'rolls_remaining': rollsRemaining,
       'scored_categories': scoredCategories.entries
@@ -344,14 +365,37 @@ class GameState {
       scoredCategories: parsedScoredCategories,
       playerCount: json['player_count'] as int? ?? 1,
       currentPlayer: json['current_player'] as int? ?? 0,
-      lastScoredCategory: json['last_scored_category_index'] != null
-          ? ScoreCategory.values[json['last_scored_category_index'] as int]
-          : null,
+      lastScoredCategoryPerPlayer:
+          _parseLastScoredCategoryPerPlayer(json),
       status: GameStatus.values[json['status_index'] as int? ?? 0],
       selectedCategory: json['selected_category_index'] != null
           ? ScoreCategory.values[json['selected_category_index'] as int]
           : null,
     );
+  }
+
+  static Map<int, ScoreCategory?> _parseLastScoredCategoryPerPlayer(
+    Map<String, dynamic> json,
+  ) {
+    // New format: per-player list
+    final perPlayerData = json['last_scored_category_per_player'] as List<dynamic>?;
+    if (perPlayerData != null && perPlayerData.isNotEmpty) {
+      return <int, ScoreCategory?>{
+        for (final entry in perPlayerData.cast<Map<String, dynamic>>())
+          entry['player_index'] as int: entry['category_index'] != null
+              ? ScoreCategory.values[entry['category_index'] as int]
+              : null,
+      };
+    }
+
+    // Old format: single index (backward compatibility)
+    if (json['last_scored_category_index'] != null) {
+      return {
+        0: ScoreCategory.values[json['last_scored_category_index'] as int],
+      };
+    }
+
+    return {};
   }
 
   @override

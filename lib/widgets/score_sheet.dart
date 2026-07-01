@@ -40,8 +40,8 @@ class ScoreSheet extends StatelessWidget {
   /// Key is player index (0 or 1), value is category → score map.
   final Map<int, Map<ScoreCategory, int?>>? playerScoredCategories;
 
-  /// The category most recently scored (across both players).
-  final ScoreCategory? lastScoredCategory;
+  /// Per-player last scored category (for yellow dot indicator).
+  final Map<int, ScoreCategory?> lastScoredCategoryPerPlayer;
 
   const ScoreSheet({
     super.key,
@@ -54,7 +54,7 @@ class ScoreSheet extends StatelessWidget {
     this.playerCount = 1,
     this.currentPlayer = 0,
     this.playerScoredCategories,
-    this.lastScoredCategory,
+    this.lastScoredCategoryPerPlayer = const {},
   });
 
   /// Returns the row state for a given [category].
@@ -321,6 +321,7 @@ class ScoreSheet extends StatelessWidget {
     int playerIndex = 0,
   ]) {
     final isUpper = categories.isNotEmpty && categories.first.isUpper;
+    final playerLastScored = lastScoredCategoryPerPlayer[playerIndex];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -341,7 +342,7 @@ class ScoreSheet extends StatelessWidget {
               onTap: _rowState(category) == CategoryRowState.selectable
                   ? () => onCategorySelect(category)
                   : null,
-              isLastScored: category == lastScoredCategory,
+              isLastScored: category == playerLastScored,
             );
           }
 
@@ -353,7 +354,7 @@ class ScoreSheet extends StatelessWidget {
                 ? CategoryRowState.scored
                 : CategoryRowState.disabled,
             finalScore: score ?? 0,
-            isLastScored: category == lastScoredCategory,
+            isLastScored: category == playerLastScored,
           );
         }),
         if (isUpper) ...[const SizedBox(height: 4), _buildBonusRow(context)],
