@@ -414,7 +414,7 @@ class _GamePageContent extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: notifier.resetGame,
+                    onPressed: () => notifier.resetGame(playerCount: gameState.playerCount),
                     icon: const Icon(Icons.refresh),
                     label: const Text('New Game'),
                     style: ElevatedButton.styleFrom(
