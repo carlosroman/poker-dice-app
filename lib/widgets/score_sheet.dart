@@ -115,7 +115,6 @@ class ScoreSheet extends StatelessWidget {
           child: Column(
             children: [
               _buildSection(context, 'Minor', upperCategories),
-              const SizedBox(height: 8),
               _buildSection(context, 'Major', lowerCategories),
             ],
           ),
@@ -288,7 +287,6 @@ class ScoreSheet extends StatelessWidget {
                   isCurrent,
                   playerIndex,
                 ),
-                const Divider(height: 1),
                 _buildReadOnlySection(
                   context,
                   'Major',
