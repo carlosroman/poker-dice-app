@@ -474,6 +474,115 @@ void main() {
     // Verify winner declaration
     expect(find.text('Player 1 Wins!'), findsOneWidget);
   });
+
+  testWidgets('single-player no divider between Minor and Major sections', (
+    tester,
+  ) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Reset GoRouter to title screen
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Start new single player game
+    await tester.tap(find.text('New Single Game'));
+    await tester.pumpAndSettle();
+
+    // Find section headers
+    final minorFinder = find.text('Minor');
+    final majorFinder = find.text('Major');
+
+    expect(minorFinder, findsOneWidget);
+    expect(majorFinder, findsOneWidget);
+
+    // Check that the gap between sections is small (no divider)
+    final minorRect = tester.getRect(minorFinder);
+    final majorRect = tester.getRect(majorFinder);
+    final gap = majorRect.top - minorRect.bottom;
+
+    // Gap should be small (< 20 pixels), indicating no divider bar
+    expect(gap, lessThan(20));
+  });
+
+  testWidgets(
+    'single-player score column width constant on category selection',
+    (tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+
+      // Reset GoRouter to title screen
+      app.router.go('/');
+      await tester.pumpAndSettle();
+
+      // Start new single player game
+      await tester.tap(find.text('New Single Game'));
+      await tester.pumpAndSettle();
+
+      // Find the aces category row
+      final acesRowFinder = find.byKey(const ValueKey('aces'));
+      expect(acesRowFinder, findsOneWidget);
+
+      // Get initial width
+      final initialWidth = tester.getRect(acesRowFinder).width;
+
+      // Roll dice to make category selectable
+      await tester.tap(find.text('Roll'));
+      await tester.pumpAndSettle();
+
+      // Tap the aces row to select it
+      await tester.tap(acesRowFinder);
+      await tester.pumpAndSettle();
+
+      // Get new width
+      final newWidth = tester.getRect(acesRowFinder).width;
+
+      // Width should remain constant (tolerance 2.0)
+      expect(newWidth - initialWidth, lessThan(2.0));
+    },
+  );
+
+  testWidgets('multiplayer no divider and constant column width', (
+    tester,
+  ) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Reset GoRouter to title screen
+    app.router.go('/');
+    await tester.pumpAndSettle();
+
+    // Start new double game
+    await tester.tap(find.text('New Double Game'));
+    await tester.pumpAndSettle();
+
+    // Find player 0 aces row in Minor section
+    final acesRowFinder = find.byKey(const ValueKey('p0_aces_Minor'));
+    expect(acesRowFinder, findsOneWidget);
+
+    // Get initial width
+    final initialWidth = tester.getRect(acesRowFinder).width;
+
+    // Roll dice to make category selectable
+    await tester.tap(find.text('Roll'));
+    await tester.pumpAndSettle();
+
+    // Tap the aces row to select it
+    await tester.tap(acesRowFinder);
+    await tester.pumpAndSettle();
+
+    // Get new width
+    final newWidth = tester.getRect(acesRowFinder).width;
+
+    // Width should remain constant (tolerance 2.0)
+    expect(newWidth - initialWidth, lessThan(2.0));
+
+    // Verify no Divider widget exists between Minor and Major sections
+    // (only Divider widgets within section headers should exist)
+    final dividerCount = find.byType(Divider).evaluate().length;
+    // Each section header has 1 Divider; with 2 players x 2 sections = 4 expected
+    expect(dividerCount, equals(4));
+  });
 }
 
 /// Extracts the numeric die value from a semantics label like
