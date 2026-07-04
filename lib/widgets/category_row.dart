@@ -164,52 +164,76 @@ class CategoryRow extends StatelessWidget {
       case CategoryRowState.selectable:
         final score = previewScore;
         if (score == null) {
-          return Text(
-            '-',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          return SizedBox(
+            width: 40,
+            child: Text(
+              '-',
+              textAlign: TextAlign.end,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           );
         }
-        return Text(
-          score.toString(),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.w600,
+        return SizedBox(
+          width: 40,
+          child: Text(
+            score.toString(),
+            textAlign: TextAlign.end,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         );
       case CategoryRowState.selected:
         final score = previewScore;
         if (score == null) {
-          return Text(
-            '-',
+          return SizedBox(
+            width: 40,
+            child: Text(
+              '-',
+              textAlign: TextAlign.end,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }
+        return SizedBox(
+          width: 40,
+          child: Text(
+            score.toString(),
+            textAlign: TextAlign.end,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
-          );
-        }
-        return Text(
-          score.toString(),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.w600,
           ),
         );
       case CategoryRowState.scored:
         final score = finalScore ?? 0;
-        return Text(
-          score.toString(),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+        return SizedBox(
+          width: 40,
+          child: Text(
+            score.toString(),
+            textAlign: TextAlign.end,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         );
       case CategoryRowState.disabled:
-        return Text(
-          '-',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.38),
+        return SizedBox(
+          width: 40,
+          child: Text(
+            '-',
+            textAlign: TextAlign.end,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.38),
+            ),
           ),
         );
     }
