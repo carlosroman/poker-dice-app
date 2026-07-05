@@ -356,7 +356,6 @@ class ScoreSheet extends StatelessWidget {
           );
         }),
         if (isUpper) ...[
-          const SizedBox(height: 4),
           _buildBonusRow(context),
         ],
       ],
@@ -394,7 +393,6 @@ class ScoreSheet extends StatelessWidget {
           ),
         ),
         if (isUpper) ...[
-          const SizedBox(height: 4),
           _buildBonusRow(context),
         ],
       ],
@@ -429,45 +427,48 @@ class ScoreSheet extends StatelessWidget {
   }
 
   /// Builds the bonus row showing progress toward 63 and the +35 indicator.
+  /// Matches [CategoryRow] height and spacing for visual alignment.
   Widget _buildBonusRow(BuildContext context) {
     final theme = Theme.of(context);
     final hasBonus = upperTotal >= 63;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 3.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: hasBonus
             ? theme.colorScheme.primaryContainer.withValues(alpha: 0.3)
             : null,
         borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: Colors.transparent, width: 1.5),
       ),
       child: Row(
         children: [
           Icon(
             Icons.star,
-            size: 14,
             color: hasBonus
                 ? theme.colorScheme.primary
                 : theme.colorScheme.outline,
           ),
-          const SizedBox(width: 3),
-          Text(
-            'Bonus',
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Bonus',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           Text(
             '$upperTotal/63',
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.outline,
             ),
           ),
           const SizedBox(width: 4),
           Text(
             hasBonus ? '+35' : '+0',
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: hasBonus
                   ? theme.colorScheme.primary
