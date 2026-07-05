@@ -226,7 +226,7 @@ class ScoreSheet extends StatelessWidget {
       children: [
         // Player header
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
           decoration: BoxDecoration(
             color: isCurrent
                 ? colors.primaryContainer.withValues(alpha: 0.5)
@@ -404,7 +404,7 @@ class ScoreSheet extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -445,6 +445,7 @@ class ScoreSheet extends StatelessWidget {
         children: [
           Icon(
             Icons.star,
+            size: 12,
             color: hasBonus
                 ? theme.colorScheme.primary
                 : theme.colorScheme.outline,

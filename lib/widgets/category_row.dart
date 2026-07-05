@@ -65,11 +65,11 @@ class CategoryRow extends StatelessWidget {
       onTap: isEnabled ? onTap : null,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: _buildDecoration(theme),
         child: Row(
           children: [
-            Icon(category.icon, color: _iconColor(theme)),
+            Icon(category.icon, size: 20, color: _iconColor(theme)),
             const SizedBox(width: 8),
             Expanded(
               child: Row(
