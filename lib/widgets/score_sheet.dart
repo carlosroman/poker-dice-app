@@ -355,9 +355,21 @@ class ScoreSheet extends StatelessWidget {
             isLastScored: category == playerLastScored,
           );
         }),
-        if (isUpper) ...[const SizedBox(height: 4), _buildBonusRow(context)],
+        if (isUpper) ...[
+          const SizedBox(height: 4),
+          _buildBonusRow(context),
+        ] else ...[
+          // Placeholder to match bonus row height for header alignment
+          const SizedBox(height: 4),
+          _buildPlaceholderBonusRow(),
+        ],
       ],
     );
+  }
+
+  /// Builds a placeholder bonus row for alignment in non-upper sections.
+  Widget _buildPlaceholderBonusRow() {
+    return const SizedBox(height: 25);
   }
 
   /// Calculates total score from a player's scores map.
@@ -390,7 +402,14 @@ class ScoreSheet extends StatelessWidget {
                 : null,
           ),
         ),
-        if (isUpper) ...[const SizedBox(height: 4), _buildBonusRow(context)],
+        if (isUpper) ...[
+          const SizedBox(height: 4),
+          _buildBonusRow(context),
+        ] else ...[
+          // Placeholder to match bonus row height for header alignment
+          const SizedBox(height: 4),
+          _buildPlaceholderBonusRow(),
+        ],
       ],
     );
   }
