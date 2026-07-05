@@ -367,9 +367,10 @@ class ScoreSheet extends StatelessWidget {
     );
   }
 
-  /// Builds a placeholder bonus row for alignment in non-upper sections.
+  /// Builds a placeholder row for alignment in non-upper sections.
+  /// Accounts for 2 missing categories (~96px) + bonus row (~25px) = ~120px.
   Widget _buildPlaceholderBonusRow() {
-    return const SizedBox(height: 25);
+    return const SizedBox(height: 120);
   }
 
   /// Calculates total score from a player's scores map.
