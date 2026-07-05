@@ -22,3 +22,19 @@ run/web :
 .PHONY : run
 run :
 	@(flutter run)
+
+.PHONY : clean
+clean :
+	@(flutter clean)
+
+.PHONY : build
+build : build/android
+build : build/web
+
+.PHONY : build/android
+build/android :
+	@(flutter build appbundle)
+
+.PHONY : build/web
+build/web :
+	@(flutter build web)
