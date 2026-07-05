@@ -116,11 +116,18 @@ class CategoryRow extends StatelessWidget {
             alpha: 0.3,
           ),
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.transparent, width: 1.5),
         );
       case CategoryRowState.disabled:
-        return null;
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.transparent, width: 1.5),
+        );
       case CategoryRowState.selectable:
-        return BoxDecoration(borderRadius: BorderRadius.circular(8));
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.transparent, width: 1.5),
+        );
     }
   }
 
@@ -139,6 +146,7 @@ class CategoryRow extends StatelessWidget {
 
   TextStyle _textStyle(ThemeData theme) {
     final baseStyle = theme.textTheme.bodyMedium;
+    // Use FontWeight.w600 consistently to prevent layout shift
     switch (state) {
       case CategoryRowState.selected:
         return baseStyle?.copyWith(
@@ -147,15 +155,20 @@ class CategoryRow extends StatelessWidget {
             ) ??
             const TextStyle();
       case CategoryRowState.scored:
-        return baseStyle?.copyWith(color: theme.colorScheme.onSurface) ??
+        return baseStyle?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
+            ) ??
             const TextStyle();
       case CategoryRowState.disabled:
         return baseStyle?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.38),
+              fontWeight: FontWeight.w600,
             ) ??
             const TextStyle();
       case CategoryRowState.selectable:
-        return baseStyle ?? const TextStyle();
+        return baseStyle?.copyWith(fontWeight: FontWeight.w600) ??
+            const TextStyle();
     }
   }
 
