@@ -145,6 +145,47 @@ void main() {
       expect(selectedCategories, isEmpty);
     });
 
+    testWidgets(
+      'each player shows own bonus progress independently',
+      (tester) async {
+        // Arrange: Player 1 has upper total 40, Player 2 has upper total 0
+        final playerScoredCategories = <int, Map<ScoreCategory, int?>>{
+          0: {
+            ScoreCategory.aces: 5,
+            ScoreCategory.twos: 4,
+            ScoreCategory.threes: 9,
+            ScoreCategory.fours: 8,
+            ScoreCategory.fives: 10,
+            ScoreCategory.sixes: 4,
+          },
+          1: {},
+        };
+
+        // Act
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SizedBox(
+              width: 400,
+              height: 600,
+              child: Material(
+                child: ScoreSheet(
+                  dice: dice,
+                  scoredCategories: scoredCategories,
+                  onCategorySelect: (category) {},
+                  playerCount: 2,
+                  playerScoredCategories: playerScoredCategories,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        // Assert: Player 1 shows "40/63", Player 2 shows "0/63"
+        expect(find.text('40/63'), findsOneWidget);
+        expect(find.text('0/63'), findsOneWidget);
+      },
+    );
+
     testWidgets('shows potential scores based on dice', (tester) async {
       // Arrange
       dice = [

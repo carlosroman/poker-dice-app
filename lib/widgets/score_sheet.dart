@@ -356,7 +356,7 @@ class ScoreSheet extends StatelessWidget {
           );
         }),
         if (isUpper) ...[
-          _buildBonusRow(context),
+          _buildBonusRow(context, upperTotal, bonus),
         ],
       ],
     );
@@ -393,7 +393,7 @@ class ScoreSheet extends StatelessWidget {
           ),
         ),
         if (isUpper) ...[
-          _buildBonusRow(context),
+          _buildBonusRow(context, upperTotal, bonus),
         ],
       ],
     );
@@ -428,9 +428,13 @@ class ScoreSheet extends StatelessWidget {
 
   /// Builds the bonus row showing progress toward 63 and the +35 indicator.
   /// Matches [CategoryRow] height and spacing for visual alignment.
-  Widget _buildBonusRow(BuildContext context) {
+  Widget _buildBonusRow(
+    BuildContext context,
+    int playerUpperTotal,
+    int playerBonus,
+  ) {
     final theme = Theme.of(context);
-    final hasBonus = upperTotal >= 63;
+    final hasBonus = playerUpperTotal >= 63;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -461,7 +465,7 @@ class ScoreSheet extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            '$upperTotal/63',
+            '$playerUpperTotal/63',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.outline,
             ),
