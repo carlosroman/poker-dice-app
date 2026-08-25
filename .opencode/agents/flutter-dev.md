@@ -18,8 +18,6 @@ permission:
   task: deny
   todowrite: allow
   write: allow
-enable_thinking: false
-model: "llamacpp/qwen3-27b-MTP-coder"
 ---
 
 Implement the provided Flutter/Dart requirements exactly as specified.

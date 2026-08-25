@@ -15,10 +15,16 @@ permission:
   write: deny
   bash:
     "*": deny
+    "fluter drive *": allow
     "git *": allow
     "grep *": allow
+    "make *": allow
+    "make */**": allow
     "rtk git *": allow
     "rtk grep *": allow
+    "rtk make *": allow
+    "rtk make */*": allow
+    "rtk make */**": allow
 ---
 
 ## Available Subagents
